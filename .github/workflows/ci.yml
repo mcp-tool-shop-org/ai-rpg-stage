@@ -41,12 +41,51 @@ env:
   # are both version-bound; "whatever is latest" is how a green suite starts
   # testing a different engine than the one the work was proven on.
   GODOT_VERSION: '4.7-stable'
+  # The wire tests drive the REAL simulation, so CI checks the engine out and builds
+  # it. A mock would prove the stage agrees with a mock.
+  #
+  # ⚠ Pinned to a BRANCH while the socket transport is unmerged: `--listen` exists on
+  # `feat/c4-socket-attach` and not on `main`. This becomes `main` when that PR
+  # merges, and until then the ref is stated here rather than hidden in a default so
+  # nobody has to wonder which engine the suite ran against.
+  ENGINE_REPO: 'mcp-tool-shop-org/ai-rpg-engine'
+  ENGINE_REF: 'feat/c4-socket-attach'
 
 jobs:
   headless:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          path: stage
+
+      # A SIBLING checkout, because that is exactly how the harness resolves the
+      # engine locally (`AI_RPG_ENGINE_DIR`, else `../ai-rpg-engine`). CI and a
+      # developer's machine therefore exercise the same resolution path — the
+      # alternative is a CI-only layout that works until someone runs it by hand.
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.ENGINE_REPO }}
+          ref: ${{ env.ENGINE_REF }}
+          path: ai-rpg-engine
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build the engine CLI
+        working-directory: ai-rpg-engine
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          # The harness looks for exactly this file and fails loudly without it. Asserted
+          # here so a build that silently produced nothing fails at the build step
+          # rather than as a confusing connection timeout later.
+          test -f packages/cli/dist/bin.js || { echo "::error::engine CLI did not build"; exit 1; }
+          # And that the transport the stage needs actually exists in this ref.
+          node packages/cli/dist/bin.js sidecar --help 2>&1 | grep -q -- '--listen' \
+            || { echo "::error::this engine ref has no --listen transport"; exit 1; }
 
       - name: Cache Godot
         id: godot-cache
@@ -67,31 +106,49 @@ jobs:
           mv ~/godot/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot/godot
           chmod +x ~/godot/godot
 
-      - name: Report engine version
+      - name: Report Godot version
         run: |
           set -euo pipefail
           ~/godot/godot --version
-          # The engine that runs the suite must be the engine the suite was pinned
-          # to. A cache key can hit on a stale entry; this is the check that the
-          # binary is what the key claims.
+          # The Godot that runs the suite must be the one the suite was pinned to. A
+          # cache key can hit on a stale entry; this is the check that the binary is
+          # what the key claims.
           ~/godot/godot --version | grep -q "^4\.7\." \
-            || { echo "::error::engine is not 4.7.x"; exit 1; }
+            || { echo "::error::Godot is not 4.7.x"; exit 1; }
 
       # Import populates the .godot/ cache — texture imports and the global class
       # cache. Without it, the first real run does the work AND reports the noise
       # as scene-load failures.
       - name: Import project
+        working-directory: stage
         run: ~/godot/godot --headless --path . --import
 
       - name: Headless suite
+        working-directory: stage
         run: |
           set -euo pipefail
+          # AI_RPG_ENGINE_DIR is deliberately NOT set: the harness falls back to a
+          # sibling `../ai-rpg-engine`, which is the layout above, so CI exercises the
+          # same resolution a developer does instead of a CI-only shortcut.
           ~/godot/godot --headless --path . --script res://tools/headless.gd 2>&1 | tee /tmp/suite.log
           # The runner's own exit code is authoritative, but `tee` hides it behind
           # the pipe, so the verdict line is checked directly. Belt and braces on
           # purpose: a suite whose failure cannot reach the CI status is not a gate.
           grep -q '^verdict=PASS' /tmp/suite.log \
             || { echo "::error::headless suite reported failure"; exit 1; }
+
+      - name: Every expected suite actually ran
+        run: |
+          set -euo pipefail
+          # The runner discovers `tests/test_*.gd` by glob, so a file that is renamed,
+          # deleted, or moved simply stops being found and the suite passes with fewer
+          # checks and no complaint. This is the manifest that makes a disappearance a
+          # failure. Adding a suite here is deliberate; that is the point.
+          for suite in framing scene_join tick_queue wire_session; do
+            grep -q "^── ${suite} ──$" /tmp/suite.log \
+              || { echo "::error::suite '${suite}' did not run"; exit 1; }
+          done
+          echo "all four suites ran"
 
       - name: Refuse resource-load noise
         run: |

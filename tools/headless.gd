@@ -18,6 +18,13 @@ var _failures: Array[String] = []
 
 
 func _initialize() -> void:
+	# `_initialize` is itself a coroutine now (it awaits async suites), so the run is
+	# driven from here and `quit()` happens at its real end rather than at the first
+	# await point.
+	_main()
+
+
+func _main() -> void:
 	var only := _arg("only")
 
 	print("=== AI RPG STAGE — HEADLESS ===")
@@ -35,7 +42,7 @@ func _initialize() -> void:
 		var name := path.get_file().trim_prefix("test_").trim_suffix(".gd")
 		if not only.is_empty() and name != only:
 			continue
-		_run_one(path, name)
+		await _run_one(path, name)
 		ran += 1
 
 	# A filter that selected nothing is a typo, and reporting PASS for it would be
@@ -66,12 +73,22 @@ func _run_one(path: String, name: String) -> void:
 		return
 
 	var suite: Variant = (script as GDScript).new()
-	if not suite.has_method("run"):
-		_fail(name, "%s has no run(t) method" % path)
-		return
 
 	var t: RefCounted = TestCase.new()
-	suite.call("run", t)
+
+	# Two entry points, and the distinction is not cosmetic. A suite that awaits — a
+	# live socket, a spawned process, a tween — must be AWAITED, or the call returns
+	# at its first await point and the runner prints a verdict over a test that has
+	# not finished. Naming the async form explicitly means `await` is only ever
+	# applied to a real coroutine, so there is no guessing and no warning-noise from
+	# awaiting something that was never asynchronous.
+	if suite.has_method("run_async"):
+		await suite.run_async(t)
+	elif suite.has_method("run"):
+		suite.call("run", t)
+	else:
+		_fail(name, "%s has neither run(t) nor run_async(t)" % path)
+		return
 
 	var checks: int = t.get("checks_run")
 	var passes: Array = t.get("passes")
