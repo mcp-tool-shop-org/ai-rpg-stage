@@ -1,0 +1,28 @@
+# Godot text formats are LF in the repository, on every platform.
+#
+# This is not cosmetic. The fixtures under `fixtures/` are GENERATED on Windows by
+# world-forge and READ by Godot in Linux CI; a CRLF round-trip makes a
+# byte-comparison of generated output fail for a reason that has nothing to do
+# with the thing being tested. The studio has paid for this lesson once already
+# (see the Biome CRLF local-lint note in the workspace rules).
+
+*.gd      text eol=lf
+*.tscn    text eol=lf
+*.tres    text eol=lf
+*.godot   text eol=lf
+*.json    text eol=lf
+*.yml     text eol=lf
+*.md      text eol=lf
+
+# Godot 4.4+ writes a `.uid` beside every script and a `.import` beside every
+# imported asset. Both are checked in — they are what keeps a scene's reference to
+# a script stable across machines — so both are pinned to LF like everything else.
+*.uid     text eol=lf
+*.import  text eol=lf
+LICENSE   text eol=lf
+
+# Binary — never touched by eol conversion.
+*.png     binary
+*.webp    binary
+*.ogg     binary
+*.wav     binary

@@ -1,0 +1,114 @@
+name: ci
+
+# Paths-gated: this repo is a Godot project and a workflow run costs real minutes.
+# `.github/workflows/**` is included so a change to this file is tested by itself.
+on:
+  push:
+    paths:
+      - 'project.godot'
+      - 'client/**'
+      - 'stage/**'
+      - 'tools/**'
+      - 'tests/**'
+      - 'fixtures/**'
+      - 'entities/**'
+      - 'transitions/**'
+      - 'assets/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - 'project.godot'
+      - 'client/**'
+      - 'stage/**'
+      - 'tools/**'
+      - 'tests/**'
+      - 'fixtures/**'
+      - 'entities/**'
+      - 'transitions/**'
+      - 'assets/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Pinned, not floating. The stage's scene format and the studio's export lane
+  # are both version-bound; "whatever is latest" is how a green suite starts
+  # testing a different engine than the one the work was proven on.
+  GODOT_VERSION: '4.7-stable'
+
+jobs:
+  headless:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cache Godot
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Install Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot
+          ZIP="Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${ZIP}"
+          unzip -q /tmp/godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot/godot
+          chmod +x ~/godot/godot
+
+      - name: Report engine version
+        run: |
+          set -euo pipefail
+          ~/godot/godot --version
+          # The engine that runs the suite must be the engine the suite was pinned
+          # to. A cache key can hit on a stale entry; this is the check that the
+          # binary is what the key claims.
+          ~/godot/godot --version | grep -q "^4\.7\." \
+            || { echo "::error::engine is not 4.7.x"; exit 1; }
+
+      # Import populates the .godot/ cache — texture imports and the global class
+      # cache. Without it, the first real run does the work AND reports the noise
+      # as scene-load failures.
+      - name: Import project
+        run: ~/godot/godot --headless --path . --import
+
+      - name: Headless suite
+        run: |
+          set -euo pipefail
+          ~/godot/godot --headless --path . --script res://tools/headless.gd 2>&1 | tee /tmp/suite.log
+          # The runner's own exit code is authoritative, but `tee` hides it behind
+          # the pipe, so the verdict line is checked directly. Belt and braces on
+          # purpose: a suite whose failure cannot reach the CI status is not a gate.
+          grep -q '^verdict=PASS' /tmp/suite.log \
+            || { echo "::error::headless suite reported failure"; exit 1; }
+
+      - name: Refuse resource-load noise
+        run: |
+          set -euo pipefail
+          # A scene that half-loads still instantiates, and a join test will
+          # happily reconcile the surviving half. Godot reports the damage on
+          # stderr rather than through an exit code, so it is asserted here.
+          if grep -Eq 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true' /tmp/suite.log; then
+            echo "::error::engine reported load errors during the suite"
+            grep -En 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true' /tmp/suite.log
+            exit 1
+          fi
+
+      - name: Upload suite log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: headless-suite-log
+          path: /tmp/suite.log
+          retention-days: 7

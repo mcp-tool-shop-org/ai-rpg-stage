@@ -1,0 +1,83 @@
+{
+  "generatedBy": "world-forge/dogfood/export-stage-fixture.ts",
+  "world": {
+    "id": "c0-vocabulary-coverage",
+    "name": "C0 Vocabulary Coverage",
+    "version": "1.0.0"
+  },
+  "packFormat": null,
+  "gatesAreInformational": true,
+  "zoneIds": [
+    "zone-sky-gantry",
+    "zone-surface-yard",
+    "zone-under-vault"
+  ],
+  "zones": [
+    {
+      "id": "zone-sky-gantry",
+      "neighbors": [
+        "zone-under-vault"
+      ],
+      "light": 7,
+      "noise": 6,
+      "districtId": "district-upper-works",
+      "elevation": 42,
+      "entryGate": {
+        "conditions": [
+          "party-level:>=10",
+          "party-size:>=3"
+        ],
+        "mode": "hard",
+        "reason": "The gantry will not hold a green party."
+      }
+    },
+    {
+      "id": "zone-surface-yard",
+      "neighbors": [
+        "zone-under-vault"
+      ],
+      "light": 9,
+      "noise": 4,
+      "districtId": "district-harbourside",
+      "elevation": 0,
+      "entryGate": {
+        "conditions": [
+          "party-size:>=3",
+          "flag:bridge-repaired"
+        ],
+        "mode": "soft",
+        "reason": "The yard gate needs three hands on the winch."
+      }
+    },
+    {
+      "id": "zone-under-vault",
+      "neighbors": [
+        "zone-sky-gantry",
+        "zone-surface-yard"
+      ],
+      "light": 1,
+      "noise": 2,
+      "districtId": "district-harbourside",
+      "elevation": -8,
+      "entryGate": {
+        "conditions": [
+          "item:rope",
+          "class:delver",
+          "member:npc-quartermaster"
+        ],
+        "mode": "hard",
+        "reason": "No one goes down without rope and a delver."
+      }
+    }
+  ],
+  "counts": {
+    "zones": 3,
+    "districts": 2,
+    "entities": 3,
+    "props": 1,
+    "hazards": 4,
+    "gatedZones": 0,
+    "strata": 3,
+    "tileLayers": 2
+  }
+}

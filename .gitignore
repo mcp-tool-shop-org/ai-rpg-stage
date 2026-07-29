@@ -1,0 +1,16 @@
+# Godot 4 — editor-generated import cache and derived data.
+.godot/
+/android/
+
+# Export artefacts. Builds are produced from source, never committed.
+/build/
+export_presets.cfg
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Scratch. If a file here matters, it belongs in the repo under a real name.
+/scratch/
+*.tmp

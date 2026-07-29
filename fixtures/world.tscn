@@ -1,0 +1,459 @@
+[gd_scene load_steps=22 format=3 uid="uid://world_forge_export"]
+
+[ext_resource type="PackedScene" uid="uid://ext_0" path="res://entities/merchant/merchant.tscn" id="ext_0"]
+[ext_resource type="PackedScene" uid="uid://ext_1" path="res://entities/boss/boss.tscn" id="ext_1"]
+[ext_resource type="PackedScene" uid="uid://ext_2" path="res://entities/companion/companion.tscn" id="ext_2"]
+[ext_resource type="PackedScene" uid="uid://ext_3" path="res://transitions/cargo_lift.tscn" id="ext_3"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/tileset-stone.png" id="tiletex_0"]
+
+[sub_resource type="RectangleShape2D" id="RectShape_0"]
+size = Vector2(512, 512)
+
+[sub_resource type="NavigationPolygon" id="NavPoly_0"]
+vertices = PackedVector2Array(0, 0, 512, 0, 512, 512, 0, 512)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+
+[sub_resource type="RectangleShape2D" id="RectShape_1"]
+size = Vector2(512, 512)
+
+[sub_resource type="NavigationPolygon" id="NavPoly_1"]
+vertices = PackedVector2Array(0, 0, 512, 0, 512, 512, 0, 512)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+
+[sub_resource type="RectangleShape2D" id="RectShape_2"]
+size = Vector2(512, 512)
+
+[sub_resource type="NavigationPolygon" id="NavPoly_2"]
+vertices = PackedVector2Array(0, 0, 512, 0, 512, 512, 0, 512)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+
+[sub_resource type="TileSetAtlasSource" id="TileAtlas_0_0"]
+texture = ExtResource("tiletex_0")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_0"]
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("TileAtlas_0_0")
+
+[sub_resource type="RectangleShape2D" id="WallRect_1"]
+size = Vector2(32, 32)
+
+[sub_resource type="TileSetAtlasSource" id="TileAtlas_1_0"]
+texture = ExtResource("tiletex_0")
+texture_region_size = Vector2i(32, 32)
+1:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_1"]
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("TileAtlas_1_0")
+
+[sub_resource type="RectangleShape2D" id="BuildingShape_0"]
+size = Vector2(128, 96)
+
+[sub_resource type="RectangleShape2D" id="HazardShape_0"]
+size = Vector2(512, 512)
+
+[sub_resource type="RectangleShape2D" id="HazardShape_1"]
+size = Vector2(512, 512)
+
+[sub_resource type="RectangleShape2D" id="HazardShape_2"]
+size = Vector2(512, 512)
+
+[sub_resource type="RectangleShape2D" id="HazardShape_3"]
+size = Vector2(512, 512)
+
+[node name="C0_Vocabulary_Coverage" type="Node2D"]
+y_sort_enabled = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(512, 512)
+
+[node name="Ground" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_0")
+z_index = 0
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+metadata/layer_id = "layer-ground"
+metadata/tile_count = 2
+metadata/image_backed = true
+metadata/solid_count = 0
+
+[node name="Walls" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_1")
+z_index = 1
+tile_map_data = PackedByteArray(0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+metadata/layer_id = "layer-walls"
+metadata/tile_count = 1
+metadata/image_backed = true
+metadata/solid_count = 1
+
+[node name="Collision" type="StaticBody2D" parent="Walls"]
+
+[node name="WallShape_0" type="CollisionShape2D" parent="Walls/Collision"]
+position = Vector2(16, 48)
+shape = SubResource("WallRect_1")
+
+[node name="Surface_Yard" type="Node2D" parent="."]
+position = Vector2(0, 0)
+y_sort_enabled = true
+z_index = 0
+z_as_relative = false
+metadata/zone_id = "zone-surface-yard"
+metadata/stratum_id = "stratum-surface"
+metadata/description = "A cobbled yard open to the sky."
+metadata/light = 9
+metadata/noise = 4
+metadata/elevation = 0
+metadata/district_id = "district-harbourside"
+metadata/entry_gate = "party-size:>=3;flag:bridge-repaired"
+metadata/entry_gate_mode = "soft"
+metadata/entry_gate_reason = "The yard gate needs three hands on the winch."
+
+[node name="Collision" type="StaticBody2D" parent="Surface_Yard"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Surface_Yard/Collision"]
+position = Vector2(256, 256)
+shape = SubResource("RectShape_0")
+
+[node name="Navigation" type="NavigationRegion2D" parent="Surface_Yard"]
+navigation_polygon = SubResource("NavPoly_0")
+
+[node name="Entities" type="Node2D" parent="Surface_Yard"]
+
+[node name="Quartermaster_Hale" parent="Surface_Yard/Entities" instance=ExtResource("ext_0")]
+position = Vector2(192, 96)
+metadata/entity_id = "npc-quartermaster"
+metadata/role = "merchant"
+metadata/display_name = "Quartermaster Hale"
+metadata/faction_id = "tidewardens"
+metadata/dialogue_id = "dlg-quartermaster"
+metadata/spawn_condition = "time:night"
+
+[node name="Items" type="Node2D" parent="Surface_Yard"]
+
+[node name="Tarred_Rope" type="Node2D" parent="Surface_Yard/Items"]
+position = Vector2(224, 96)
+metadata/item_id = "item-rope"
+metadata/display_name = "Tarred Rope"
+metadata/hidden = false
+metadata/slot = "tool"
+metadata/rarity = "common"
+metadata/container = "stall crate"
+
+[node name="SpawnPoints" type="Node2D" parent="Surface_Yard"]
+
+[node name="Spawn_sp_yard" type="Marker2D" parent="Surface_Yard/SpawnPoints"]
+position = Vector2(64, 64)
+metadata/spawn_id = "sp-yard"
+metadata/is_default = true
+
+[node name="Undervault" type="Node2D" parent="."]
+position = Vector2(0, 512)
+y_sort_enabled = true
+z_index = -108
+z_as_relative = false
+metadata/zone_id = "zone-under-vault"
+metadata/stratum_id = "stratum-under"
+metadata/description = "A flooded vault under the yard."
+metadata/light = 1
+metadata/noise = 2
+metadata/elevation = -8
+metadata/district_id = "district-harbourside"
+metadata/entry_gate = "item:rope;class:delver;member:npc-quartermaster"
+metadata/entry_gate_mode = "hard"
+metadata/entry_gate_reason = "No one goes down without rope and a delver."
+
+[node name="Collision" type="StaticBody2D" parent="Undervault"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Undervault/Collision"]
+position = Vector2(256, 256)
+shape = SubResource("RectShape_1")
+
+[node name="Navigation" type="NavigationRegion2D" parent="Undervault"]
+navigation_polygon = SubResource("NavPoly_1")
+
+[node name="Entities" type="Node2D" parent="Undervault"]
+
+[node name="The_Drowned" parent="Undervault/Entities" instance=ExtResource("ext_1")]
+position = Vector2(256, 128)
+metadata/entity_id = "enemy-vault-drowned"
+metadata/role = "boss"
+metadata/display_name = "The Drowned"
+metadata/faction_id = "tidewardens"
+metadata/spawn_condition = "quest:vault-key:opened"
+
+[node name="Items" type="Node2D" parent="Undervault"]
+
+[node name="Shuttered_Lantern" type="Node2D" parent="Undervault/Items"]
+position = Vector2(96, 96)
+metadata/item_id = "item-lantern"
+metadata/display_name = "Shuttered Lantern"
+metadata/hidden = true
+metadata/slot = "accessory"
+metadata/rarity = "uncommon"
+metadata/container = "silt"
+
+[node name="Transitions" type="Node2D" parent="Undervault"]
+
+[node name="Transition_trans_cargo_lift" parent="Undervault/Transitions" instance=ExtResource("ext_3")]
+position = Vector2(384, 64)
+metadata/transition_id = "trans-cargo-lift"
+metadata/target_zone = "zone-sky-gantry"
+metadata/type = "cargo-lift"
+metadata/label = "Undervault → Gantry Lift"
+metadata/duration = 6
+
+[node name="Sky_Gantry" type="Node2D" parent="."]
+position = Vector2(512, 0)
+y_sort_enabled = true
+z_index = 142
+z_as_relative = false
+metadata/zone_id = "zone-sky-gantry"
+metadata/stratum_id = "stratum-sky"
+metadata/description = "A gantry strung between two towers."
+metadata/light = 7
+metadata/noise = 6
+metadata/elevation = 42
+metadata/district_id = "district-upper-works"
+metadata/entry_gate = "party-level:>=10;party-size:>=3"
+metadata/entry_gate_mode = "hard"
+metadata/entry_gate_reason = "The gantry will not hold a green party."
+
+[node name="Collision" type="StaticBody2D" parent="Sky_Gantry"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sky_Gantry/Collision"]
+position = Vector2(256, 256)
+shape = SubResource("RectShape_2")
+
+[node name="Navigation" type="NavigationRegion2D" parent="Sky_Gantry"]
+navigation_polygon = SubResource("NavPoly_2")
+
+[node name="Entities" type="Node2D" parent="Sky_Gantry"]
+
+[node name="Runner_Vess" parent="Sky_Gantry/Entities" instance=ExtResource("ext_2")]
+position = Vector2(192, 128)
+metadata/entity_id = "npc-gantry-runner"
+metadata/role = "companion"
+metadata/display_name = "Runner Vess"
+metadata/faction_id = "gantry-guild"
+metadata/spawn_condition = "level:>=5"
+
+[node name="Items" type="Node2D" parent="Sky_Gantry"]
+
+[node name="Tide_Ration" type="Node2D" parent="Sky_Gantry/Items"]
+position = Vector2(96, 160)
+metadata/item_id = "item-tide-ration"
+metadata/display_name = "Tide Ration"
+metadata/hidden = false
+metadata/slot = "consumable"
+metadata/rarity = "common"
+metadata/container = "gantry locker"
+
+[node name="SpawnPoints" type="Node2D" parent="Sky_Gantry"]
+
+[node name="Spawn_sp_gantry" type="Marker2D" parent="Sky_Gantry/SpawnPoints"]
+position = Vector2(64, 64)
+metadata/spawn_id = "sp-gantry"
+metadata/is_default = false
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="Crate" type="Node2D" parent="Props"]
+position = Vector2(160, 64)
+metadata/prop_id = "pp-crate-yard"
+metadata/prop_def = "prop-crate"
+metadata/display_name = "Crate"
+metadata/walkable = false
+metadata/interactable = true
+metadata/width = 32
+metadata/height = 32
+metadata/image_path = "props/crate.png"
+metadata/zone_id = "zone-surface-yard"
+
+[node name="Markets" type="Node2D" parent="."]
+
+[node name="Market_market-yard-stall" type="Node2D" parent="Markets"]
+position = Vector2(256, 256)
+metadata/market_id = "market-yard-stall"
+metadata/zone_id = "zone-surface-yard"
+metadata/supply_categories = "rope,food"
+metadata/price_modifier = 1.15
+metadata/contraband = true
+metadata/merchant_entity_id = "npc-quartermaster"
+
+[node name="CraftingStations" type="Node2D" parent="."]
+
+[node name="Crafting_station-ropewalk" type="Node2D" parent="CraftingStations"]
+position = Vector2(256, 256)
+metadata/station_id = "station-ropewalk"
+metadata/zone_id = "zone-surface-yard"
+metadata/station_type = "ropewalk"
+metadata/recipes = "recipe-splice-rope,recipe-tar-line"
+
+[node name="Buildings" type="Node2D" parent="."]
+
+[node name="Building_bld-harbour-office" type="StaticBody2D" parent="Buildings"]
+position = Vector2(64, 256)
+metadata/building_id = "bld-harbour-office"
+metadata/name = "Harbour Office"
+metadata/building_type = "office"
+metadata/footprint_tiles = "4x3"
+metadata/zone_id = "zone-surface-yard"
+metadata/interior_zone_id = "zone-under-vault"
+
+[node name="Footprint" type="CollisionShape2D" parent="Buildings/Building_bld-harbour-office"]
+position = Vector2(64, 48)
+shape = SubResource("BuildingShape_0")
+
+[node name="Hubs" type="Node2D" parent="."]
+
+[node name="Hub_hub-yard-square" type="Node2D" parent="Hubs"]
+position = Vector2(256, 256)
+metadata/hub_id = "hub-yard-square"
+metadata/name = "Yard Square"
+metadata/zone_id = "zone-surface-yard"
+metadata/hub_type = "market-square"
+metadata/services = "market,tavern"
+metadata/connected_zones = "zone-under-vault"
+
+[node name="Strongholds" type="Node2D" parent="."]
+
+[node name="Stronghold_hold-gantry-keep" type="Node2D" parent="Strongholds"]
+position = Vector2(768, 256)
+metadata/stronghold_id = "hold-gantry-keep"
+metadata/name = "Gantry Keep"
+metadata/zone_id = "zone-sky-gantry"
+metadata/faction_id = "gantry-guild"
+metadata/defense_level = 4
+metadata/garrison = "npc-gantry-runner"
+
+[node name="Strata" type="Node2D" parent="."]
+
+[node name="Stratum_stratum-under" type="Node2D" parent="Strata"]
+metadata/stratum_id = "stratum-under"
+metadata/name = "Undervaults"
+metadata/order = -1
+metadata/z_band = -100
+metadata/z_floor = -14
+metadata/z_ceiling = -2
+metadata/visible_strata = "stratum-surface"
+
+[node name="Stratum_stratum-surface" type="Node2D" parent="Strata"]
+metadata/stratum_id = "stratum-surface"
+metadata/name = "Surface"
+metadata/order = 0
+metadata/z_band = 0
+metadata/z_floor = -1
+metadata/z_ceiling = 8
+metadata/visible_strata = "stratum-under,stratum-sky"
+
+[node name="Stratum_stratum-sky" type="Node2D" parent="Strata"]
+metadata/stratum_id = "stratum-sky"
+metadata/name = "Gantries"
+metadata/order = 1
+metadata/z_band = 100
+metadata/z_floor = 38
+metadata/z_ceiling = 50
+metadata/visible_strata = "stratum-surface"
+
+[node name="StratumLinks" type="Node2D" parent="."]
+
+[node name="StratumLink_link-vault-stair" type="Node2D" parent="StratumLinks"]
+position = Vector2(256, 512)
+metadata/link_id = "link-vault-stair"
+metadata/from_stratum = "stratum-surface"
+metadata/to_stratum = "stratum-under"
+metadata/from_zone = "zone-surface-yard"
+metadata/to_zone = "zone-under-vault"
+metadata/bidirectional = true
+metadata/link_type = "stairs"
+
+[node name="StratumLink_link-shaft" type="Node2D" parent="StratumLinks"]
+position = Vector2(512, 512)
+metadata/link_id = "link-shaft"
+metadata/from_stratum = "stratum-under"
+metadata/to_stratum = "stratum-sky"
+metadata/from_zone = "zone-under-vault"
+metadata/to_zone = "zone-sky-gantry"
+metadata/bidirectional = false
+metadata/link_type = "shaft"
+
+[node name="Hazards" type="Node2D" parent="."]
+
+[node name="Hazard_zone-surface-yard_hazard-scalding-steam" type="Area2D" parent="Hazards"]
+position = Vector2(256, 256)
+metadata/hazard_id = "hazard-scalding-steam"
+metadata/zone_id = "zone-surface-yard"
+metadata/trigger = "per-turn"
+metadata/move_cost_delta = 1
+metadata/passable = "yes"
+metadata/blocks_vision = true
+metadata/effect_count = 1
+metadata/effects = "damage:0.05%@turn-end"
+
+[node name="Region" type="CollisionShape2D" parent="Hazards/Hazard_zone-surface-yard_hazard-scalding-steam"]
+shape = SubResource("HazardShape_0")
+
+[node name="Hazard_zone-under-vault_hazard-black-water" type="Area2D" parent="Hazards"]
+position = Vector2(256, 768)
+metadata/hazard_id = "hazard-black-water"
+metadata/zone_id = "zone-under-vault"
+metadata/trigger = "on-enter"
+metadata/move_cost_delta = 2
+metadata/passable = "flying-only"
+metadata/blocks_vision = false
+metadata/effect_count = 2
+metadata/effects = "status:status-chilled@0.5;ignite@0"
+
+[node name="Region" type="CollisionShape2D" parent="Hazards/Hazard_zone-under-vault_hazard-black-water"]
+shape = SubResource("HazardShape_1")
+
+[node name="Hazard_zone-under-vault_hazard-void-drop" type="Area2D" parent="Hazards"]
+position = Vector2(256, 768)
+metadata/hazard_id = "hazard-void-drop"
+metadata/zone_id = "zone-under-vault"
+metadata/trigger = "on-exit"
+metadata/move_cost_delta = 0
+metadata/passable = "never"
+metadata/blocks_vision = false
+metadata/effect_count = 1
+metadata/effects = "instakill"
+
+[node name="Region" type="CollisionShape2D" parent="Hazards/Hazard_zone-under-vault_hazard-void-drop"]
+shape = SubResource("HazardShape_2")
+
+[node name="Hazard_zone-sky-gantry_hazard-void-drop" type="Area2D" parent="Hazards"]
+position = Vector2(768, 256)
+metadata/hazard_id = "hazard-void-drop"
+metadata/zone_id = "zone-sky-gantry"
+metadata/trigger = "on-exit"
+metadata/move_cost_delta = 0
+metadata/passable = "never"
+metadata/blocks_vision = false
+metadata/effect_count = 1
+metadata/effects = "instakill"
+
+[node name="Region" type="CollisionShape2D" parent="Hazards/Hazard_zone-sky-gantry_hazard-void-drop"]
+shape = SubResource("HazardShape_3")
+
+[node name="NavigationLinks" type="Node2D" parent="."]
+
+[node name="Link_0" type="NavigationLink2D" parent="NavigationLinks"]
+start_position = Vector2(256, 512)
+end_position = Vector2(256, 512)
+bidirectional = true
+metadata/from_zone = "zone-surface-yard"
+metadata/to_zone = "zone-under-vault"
+metadata/kind = "stairs"
+metadata/transition_mode = "stairs"
+metadata/label = "vault stair"
+
+[node name="Link_1" type="NavigationLink2D" parent="NavigationLinks"]
+start_position = Vector2(256, 512)
+end_position = Vector2(768, 512)
+bidirectional = false
+metadata/from_zone = "zone-under-vault"
+metadata/to_zone = "zone-sky-gantry"
+metadata/kind = "secret"
+metadata/transition_mode = "door"
+metadata/label = "shaft ladder"

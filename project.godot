@@ -1,0 +1,31 @@
+; Engine configuration file.
+;
+; ai-rpg-stage — the studio's visual client seat.
+;
+; Kept hand-editable and minimal on purpose. Everything here is either required
+; for headless CI or a decision with a reason recorded next to it. Settings that
+; belong to a phase that has not happened yet are absent rather than guessed —
+; texture filtering in particular is an ART CONTRACT decision, not a default.
+
+config_version=5
+
+[application]
+
+config/name="AI RPG Stage"
+config/description="Renders ai-rpg-engine's authoritative simulation. The stage decides nothing."
+config/features=PackedStringArray("4.7", "Forward Plus")
+run/main_scene=""
+
+[debug]
+
+; Surface GDScript errors loudly in CI rather than letting a scene load
+; half-broken and a test read the wreckage as data.
+gdscript/warnings/enable=true
+
+[rendering]
+
+; forward_plus carries Godot's 2D light rig (DirectionalLight2D, PointLight2D +
+; LightOccluder2D shadows, CanvasTexture normal/specular) with the fewest
+; caveats. Headless CI rasterizes nothing, so this is a P3 decision recorded
+; early rather than a CI dependency.
+renderer/rendering_method="forward_plus"
