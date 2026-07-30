@@ -119,7 +119,10 @@ func _ensure_doors(zn: Node2D) -> void:
 		return
 	_doors_zone = zone_id
 	_doors.clear()
-	_cooldowns.clear()
+	# Cooldowns deliberately SURVIVE a zone change. They used to be cleared here, which
+	# meant the door you had just walked through was live again the instant you arrived —
+	# the second half of the ping-pong. A cooldown is per-door-id and ticks down on its
+	# own; nothing needs resetting.
 
 	var old := zn.get_node_or_null("Doors")
 	if old != null:
@@ -210,6 +213,10 @@ func _cross(door: Dictionary, player: Node2D) -> void:
 	_crossing = true
 	var before := String(session.call("player_zone"))
 	await session.call("walk_to", id)
+	if String(session.call("player_zone")) != before:
+		# Went through. Rest the door BACK the way we came, so a player who arrives near
+		# the return threshold gets a moment to walk before it can fire.
+		_cooldowns[before] = DOOR_COOLDOWN
 	if String(session.call("player_zone")) == before:
 		# Refused — a person said no, or the wire faulted. Either way the player steps
 		# back off the mat and the door rests, so the sentence lands once.

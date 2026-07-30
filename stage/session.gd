@@ -33,6 +33,11 @@ const FloorPainter := preload("res://stage/floor_painter.gd")
 ## `spawnedEntityIds`. Both assumptions failed silently in the useful direction — the
 ## events simply were not rendered — which is why the test asserts the SENTENCE reaches
 ## the transcript rather than that a handler was called.
+## How far inside the room an arrival lands, measured against free_move's DOOR_RADIUS
+## (24px): comfortably outside it, so stepping through a door cannot re-trigger the
+## door you came out of.
+const ENTRY_INSET := 84.0
+
 const RENDERED := [
 	"world.zone.entered",
 	"world.zone.state.changed",
@@ -282,9 +287,14 @@ func _entry_point(zn: Node2D, came_from: String) -> Vector2:
 	var extent: Vector2 = FloorPainter.zone_extent(zn)
 	if extent == Vector2.ZERO:
 		extent = Vector2(320, 224)
+	# Land INSIDE the room, not on the threshold. Arriving on the edge nearest the zone
+	# you came from puts you exactly where that zone's return doorway is, so the next
+	# frame walks you straight back — a freeze on every round trip and a ping-pong
+	# between two rooms. Clamp to the edge, then step well clear of it.
 	var margin := 26.0
 	var local := zn.to_local(pn.position + p_extent * 0.5)
-	return local.clamp(Vector2(margin, margin), extent - Vector2(margin, margin))
+	var edge := local.clamp(Vector2(margin, margin), extent - Vector2(margin, margin))
+	return edge.move_toward(extent * 0.5, ENTRY_INSET)
 
 
 ## Point the player the way they are about to walk, from the zones' own positions.

@@ -19,7 +19,8 @@ const Diorama := preload("res://stage/diorama.gd")
 const FreeMove := preload("res://stage/free_move.gd")
 
 const SECTIONS := [
-	"moves", "clamped", "faces", "doors", "asks-the-session", "knockback", "sandbox",
+	"moves", "clamped", "faces", "doors", "asks-the-session", "knockback",
+	"no-ping-pong", "sandbox",
 ]
 
 var _completed: Array[String] = []
@@ -85,6 +86,7 @@ func run_async(t: RefCounted) -> void:
 	_doors(t, d, player)
 	await _asks_the_session(t, d, mover, player, stub)
 	await _knockback(t, d, mover, player, stub)
+	await _no_ping_pong(t, d, mover, player, stub)
 	_sandbox(t, d, mover, player)
 
 	for s: String in SECTIONS:
@@ -200,6 +202,48 @@ func _knockback(t: RefCounted, d: Node2D, mover: Node, player: Node2D, stub: Nod
 	t.equals((stub.get("walked") as Array).size(), calls_before,
 		"the door is cooling down — no machine-gun refusals")
 	_completed.append("knockback")
+
+
+## THE PING-PONG, which shipped and which the Director hit within seconds: crossing a
+## door landed the player ON the return threshold, so the next frame walked them back,
+## and every bounce was a round trip with input ignored — a freeze followed by a glitch.
+##
+## Two properties, because either alone still bounces:
+##   1. an ACCEPTED crossing rests the door back the way you came
+##   2. those cooldowns survive the zone change that follows
+func _no_ping_pong(t: RefCounted, d: Node2D, mover: Node, player: Node2D, stub: Node) -> void:
+	var zn := player.get_parent() as Node2D
+	var here := String(zn.get_meta("zone_id", ""))
+	var mats: Array[Dictionary] = mover.get("_doors")
+	if mats.is_empty():
+		t.check(false, "the mover knows its doors")
+		return
+	var there := String(mats[0]["id"])
+
+	# Play an ACCEPTED move this time: the stub reports the new zone.
+	stub.set("zone", here)
+	stub.set("zone_after", there)
+	mover.call("setup", d, stub)  # clears cooldowns, as a fresh attach should
+	var walked_before: int = (stub.get("walked") as Array).size()
+
+	player.position = mats[0]["point"] as Vector2
+	mover.call("step", 1.0 / 60.0, Vector2(1, 0))
+	await (Engine.get_main_loop() as SceneTree).process_frame
+	t.equals((stub.get("walked") as Array).size(), walked_before + 1,
+		"the accepted crossing submitted its move")
+
+	var cooldowns: Dictionary = mover.get("_cooldowns")
+	t.check(float(cooldowns.get(here, 0.0)) > 0.0,
+		"the door BACK the way we came is resting after an accepted crossing",
+		"a live return door is half the ping-pong")
+
+	# And the rebuild that follows a zone change must not wipe it.
+	mover.call("_ensure_doors", zn)
+	var after: Dictionary = mover.get("_cooldowns")
+	t.check(float(after.get(here, 0.0)) > 0.0,
+		"…and rebuilding the doors does NOT clear it",
+		"clearing on zone change was the other half")
+	_completed.append("no-ping-pong")
 
 
 func _sandbox(t: RefCounted, d: Node2D, mover: Node, player: Node2D) -> void:
