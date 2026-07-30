@@ -1,83 +1,112 @@
 {
   "generatedBy": "world-forge/dogfood/export-stage-fixture.ts",
   "world": {
-    "id": "c0-vocabulary-coverage",
-    "name": "C0 Vocabulary Coverage",
+    "id": "salt-road-long-quay",
+    "name": "Salt Road: The Long Quay",
     "version": "1.0.0"
   },
-  "packFormat": null,
+  "packFormat": "1.0.0",
   "gatesAreInformational": true,
   "zoneIds": [
-    "zone-sky-gantry",
-    "zone-surface-yard",
-    "zone-under-vault"
+    "bonded-warehouse",
+    "counting-house",
+    "crooked-stair",
+    "customs-shed",
+    "long-quay",
+    "weighing-floor"
   ],
   "zones": [
     {
-      "id": "zone-sky-gantry",
+      "id": "bonded-warehouse",
+      "name": "The Bonded Warehouse",
       "neighbors": [
-        "zone-under-vault"
+        "weighing-floor"
       ],
-      "light": 7,
-      "noise": 6,
-      "districtId": "district-upper-works",
-      "elevation": 42,
-      "entryGate": {
-        "conditions": [
-          "party-level:>=10",
-          "party-size:>=3"
-        ],
-        "mode": "hard",
-        "reason": "The gantry will not hold a green party."
-      }
-    },
-    {
-      "id": "zone-surface-yard",
-      "neighbors": [
-        "zone-under-vault"
-      ],
-      "light": 9,
-      "noise": 4,
-      "districtId": "district-harbourside",
+      "light": 2,
+      "noise": 2,
+      "districtId": "saltgate",
       "elevation": 0,
       "entryGate": {
         "conditions": [
-          "party-size:>=3",
-          "flag:bridge-repaired"
+          "item:guild-seal"
         ],
-        "mode": "soft",
-        "reason": "The yard gate needs three hands on the winch."
+        "mode": "hard",
+        "reason": "Halle keeps her hand flat on the register. \"It's my name beside whatever leaves here, and I've a mother in Dockward. Seal, or nothing.\""
       }
     },
     {
-      "id": "zone-under-vault",
+      "id": "counting-house",
+      "name": "The Counting House",
       "neighbors": [
-        "zone-sky-gantry",
-        "zone-surface-yard"
+        "weighing-floor"
       ],
-      "light": 1,
+      "light": 4,
+      "noise": 1,
+      "districtId": "saltgate",
+      "elevation": 0,
+      "entryGate": null
+    },
+    {
+      "id": "crooked-stair",
+      "name": "The Crooked Stair",
+      "neighbors": [
+        "long-quay"
+      ],
+      "light": 2,
       "noise": 2,
-      "districtId": "district-harbourside",
-      "elevation": -8,
-      "entryGate": {
-        "conditions": [
-          "item:rope",
-          "class:delver",
-          "member:npc-quartermaster"
-        ],
-        "mode": "hard",
-        "reason": "No one goes down without rope and a delver."
-      }
+      "districtId": "the-warrens",
+      "elevation": -4,
+      "entryGate": null
+    },
+    {
+      "id": "customs-shed",
+      "name": "The Customs Shed",
+      "neighbors": [
+        "long-quay"
+      ],
+      "light": 3,
+      "noise": 3,
+      "districtId": "dockward",
+      "elevation": 0,
+      "entryGate": null
+    },
+    {
+      "id": "long-quay",
+      "name": "The Long Quay",
+      "neighbors": [
+        "crooked-stair",
+        "customs-shed",
+        "weighing-floor"
+      ],
+      "light": 7,
+      "noise": 8,
+      "districtId": "dockward",
+      "elevation": 0,
+      "entryGate": null
+    },
+    {
+      "id": "weighing-floor",
+      "name": "The Weighing Floor",
+      "neighbors": [
+        "bonded-warehouse",
+        "counting-house",
+        "long-quay"
+      ],
+      "light": 5,
+      "noise": 6,
+      "districtId": "saltgate",
+      "elevation": 0,
+      "entryGate": null
     }
   ],
   "counts": {
-    "zones": 3,
-    "districts": 2,
-    "entities": 3,
-    "props": 1,
-    "hazards": 4,
-    "gatedZones": 0,
-    "strata": 3,
-    "tileLayers": 2
+    "zones": 6,
+    "districts": 3,
+    "entities": 5,
+    "props": 13,
+    "hazards": 1,
+    "gatedZones": 1,
+    "strata": 0,
+    "tileLayers": 1
   }
 }

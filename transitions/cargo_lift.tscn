@@ -1,5 +1,0 @@
-[gd_scene load_steps=1 format=3]
-
-[node name="CargoLift" type="Node2D"]
-metadata/stub = true
-metadata/role = "transition"

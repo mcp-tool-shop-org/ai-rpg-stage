@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c2fq1aa2tstj3"
-path="res://.godot/imported/tileset-stone.png-6cd59f1a48be5b10a60cfd0f76bf2947.ctex"
+uid="uid://cx3hcxul1ebfy"
+path="res://.godot/imported/harbour-stone.png-24f36024a941e4cf6bb21da3091107d6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tilesets/tileset-stone.png"
-dest_files=["res://.godot/imported/tileset-stone.png-6cd59f1a48be5b10a60cfd0f76bf2947.ctex"]
+source_file="res://assets/tilesets/harbour-stone.png"
+dest_files=["res://.godot/imported/harbour-stone.png-24f36024a941e4cf6bb21da3091107d6.ctex"]
 
 [params]
 
