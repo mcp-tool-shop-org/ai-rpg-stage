@@ -30,13 +30,27 @@ func _run() -> void:
 	var zone := _arg("zone", "")
 	var tags_raw := _arg("tags", "")
 
-	var d: Node2D = Diorama.new()
-	d.name = "Diorama"
-	root.add_child(d)
-	# The harness property learned in P3: a node added during `_initialize` is not in the
-	# tree until the first frame, and building before then leaves every `get_tree()` null.
+	# Load the real SCENE rather than constructing a Diorama, so the capture includes the
+	# playable layer — the prose panel and the list of doors. A screenshot of the diorama
+	# without them shows the set and not the thing a person uses.
+	#
+	# The playable layer reads `--attach=host:port` from the command line itself, so with a
+	# sim running this captures a LIVE session; without one it captures the standing set and
+	# says so on screen.
+	change_scene_to_file("res://stage/diorama.tscn")
 	await process_frame
-	d.call("build")
+	await process_frame
+	var d: Node2D = current_scene as Node2D
+	if d == null:
+		printerr("diorama scene did not load")
+		quit(1)
+		return
+
+	# Extra frames when attached: the handshake, snapshot and first prose all take a round
+	# trip, and capturing before they land shows an empty log.
+	if not _arg("attach", "").is_empty():
+		for _w in range(90):
+			await process_frame
 
 	if not zone.is_empty():
 		var tags: Array = [] if tags_raw.is_empty() else Array(tags_raw.split(",", false))
