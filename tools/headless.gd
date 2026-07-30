@@ -72,7 +72,22 @@ func _run_one(path: String, name: String) -> void:
 		_fail(name, "could not load %s" % path)
 		return
 
+	# ⚠ A SCRIPT THAT FAILED TO COMPILE STILL LOADS NON-NULL. Godot returns a GDScript
+	# object whose compilation failed; `new()` on it errors at runtime, this function
+	# bailed out before reaching the "asserted nothing" guard, and the runner printed
+	# `checks=0 failed=0 verdict=PASS` over a test file that never ran.
+	#
+	# That is a vacuous pass inside the runner built to refuse vacuous passes, and it
+	# was found by writing a suite with one bad line in it. `can_instantiate()` is the
+	# question that actually distinguishes the two cases.
+	if not (script is GDScript) or not (script as GDScript).can_instantiate():
+		_fail(name, "%s failed to compile — see the SCRIPT ERROR above" % path)
+		return
+
 	var suite: Variant = (script as GDScript).new()
+	if suite == null:
+		_fail(name, "%s compiled but could not be instantiated" % path)
+		return
 
 	var t: RefCounted = TestCase.new()
 

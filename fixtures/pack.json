@@ -26,6 +26,8 @@
       "noise": 2,
       "districtId": "saltgate",
       "elevation": 0,
+      "timeOfDay": "morning",
+      "biome": "bonded-store",
       "entryGate": {
         "conditions": [
           "item:guild-seal"
@@ -44,6 +46,8 @@
       "noise": 1,
       "districtId": "saltgate",
       "elevation": 0,
+      "timeOfDay": "morning",
+      "biome": "counting-house",
       "entryGate": null
     },
     {
@@ -56,6 +60,8 @@
       "noise": 2,
       "districtId": "the-warrens",
       "elevation": -4,
+      "timeOfDay": "morning",
+      "biome": "warren-brick",
       "entryGate": null
     },
     {
@@ -68,6 +74,8 @@
       "noise": 3,
       "districtId": "dockward",
       "elevation": 0,
+      "timeOfDay": "morning",
+      "biome": "customs",
       "entryGate": null
     },
     {
@@ -82,6 +90,8 @@
       "noise": 8,
       "districtId": "dockward",
       "elevation": 0,
+      "timeOfDay": "morning",
+      "biome": "harbour-stone",
       "entryGate": null
     },
     {
@@ -96,6 +106,8 @@
       "noise": 6,
       "districtId": "saltgate",
       "elevation": 0,
+      "timeOfDay": "morning",
+      "biome": "harbour-stone",
       "entryGate": null
     }
   ],
