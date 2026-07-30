@@ -44,15 +44,13 @@ env:
   # The wire tests drive the REAL simulation, so CI checks the engine out and builds
   # it. A mock would prove the stage agrees with a mock.
   #
-  # ⚠ Pinned to a BRANCH while the socket transport is unmerged: `--listen` exists on
-  # `feat/c4-socket-attach` and not on `main`. This becomes `main` when that PR
-  # merges, and until then the ref is stated here rather than hidden in a default so
-  # nobody has to wonder which engine the suite ran against.
+  # Both refs point at `main`: the C4 engine half (`--listen`, `--content`) merged as
+  # `0d1fbc4` and the forge stage lane (Salt Road) as `10bed6b`, 2026-07-29. The refs
+  # stay stated here rather than hidden in a default so nobody has to wonder which
+  # engine the suite ran against. (They were branch-pinned while C4 was unmerged.)
   ENGINE_REPO: 'mcp-tool-shop-org/ai-rpg-engine'
-  ENGINE_REF: 'feat/c4-socket-attach'
-  # Same situation as the engine ref: Salt Road lives on an unmerged branch, and saying so
-  # here beats a reader wondering which world the suite rendered.
-  FORGE_REF: 'feat/c4-stage-lane'
+  ENGINE_REF: 'main'
+  FORGE_REF: 'main'
 
 jobs:
   headless:
