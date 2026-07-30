@@ -40,7 +40,27 @@ static func bin_path(dir: String) -> String:
 	return dir + "/packages/cli/dist/bin.js"
 
 
-## Spawn `node bin.js sidecar <pack> --seed <n> --listen <port>`.
+## The exported Salt Road pack the sidecar loads with `--content`.
+##
+## Lives in world-forge's output, a SIBLING of the engine checkout — the same layout the
+## engine itself is resolved by, so CI and a developer's machine agree.
+static func salt_road_pack() -> String:
+	var from_env := OS.get_environment("SALT_ROAD_PACK")
+	if not from_env.is_empty():
+		return from_env.replace("\\", "/")
+	var engine_dir := find_engine_dir()
+	return engine_dir.get_base_dir() + "/world-forge/dogfood/output/salt-road/pack.json"
+
+
+## Extra sidecar arguments — content, start zone, scenario cue. Set before `start`.
+##
+## Kept as a plain array rather than typed fields so the harness does not have to grow a
+## parameter every time the command does; the COMMAND owns its own validation and says so
+## clearly on stderr, which is where a bad value should surface.
+var extra_args: Array[String] = []
+
+
+## Spawn `node bin.js sidecar <pack> --seed <n> --listen <port>` plus `extra_args`.
 ## Returns true on success; `failure` explains any false.
 func start(pack_id: String, seed: int) -> bool:
 	engine_dir = find_engine_dir()
@@ -56,7 +76,8 @@ func start(pack_id: String, seed: int) -> bool:
 		return false
 
 	for candidate: int in CANDIDATE_PORTS:
-		var args := [bin, "sidecar", pack_id, "--seed", str(seed), "--listen", str(candidate)]
+		var args: Array = [bin, "sidecar", pack_id, "--seed", str(seed), "--listen", str(candidate)]
+		args.append_array(extra_args)
 		var spawned := OS.create_process("node", args, false)
 		if spawned <= 0:
 			failure = "OS.create_process('node') failed — is node on PATH?"

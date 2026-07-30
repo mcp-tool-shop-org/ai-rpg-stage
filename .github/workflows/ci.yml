@@ -50,6 +50,9 @@ env:
   # nobody has to wonder which engine the suite ran against.
   ENGINE_REPO: 'mcp-tool-shop-org/ai-rpg-engine'
   ENGINE_REF: 'feat/c4-socket-attach'
+  # Same situation as the engine ref: Salt Road lives on an unmerged branch, and saying so
+  # here beats a reader wondering which world the suite rendered.
+  FORGE_REF: 'feat/c4-stage-lane'
 
 jobs:
   headless:
@@ -68,6 +71,15 @@ jobs:
           repository: ${{ env.ENGINE_REPO }}
           ref: ${{ env.ENGINE_REF }}
           path: ai-rpg-engine
+
+      # The live-session suite drives Salt Road, which world-forge exports. Checked out
+      # and run in CI for the same reason the engine is: the proof is worthless against a
+      # fixture nobody generated from the real authoring lane.
+      - uses: actions/checkout@v5
+        with:
+          repository: mcp-tool-shop-org/world-forge
+          ref: ${{ env.FORGE_REF }}
+          path: world-forge
 
       - uses: actions/setup-node@v4
         with:
@@ -106,6 +118,29 @@ jobs:
           node packages/cli/dist/bin.js sidecar --help > /tmp/sidecar-help.txt 2>&1 || true
           grep -q -- '--listen' /tmp/sidecar-help.txt \
             || { echo "::error::this engine ref has no --listen transport"; cat /tmp/sidecar-help.txt; exit 1; }
+
+      - name: Export Salt Road
+        working-directory: world-forge
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          mkdir -p dogfood/output/salt-road
+          npx tsx dogfood/export-stage-fixture.ts --world=salt-road --out=../stage/fixtures --doctor
+          # The engine's `--content` reads this pack; the client's fixtures come from the
+          # same export, so the two halves of the join cannot drift in CI either.
+          node -e "const {writeFileSync}=require('fs');"             || { echo "::error::node unavailable"; exit 1; }
+          npx tsx -e "
+            import { writeFileSync, mkdirSync } from 'node:fs';
+            import { saltRoadProject } from './dogfood/worlds/salt-road.js';
+            import { exportToEngine } from './packages/export-ai-rpg/src/index.js';
+            const r = exportToEngine(saltRoadProject);
+            if (!r.success) { console.error(JSON.stringify(r.errors)); process.exit(1); }
+            mkdirSync('dogfood/output/salt-road', { recursive: true });
+            writeFileSync('dogfood/output/salt-road/pack.json', JSON.stringify(r.contentPack, null, 2));
+            console.log('wrote the engine-lane pack');
+          "
+          test -f dogfood/output/salt-road/pack.json || { echo "::error::pack not written"; exit 1; }
 
       - name: Cache Godot
         id: godot-cache
@@ -168,11 +203,11 @@ jobs:
           # deleted, or moved simply stops being found and the suite passes with fewer
           # checks and no complaint. This is the manifest that makes a disappearance a
           # failure. Adding a suite here is deliberate; that is the point.
-          for suite in diorama framing scene_join tick_queue wire_session; do
+          for suite in diorama framing live_session scene_join tick_queue wire_session; do
             grep -q "^── ${suite} ──$" /tmp/suite.log \
               || { echo "::error::suite '${suite}' did not run"; exit 1; }
           done
-          echo "all five suites ran"
+          echo "all six suites ran"
 
       - name: Refuse resource-load noise
         run: |
