@@ -57,6 +57,25 @@ func _run() -> void:
 		d.call("apply_zone_state", zone, tags)
 		print("state: zone=%s tags=%s" % [zone, str(tags)])
 
+	# `--stride=x,y --steps=N`: walk the player N real frames through the free-move
+	# controller before capturing — movement, facing and gait exactly as a hand on the
+	# keys would produce them, so the shot proves the walking rather than posing it.
+	var stride_raw := _arg("stride", "")
+	if not stride_raw.is_empty():
+		var sp := stride_raw.split(",", false)
+		if sp.size() == 2:
+			var vec := Vector2(float(sp[0]), float(sp[1]))
+			var steps := int(_arg("steps", "60"))
+			var mover := d.get_node_or_null("Playable/FreeMove")
+			if mover == null:
+				printerr("no FreeMove under Playable — cannot stride")
+				quit(1)
+				return
+			for _s in range(steps):
+				mover.call("step", 1.0 / 60.0, vec)
+			print("strode %d frames along %s" % [steps, str(vec)])
+			await process_frame
+
 	for _i in range(WARMUP_FRAMES):
 		await process_frame
 

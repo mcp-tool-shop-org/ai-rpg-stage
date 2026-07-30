@@ -17,6 +17,7 @@ extends CanvasLayer
 const Session := preload("res://stage/session.gd")
 const NetworkClient := preload("res://client/network_client.gd")
 const EventBus := preload("res://client/event_bus.gd")
+const FreeMove := preload("res://stage/free_move.gd")
 
 const MAX_LINES := 14
 
@@ -24,6 +25,7 @@ var diorama: Node2D
 var session: Node
 var client: Node
 var bus: Node
+var mover: Node
 
 var _log: RichTextLabel
 var _doors: RichTextLabel
@@ -36,10 +38,18 @@ func _ready() -> void:
 	diorama = get_parent() as Node2D
 	_build_ui()
 
+	# The sprite walks whether or not a sim is attached. Movement inside a zone is
+	# presentation and needs nobody's permission; only DOORS need the world to decide.
+	mover = FreeMove.new()
+	mover.name = "FreeMove"
+	mover.call("setup", diorama, null)
+	mover.set("narrate", Callable(self, "_say"))
+	add_child(mover)
+
 	var target := _attach_target()
 	if target.is_empty():
-		_status.text = "not attached — run: node tools/play.mjs"
-		_say("[i]The stage is standing on its own. Nothing is deciding anything.[/i]")
+		_status.text = "sandbox — walk with arrows / WASD · run node tools/play.mjs for the world"
+		_say("[i]The stage is standing on its own. You can walk; nothing can decide.[/i]")
 		_say("Start the simulation with [b]node tools/play.mjs[/b] to play.")
 		return
 
@@ -74,6 +84,8 @@ func _attach(target: String) -> void:
 	add_child(session)
 	session.call("setup", diorama, client, bus)
 	session.narrated.connect(_say)
+	mover.call("setup", diorama, session)
+	session.zone_entered.connect(func(_zone: String) -> void: _refresh_doors())
 
 	# The session already routes these to `diagnostics` and emits them on `narrated`, so
 	# subscribing here as well would show each one twice. The UI shows what the session
@@ -160,6 +172,7 @@ func _refresh_doors() -> void:
 		return id
 
 	var text := "[b]%s[/b]\n" % name_of.call(zone)
+	text += "[i]walk: arrows / WASD — step onto a doorway[/i]\n"
 	var doors := _current_doors()
 	for i in range(doors.size()):
 		text += "  [%d] %s\n" % [i + 1, name_of.call(doors[i])]

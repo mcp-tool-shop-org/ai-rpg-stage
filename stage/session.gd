@@ -23,6 +23,7 @@ extends Node
 
 const TickQueue := preload("res://client/tick_queue.gd")
 const SpriteBinder := preload("res://stage/sprite_binder.gd")
+const FloorPainter := preload("res://stage/floor_painter.gd")
 
 ## Events this session knows how to show. Anything else is IGNORED, not an error —
 ## tolerant out (RFC 9413): the sim may learn to say things this stage does not render
@@ -152,6 +153,7 @@ func _present_entered(payload: Dictionary) -> Variant:
 	var zone_id := String(payload.get("zoneId", payload.get("toZoneId", "")))
 	if zone_id.is_empty():
 		return null
+	var came_from := _player_zone
 	_player_zone = zone_id
 
 	# Move the player's node into the zone it is now in, so the scene agrees with the sim
@@ -161,7 +163,10 @@ func _present_entered(payload: Dictionary) -> Variant:
 	if zn != null and player != null and player.get_parent() != zn:
 		player.get_parent().remove_child(player)
 		zn.add_child(player)
-		player.position = Vector2(112, 136)
+		# Enter on the edge FACING the zone you came from, so a walk reads as
+		# continuous instead of teleporting to a fixed spot. Falls back to the old
+		# fixed point when there is no previous zone to face (the opening snapshot).
+		player.position = _entry_point(zn, came_from)
 
 	# The zone's authored prose, shown on arrival. This is where the Director-frozen
 	# writing actually reaches a player.
@@ -259,6 +264,27 @@ func _log(line: String) -> void:
 func _note(line: String) -> void:
 	diagnostics.append(line)
 	narrated.emit(line)
+
+
+## Where the player lands in a newly-entered zone: just inside the edge nearest the
+## zone they came from. Zone-local; mirrors free_move's door-mat geometry so walking
+## out of one door puts you beside the matching door on the other side.
+func _entry_point(zn: Node2D, came_from: String) -> Vector2:
+	var fallback := Vector2(112, 136)
+	if came_from.is_empty():
+		return fallback
+	var pn := diorama.call("zone_node", came_from) as Node2D
+	if pn == null:
+		return fallback
+	var p_extent: Vector2 = FloorPainter.zone_extent(pn)
+	if p_extent == Vector2.ZERO:
+		p_extent = Vector2(320, 224)
+	var extent: Vector2 = FloorPainter.zone_extent(zn)
+	if extent == Vector2.ZERO:
+		extent = Vector2(320, 224)
+	var margin := 26.0
+	var local := zn.to_local(pn.position + p_extent * 0.5)
+	return local.clamp(Vector2(margin, margin), extent - Vector2(margin, margin))
 
 
 ## Point the player the way they are about to walk, from the zones' own positions.

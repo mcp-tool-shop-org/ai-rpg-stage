@@ -192,7 +192,7 @@ jobs:
           # deleted, or moved simply stops being found and the suite passes with fewer
           # checks and no complaint. This is the manifest that makes a disappearance a
           # failure. Adding a suite here is deliberate; that is the point.
-          for suite in diorama framing live_session scene_join tick_queue wire_session; do
+          for suite in diorama framing free_move live_session scene_join tick_queue wire_session; do
             grep -q "^── ${suite} ──$" /tmp/suite.log \
               || { echo "::error::suite '${suite}' did not run"; exit 1; }
           done
