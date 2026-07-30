@@ -14,7 +14,7 @@ config_version=5
 config/name="AI RPG Stage"
 config/description="Renders ai-rpg-engine's authoritative simulation. The stage decides nothing."
 config/features=PackedStringArray("4.7", "Forward Plus")
-run/main_scene=""
+run/main_scene="res://stage/diorama.tscn"
 
 [debug]
 
@@ -29,3 +29,24 @@ gdscript/warnings/enable=true
 ; caveats. Headless CI rasterizes nothing, so this is a P3 decision recorded
 ; early rather than a CI dependency.
 renderer/rendering_method="forward_plus"
+
+; ── FILTERING: LINEAR, and NO pixel snap. Decided on evidence, not by default. ──
+;
+; The kickoff is explicit that this is an art-contract call and that painterly
+; hi-fi may legitimately keep linear. So the art was looked at rather than assumed:
+; @sprite-foundry/townsfolk-hd ships 512x512 sprites with albedo + NORMAL + mask +
+; depth layers, and the albedo is smooth painterly rendering — soft gradients,
+; anti-aliased curves, no pixel grid anywhere. It is not pixel art.
+;
+; For that art:
+;   * NEAREST would harden every anti-aliased edge the renderer produced, which is
+;     throwing away the thing the production line was built to make.
+;   * PIXEL SNAP is a pixel-art technique. On 512px painterly sprites drawn at
+;     0.125 scale it buys nothing and costs sub-pixel motion smoothness — the
+;     symptom is a character that jitters while walking.
+;
+; If the pack line ever ships a genuine pixel tier, this is the setting that moves,
+; and the reasoning above is what should be re-run against it.
+textures/canvas_textures/default_texture_filter=1
+2d/snap/snap_2d_transforms_to_pixel=false
+2d/snap/snap_2d_vertices_to_pixel=false

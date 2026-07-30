@@ -21,8 +21,13 @@ const PACK_PATH := "res://fixtures/pack.json"
 const SCENE_PATH := "res://fixtures/world.tscn"
 const DOCTORED_PATH := "res://fixtures/world.doctored.tscn"
 
-## The generator alters exactly this zone in the doctored scene.
-const DOCTORED_ZONE := "zone-sky-gantry"
+## The suffix the generator appends to the one zone id it alters.
+##
+## The ZONE ITSELF is discovered, not named. A first version hard-coded the coverage
+## fixture's `zone-sky-gantry`, and swapping the fixture to Salt Road turned two RED
+## controls red for a reason that had nothing to do with the join. A control coupled to
+## one fixture is a control that has to be edited every time the content changes, and
+## the edit is where it quietly stops testing anything.
 const DOCTORED_SUFFIX := "-DOCTORED"
 
 
@@ -72,12 +77,21 @@ func run(t: RefCounted) -> void:
 	t.equals(zone_count, counts.get("zones", -1),
 		"zone-node count equals the pack's zone count")
 
+	# The two sets must be DISTINGUISHED, which is not the same claim as one being
+	# larger. A first version asserted `tagged > zones`, which happened to hold for the
+	# coverage fixture (many props) and failed for Salt Road (six zones, two tagged
+	# descendants) — a true statement about one fixture masquerading as a property.
 	var tagged_total := 0
+	var zone_nodes_in_tagged := 0
 	for id: Variant in report["scene_zone_ids"] as Array:
-		tagged_total += (join.call("tagged_nodes", id as String) as Array).size()
-	t.check(tagged_total > zone_count,
-		"tagged descendants outnumber zones (the two are not the same set)",
-		"tagged=%d zones=%d" % [tagged_total, zone_count])
+		var nodes: Array = join.call("tagged_nodes", id as String)
+		tagged_total += nodes.size()
+		if nodes.has(join.call("zone_node", id as String)):
+			zone_nodes_in_tagged += 1
+	t.check(tagged_total > 0, "the scene carries zone-tagged descendants at all",
+		"got %d" % tagged_total)
+	t.equals(zone_nodes_in_tagged, 0,
+		"no zone node appears in its own tagged-descendant list (the sets are distinct)")
 
 	# ── Resolution is real, not incidental ───────────────────
 	for id: Variant in wire_ids:
@@ -101,10 +115,22 @@ func run(t: RefCounted) -> void:
 	var red_report: Dictionary = red.call("reconcile", wire_ids)
 
 	t.is_false(red_report["ok"], "RED: doctored scene FAILS to reconcile")
-	t.contains(red_report["missing_in_scene"], DOCTORED_ZONE,
+
+	# Discover which zone was altered, from the artefact rather than a constant.
+	var altered := ""
+	for id: Variant in red_report["missing_in_wire"] as Array:
+		if String(id).ends_with(DOCTORED_SUFFIX):
+			altered = String(id)
+	t.check(not altered.is_empty(), "RED: the doctored scene carries an altered zone id")
+	var original := altered.trim_suffix(DOCTORED_SUFFIX)
+
+	t.contains(red_report["missing_in_scene"], original,
 		"RED: the real zone is reported missing from the scene")
-	t.contains(red_report["missing_in_wire"], DOCTORED_ZONE + DOCTORED_SUFFIX,
+	t.contains(red_report["missing_in_wire"], altered,
 		"RED: the altered id is reported absent from the wire")
+	# And the alteration is real: the original must be a zone the wire actually carries,
+	# or "missing from the scene" would be true of any typo.
+	t.contains(wire_ids, original, "RED: the altered zone is one the wire really has")
 	# And the failure is narrow: doctoring one zone must not disturb the others.
 	t.equals((red_report["missing_in_scene"] as Array).size(), 1,
 		"RED: exactly one zone missing from the scene")
