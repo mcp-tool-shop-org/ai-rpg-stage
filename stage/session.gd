@@ -50,9 +50,23 @@ var client: Node
 var bus: Node
 var queue: RefCounted
 
-## Everything the stage has shown, in order. The transcript P4 is judged on — and a
-## replay's comparison basis, since two same-seed sessions must produce the same list.
+## Everything the stage SHOWED THE PLAYER, in presentation order.
+##
+## ⚠ ONLY presenter output goes here, and that separation is load-bearing. A first version
+## also logged transport and staleness notices into this list — and those arrive from the
+## client's `_process` via the bus, while presentation lines arrive from the tick queue's
+## drain. The two interleave on frame timing, so the transcript's ORDER was not
+## deterministic: the same seeded session produced the same lines in a different sequence
+## on a Linux runner than on Windows, and the determinism assertion failed for a reason
+## that had nothing to do with the simulation.
+##
+## The transcript is what a player saw. Plumbing goes in `diagnostics`.
 var transcript: Array[String] = []
+
+## Out-of-band notices — transport faults, staleness reports, connection refusals. Real
+## information, deliberately not part of the replay comparison because it is timing-ordered
+## rather than event-ordered.
+var diagnostics: Array[String] = []
 
 var _player_zone := ""
 
@@ -67,7 +81,8 @@ func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
 
 	bus.tick_received.connect(_on_tick)
 	bus.staleness_detected.connect(_on_staleness)
-	bus.refused.connect(func(reason: String) -> void: _log("sim refused the connection: %s" % reason))
+	bus.refused.connect(func(reason: String) -> void: _note("sim refused the connection: %s" % reason))
+	bus.transport_failed.connect(func(detail: String) -> void: _note("transport: %s" % detail))
 
 	_player_zone = diorama.PLAYER_START_ZONE
 
@@ -229,12 +244,20 @@ func _on_tick(_tick: int, _hash: String, events: Array, _delta: Array) -> void:
 
 func _on_staleness(detail: String) -> void:
 	# Reported, never corrected (charter §3.3). A stage that "fixed" a mismatch would be
-	# inventing a world.
-	_log("[stale] %s" % detail)
+	# inventing a world. Recorded as a DIAGNOSTIC rather than in the transcript: it is not
+	# something the player saw, and its arrival is frame-timed.
+	_note("[stale] %s" % detail)
 
 
 func _log(line: String) -> void:
 	transcript.append(line)
+	narrated.emit(line)
+
+
+## An out-of-band notice. Surfaced to a player-facing log if a UI wants it, but never part
+## of the transcript the replay comparison uses.
+func _note(line: String) -> void:
+	diagnostics.append(line)
 	narrated.emit(line)
 
 

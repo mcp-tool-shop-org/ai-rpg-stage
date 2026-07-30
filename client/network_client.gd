@@ -369,12 +369,18 @@ func _apply_tick_report(report: Dictionary) -> void:
 	var hash_value := String(report.get("hash", ""))
 
 	if not hash_value.is_empty():
-		if _hash_by_tick.has(tick) and String(_hash_by_tick[tick]) != hash_value:
-			# The same tick, two different hashes. The sim is deterministic, so this
-			# cannot happen unless this client's bookkeeping is wrong or the stream
-			# was tampered with. Either way it is stale, and it does not "pick one".
-			_mark_stale("tick %d reported two different hashes: %s then %s"
-				% [tick, _hash_by_tick[tick], hash_value])
+		# ⚠ NO "SAME TICK, TWO HASHES" CHECK, and the reason is measured. A first version
+		# treated that as staleness on the theory that a deterministic sim cannot report
+		# one tick two ways. It can: `tick` is not a state version in this engine. Three
+		# consecutive `advance` calls all reported tick 4 with three different hashes,
+		# because a ROUND changes the world without necessarily advancing the tick
+		# counter — so the detector fired continuously during a perfectly healthy session
+		# and filled the log with false alarms.
+		#
+		# A detector that cries wolf is worse than none: it trains a reader to skip the
+		# one line that matters. Position verification (`verify_position`) is the honest
+		# check and it compares against a SNAPSHOT, which is authoritative about where
+		# the sim actually is.
 		_hash_by_tick[tick] = hash_value
 
 	# Never move backwards. Responses and notifications can interleave, and a

@@ -75,8 +75,9 @@ func _attach(target: String) -> void:
 	session.call("setup", diorama, client, bus)
 	session.narrated.connect(_say)
 
-	bus.transport_failed.connect(func(d: String) -> void: _say("[color=#c66][transport] %s[/color]" % d))
-	bus.staleness_detected.connect(func(d: String) -> void: _say("[color=#c66][stale] %s[/color]" % d))
+	# The session already routes these to `diagnostics` and emits them on `narrated`, so
+	# subscribing here as well would show each one twice. The UI shows what the session
+	# narrates; the split between transcript and diagnostics lives in the session.
 
 	_status.text = "attaching to %s…" % target
 	var handshake: Dictionary = await client.call("attach", parts[0], int(parts[1]), "ai-rpg-stage")
