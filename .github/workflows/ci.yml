@@ -125,22 +125,13 @@ jobs:
           set -euo pipefail
           npm ci
           npm run build
-          mkdir -p dogfood/output/salt-road
-          npx tsx dogfood/export-stage-fixture.ts --world=salt-road --out=../stage/fixtures --doctor
-          # The engine's `--content` reads this pack; the client's fixtures come from the
-          # same export, so the two halves of the join cannot drift in CI either.
-          node -e "const {writeFileSync}=require('fs');"             || { echo "::error::node unavailable"; exit 1; }
-          npx tsx -e "
-            import { writeFileSync, mkdirSync } from 'node:fs';
-            import { saltRoadProject } from './dogfood/worlds/salt-road.js';
-            import { exportToEngine } from './packages/export-ai-rpg/src/index.js';
-            const r = exportToEngine(saltRoadProject);
-            if (!r.success) { console.error(JSON.stringify(r.errors)); process.exit(1); }
-            mkdirSync('dogfood/output/salt-road', { recursive: true });
-            writeFileSync('dogfood/output/salt-road/pack.json', JSON.stringify(r.contentPack, null, 2));
-            console.log('wrote the engine-lane pack');
-          "
-          test -f dogfood/output/salt-road/pack.json || { echo "::error::pack not written"; exit 1; }
+          # ONE invocation emits BOTH lanes — the client's scene and the sim's content —
+          # and refuses to write if they disagree about which zones exist. A first version
+          # ran the engine lane through an inline `npx tsx -e`, where a relative import has
+          # no base file to resolve against: `Cannot find module './dogfood/worlds/salt-road.js'`.
+          npx tsx dogfood/export-stage-fixture.ts             --world=salt-road             --out=../stage/fixtures             --doctor             --engine-out=dogfood/output/salt-road/pack.json
+          test -f dogfood/output/salt-road/pack.json || { echo "::error::engine-lane pack not written"; exit 1; }
+          test -f ../stage/fixtures/world.tscn || { echo "::error::scene not written"; exit 1; }
 
       - name: Cache Godot
         id: godot-cache
