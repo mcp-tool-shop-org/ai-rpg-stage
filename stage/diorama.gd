@@ -27,10 +27,16 @@ const FloorPainter := preload("res://stage/floor_painter.gd")
 const WORLD_SCENE := "res://fixtures/world.tscn"
 const PACK_JSON := "res://fixtures/pack.json"
 
-## 512px sprites in a 32px-tile world. The pack is built for a much larger presentation
-## than a tile; this brings a person to roughly two tiles tall, which is the JRPG
-## convention and what the zone rectangles were laid out against.
-const CHARACTER_SCALE := 0.125
+## 512px sprites in a 48px-tile world → a person 2.5 tiles tall (120px).
+##
+## RESEARCHED, not picked (2026-07-30): 48–64px is the painterly (non-pixel-art) tile
+## band, and characters in that band stand 2–3 tiles tall.
+## https://freegamesprites.com/en/news/tile-size-2d-game-pixel-art-guide
+##
+## Was 0.125 against a 32px tile, which is a PIXEL-ART tile size — too small to carry
+## painted detail, and the reason the rooms read as closets. The tile size and this
+## number move together; changing one alone breaks the convention that sets both.
+const CHARACTER_SCALE := 0.234
 
 ## Where the cast stands, and WHO each one is.
 ##
@@ -40,31 +46,31 @@ const CHARACTER_SCALE := 0.125
 const CAST := [
 	{
 		"id": "npc-corvane", "character": "corvane", "zone": "weighing-floor",
-		"offset": Vector2(96, 128),
+		"at": Vector2(0.30, 0.55),
 		"fit": "good — an old man who wants to retire without signing a false weight",
 		"pack_source": "elder",
 	},
 	{
 		"id": "npc-halle", "character": "halle", "zone": "bonded-warehouse",
-		"offset": Vector2(64, 112),
+		"at": Vector2(0.62, 0.42),
 		"fit": "COMPROMISE — right period and register, but she is holding herbs, not a register",
 		"pack_source": "herbalist",
 	},
 	{
 		"id": "npc-drell", "character": "drell", "zone": "customs-shed",
-		"offset": Vector2(72, 104),
+		"at": Vector2(0.45, 0.66),
 		"fit": "acceptable — reads as officialdom, which is most of Drell",
 		"pack_source": "noble",
 	},
 	{
 		"id": "npc-tally-boy", "character": "tally-boy", "zone": "long-quay",
-		"offset": Vector2(240, 120),
+		"at": Vector2(0.55, 0.50),
 		"fit": "good — he is a boy with bad news",
 		"pack_source": "child",
 	},
 	{
 		"id": "npc-stair-collector", "character": "collector", "zone": "crooked-stair",
-		"offset": Vector2(80, 128),
+		"at": Vector2(0.38, 0.60),
 		"fit": "acceptable — a hard dockside figure; nothing in the pack collects debts",
 		"pack_source": "fisherman",
 	},
@@ -255,7 +261,7 @@ func _build_zone_lights() -> void:
 			continue
 		var lamp: Node = rig.call(
 			"add_point_light",
-			zn.position + Vector2(72, 72),
+			zn.position + FloorPainter.zone_extent(zn) * 0.5,
 			190.0,
 			Color(1.0, 0.86, 0.62),
 			0.55,
@@ -294,7 +300,11 @@ func _populate_cast() -> void:
 			continue
 		var holder := Node2D.new()
 		holder.name = String(member["id"])
-		holder.position = member["offset"]
+		# Proportional to the ROOM, not absolute pixels. Absolute offsets were tuned
+		# against 6x5-tile closets and left the whole cast huddled in one corner the
+		# moment the sandbox grew — a position that only reads correctly at one world
+		# size is a constant pretending to be a placement.
+		holder.position = FloorPainter.zone_extent(zn) * (member["at"] as Vector2)
 		holder.set_meta("entity_id", member["id"])
 		holder.set_meta("pack_source", member["pack_source"])
 		holder.set_meta("casting_fit", member["fit"])
@@ -308,7 +318,7 @@ func _place_player() -> void:
 		return
 	player = Node2D.new()
 	player.name = "Player"
-	player.position = Vector2(112, 136)
+	player.position = FloorPainter.zone_extent(zn) * 0.5
 	player.set_meta("entity_id", "player")
 	zn.add_child(player)
 	SpriteBinder.attach(player, PLAYER_CHARACTER, CHARACTER_SCALE)
@@ -352,8 +362,26 @@ func _frame_camera() -> void:
 	move_child(water, 0)
 
 	cam.position = bounds.get_center()
-	cam.zoom = Vector2(0.72, 0.72)
+	# Zoom is DERIVED from the bounds, not authored. It was hardcoded at 0.72, tuned by
+	# eye against a 40×28-tile world; when the sandbox grew to 120×84 at 48px the same
+	# number framed one corner of the quay and the diorama looked broken rather than
+	# bigger. A view that only works at one world size is a constant pretending to be a
+	# camera.
+	var vp := get_viewport_rect().size
+	if vp.x > 0.0 and vp.y > 0.0 and bounds.size.x > 0.0 and bounds.size.y > 0.0:
+		var margin := 1.12  # water around the town, so nothing sits on the frame edge
+		var fit: float = minf(vp.x / (bounds.size.x * margin), vp.y / (bounds.size.y * margin))
+		cam.zoom = Vector2(fit, fit)
+	else:
+		cam.zoom = Vector2(0.72, 0.72)
 	add_child(cam)
+	# ⚠ MAKE IT CURRENT, EXPLICITLY. The exported world.tscn ships its own Camera2D
+	# (the authoring view), and it enters the tree first — so it, not this one, was the
+	# active camera for every render since P3. That was invisible while the world was
+	# small enough for the export camera's default zoom to frame it by luck, and it
+	# turned every shot into a corner crop the moment the sandbox grew. A camera that is
+	# built, positioned, zoomed, and never made current is a camera that does nothing.
+	cam.make_current()
 
 
 ## The biome key for a zone, for the floor painter. A separate accessor so the painter

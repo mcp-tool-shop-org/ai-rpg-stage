@@ -7,45 +7,45 @@
 [ext_resource type="Texture2D" path="res://assets/tilesets/harbour-stone.png" id="tiletex_0"]
 
 [sub_resource type="RectangleShape2D" id="RectShape_0"]
-size = Vector2(192, 160)
+size = Vector2(864, 720)
 
 [sub_resource type="NavigationPolygon" id="NavPoly_0"]
-vertices = PackedVector2Array(0, 0, 192, 0, 192, 160, 0, 160)
+vertices = PackedVector2Array(0, 0, 864, 0, 864, 720, 0, 720)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [sub_resource type="RectangleShape2D" id="RectShape_1"]
-size = Vector2(256, 192)
+size = Vector2(1152, 864)
 
 [sub_resource type="NavigationPolygon" id="NavPoly_1"]
-vertices = PackedVector2Array(0, 0, 256, 0, 256, 192, 0, 192)
+vertices = PackedVector2Array(0, 0, 1152, 0, 1152, 864, 0, 864)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [sub_resource type="RectangleShape2D" id="RectShape_2"]
-size = Vector2(224, 192)
+size = Vector2(1008, 864)
 
 [sub_resource type="NavigationPolygon" id="NavPoly_2"]
-vertices = PackedVector2Array(0, 0, 224, 0, 224, 192, 0, 192)
+vertices = PackedVector2Array(0, 0, 1008, 0, 1008, 864, 0, 864)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [sub_resource type="RectangleShape2D" id="RectShape_3"]
-size = Vector2(448, 192)
+size = Vector2(2016, 864)
 
 [sub_resource type="NavigationPolygon" id="NavPoly_3"]
-vertices = PackedVector2Array(0, 0, 448, 0, 448, 192, 0, 192)
+vertices = PackedVector2Array(0, 0, 2016, 0, 2016, 864, 0, 864)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [sub_resource type="RectangleShape2D" id="RectShape_4"]
-size = Vector2(224, 160)
+size = Vector2(1008, 720)
 
 [sub_resource type="NavigationPolygon" id="NavPoly_4"]
-vertices = PackedVector2Array(0, 0, 224, 0, 224, 160, 0, 160)
+vertices = PackedVector2Array(0, 0, 1008, 0, 1008, 720, 0, 720)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [sub_resource type="RectangleShape2D" id="RectShape_5"]
-size = Vector2(192, 192)
+size = Vector2(864, 864)
 
 [sub_resource type="NavigationPolygon" id="NavPoly_5"]
-vertices = PackedVector2Array(0, 0, 192, 0, 192, 192, 0, 192)
+vertices = PackedVector2Array(0, 0, 864, 0, 864, 864, 0, 864)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [sub_resource type="TileSetAtlasSource" id="TileAtlas_0_0"]
@@ -57,29 +57,29 @@ texture_region_size = Vector2i(32, 32)
 1:1/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_0"]
-tile_size = Vector2i(32, 32)
+tile_size = Vector2i(48, 48)
 sources/0 = SubResource("TileAtlas_0_0")
 
 [sub_resource type="RectangleShape2D" id="HazardShape_0"]
-size = Vector2(448, 192)
+size = Vector2(2016, 864)
 
 [node name="Salt_Road:_The_Long_Quay" type="Node2D"]
 y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(560, 464)
+position = Vector2(2520, 2088)
 
 [node name="Ground" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_0")
 z_index = -10
-tile_map_data = PackedByteArray(0, 0, 10, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 12, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 14, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 16, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 18, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 20, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 22, 0, 18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 11, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 13, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 5, 0, 21, 0, 0, 0, 1, 0, 1, 0, 0, 0, 7, 0, 23, 0, 0, 0, 1, 0, 1, 0, 0, 0)
+tile_map_data = PackedByteArray(0, 0, 30, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 44, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 44, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 44, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 61, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 61, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 61, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 68, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 68, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 68, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 30, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 30, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 31, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 31, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 31, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 32, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 32, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 32, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 36, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 36, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 36, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 37, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 37, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 37, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 38, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 38, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 38, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 42, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 42, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 42, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 43, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 43, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 43, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 44, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 44, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 44, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 48, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 48, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 48, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 49, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 49, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 49, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 50, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 50, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 50, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 54, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 54, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 54, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 55, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 55, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 55, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 56, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 56, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 56, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 60, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 60, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 60, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 61, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 61, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 61, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 62, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 62, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 62, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 66, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 66, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 66, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 67, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 67, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 67, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 68, 0, 54, 0, 0, 0, 1, 0, 0, 0, 0, 0, 68, 0, 55, 0, 0, 0, 1, 0, 0, 0, 0, 0, 68, 0, 56, 0, 0, 0, 1, 0, 0, 0, 0, 0, 33, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 33, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 33, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 34, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 34, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 34, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 35, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 35, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 35, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 39, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 39, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 39, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 41, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 41, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 41, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 45, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 45, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 45, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 46, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 46, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 46, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 47, 0, 12, 0, 0, 0, 0, 0, 1, 0, 0, 0, 47, 0, 13, 0, 0, 0, 0, 0, 1, 0, 0, 0, 47, 0, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 15, 0, 63, 0, 0, 0, 1, 0, 1, 0, 0, 0, 15, 0, 64, 0, 0, 0, 1, 0, 1, 0, 0, 0, 15, 0, 65, 0, 0, 0, 1, 0, 1, 0, 0, 0, 16, 0, 63, 0, 0, 0, 1, 0, 1, 0, 0, 0, 16, 0, 64, 0, 0, 0, 1, 0, 1, 0, 0, 0, 16, 0, 65, 0, 0, 0, 1, 0, 1, 0, 0, 0, 17, 0, 63, 0, 0, 0, 1, 0, 1, 0, 0, 0, 17, 0, 64, 0, 0, 0, 1, 0, 1, 0, 0, 0, 17, 0, 65, 0, 0, 0, 1, 0, 1, 0, 0, 0, 21, 0, 69, 0, 0, 0, 1, 0, 1, 0, 0, 0, 21, 0, 70, 0, 0, 0, 1, 0, 1, 0, 0, 0, 21, 0, 71, 0, 0, 0, 1, 0, 1, 0, 0, 0, 22, 0, 69, 0, 0, 0, 1, 0, 1, 0, 0, 0, 22, 0, 70, 0, 0, 0, 1, 0, 1, 0, 0, 0, 22, 0, 71, 0, 0, 0, 1, 0, 1, 0, 0, 0, 23, 0, 69, 0, 0, 0, 1, 0, 1, 0, 0, 0, 23, 0, 70, 0, 0, 0, 1, 0, 1, 0, 0, 0, 23, 0, 71, 0, 0, 0, 1, 0, 1, 0, 0, 0)
 metadata/layer_id = "ground"
-metadata/tile_count = 19
+metadata/tile_count = 171
 metadata/image_backed = true
 metadata/solid_count = 0
 
 [node name="The_Counting_House" type="Node2D" parent="."]
-position = Vector2(64, 128)
+position = Vector2(288, 576)
 y_sort_enabled = true
 z_index = 0
 metadata/zone_id = "counting-house"
@@ -92,7 +92,7 @@ metadata/district_id = "saltgate"
 [node name="Collision" type="StaticBody2D" parent="The_Counting_House"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="The_Counting_House/Collision"]
-position = Vector2(96, 80)
+position = Vector2(432, 360)
 shape = SubResource("RectShape_0")
 
 [node name="Navigation" type="NavigationRegion2D" parent="The_Counting_House"]
@@ -101,7 +101,7 @@ navigation_polygon = SubResource("NavPoly_0")
 [node name="Items" type="Node2D" parent="The_Counting_House"]
 
 [node name="The_Guild_Seal" type="Node2D" parent="The_Counting_House/Items"]
-position = Vector2(64, 64)
+position = Vector2(288, 288)
 metadata/item_id = "guild-seal"
 metadata/display_name = "The Guild Seal"
 metadata/hidden = false
@@ -111,12 +111,12 @@ metadata/rarity = "uncommon"
 [node name="SpawnPoints" type="Node2D" parent="The_Counting_House"]
 
 [node name="Spawn_start_counting_house" type="Marker2D" parent="The_Counting_House/SpawnPoints"]
-position = Vector2(64, 96)
+position = Vector2(288, 432)
 metadata/spawn_id = "start-counting-house"
 metadata/is_default = true
 
 [node name="The_Weighing_Floor" type="Node2D" parent="."]
-position = Vector2(320, 128)
+position = Vector2(1440, 576)
 y_sort_enabled = true
 z_index = 0
 metadata/zone_id = "weighing-floor"
@@ -129,7 +129,7 @@ metadata/district_id = "saltgate"
 [node name="Collision" type="StaticBody2D" parent="The_Weighing_Floor"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="The_Weighing_Floor/Collision"]
-position = Vector2(128, 96)
+position = Vector2(576, 432)
 shape = SubResource("RectShape_1")
 
 [node name="Navigation" type="NavigationRegion2D" parent="The_Weighing_Floor"]
@@ -138,14 +138,14 @@ navigation_polygon = SubResource("NavPoly_1")
 [node name="Entities" type="Node2D" parent="The_Weighing_Floor"]
 
 [node name="Assay_Master_Corvane" parent="The_Weighing_Floor/Entities" instance=ExtResource("ext_0")]
-position = Vector2(96, 96)
+position = Vector2(432, 432)
 metadata/entity_id = "npc-corvane"
 metadata/role = "merchant"
 metadata/display_name = "Assay Master Corvane"
 metadata/faction_id = "assay-guild"
 
 [node name="The_Bonded_Warehouse" type="Node2D" parent="."]
-position = Vector2(640, 96)
+position = Vector2(2880, 432)
 y_sort_enabled = true
 z_index = 0
 metadata/zone_id = "bonded-warehouse-DOCTORED"
@@ -161,7 +161,7 @@ metadata/entry_gate_reason = "Halle keeps her hand flat on the register. \"It's 
 [node name="Collision" type="StaticBody2D" parent="The_Bonded_Warehouse"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="The_Bonded_Warehouse/Collision"]
-position = Vector2(112, 96)
+position = Vector2(504, 432)
 shape = SubResource("RectShape_2")
 
 [node name="Navigation" type="NavigationRegion2D" parent="The_Bonded_Warehouse"]
@@ -170,14 +170,14 @@ navigation_polygon = SubResource("NavPoly_2")
 [node name="Entities" type="Node2D" parent="The_Bonded_Warehouse"]
 
 [node name="Bonded_Clerk_Halle" parent="The_Bonded_Warehouse/Entities" instance=ExtResource("ext_1")]
-position = Vector2(32, 64)
+position = Vector2(144, 288)
 metadata/entity_id = "npc-halle"
 metadata/role = "npc"
 metadata/display_name = "Bonded Clerk Halle"
 metadata/faction_id = "assay-guild"
 
 [node name="The_Long_Quay" type="Node2D" parent="."]
-position = Vector2(320, 416)
+position = Vector2(1440, 1872)
 y_sort_enabled = true
 z_index = 0
 metadata/zone_id = "long-quay"
@@ -190,7 +190,7 @@ metadata/district_id = "dockward"
 [node name="Collision" type="StaticBody2D" parent="The_Long_Quay"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="The_Long_Quay/Collision"]
-position = Vector2(224, 96)
+position = Vector2(1008, 432)
 shape = SubResource("RectShape_3")
 
 [node name="Navigation" type="NavigationRegion2D" parent="The_Long_Quay"]
@@ -199,13 +199,13 @@ navigation_polygon = SubResource("NavPoly_3")
 [node name="Entities" type="Node2D" parent="The_Long_Quay"]
 
 [node name="The_Tally-Boy" parent="The_Long_Quay/Entities" instance=ExtResource("ext_1")]
-position = Vector2(320, 64)
+position = Vector2(1440, 288)
 metadata/entity_id = "npc-tally-boy"
 metadata/role = "npc"
 metadata/display_name = "The Tally-Boy"
 
 [node name="The_Customs_Shed" type="Node2D" parent="."]
-position = Vector2(832, 448)
+position = Vector2(3744, 2016)
 y_sort_enabled = true
 z_index = 0
 metadata/zone_id = "customs-shed"
@@ -218,7 +218,7 @@ metadata/district_id = "dockward"
 [node name="Collision" type="StaticBody2D" parent="The_Customs_Shed"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="The_Customs_Shed/Collision"]
-position = Vector2(112, 80)
+position = Vector2(504, 360)
 shape = SubResource("RectShape_4")
 
 [node name="Navigation" type="NavigationRegion2D" parent="The_Customs_Shed"]
@@ -227,14 +227,14 @@ navigation_polygon = SubResource("NavPoly_4")
 [node name="Entities" type="Node2D" parent="The_Customs_Shed"]
 
 [node name="Harbourmaster_Drell" parent="The_Customs_Shed/Entities" instance=ExtResource("ext_2")]
-position = Vector2(64, 64)
+position = Vector2(288, 288)
 metadata/entity_id = "npc-drell"
 metadata/role = "quest-giver"
 metadata/display_name = "Harbourmaster Drell"
 metadata/faction_id = "harbour-authority"
 
 [node name="The_Crooked_Stair" type="Node2D" parent="."]
-position = Vector2(128, 640)
+position = Vector2(576, 2880)
 y_sort_enabled = true
 z_index = -4
 metadata/zone_id = "crooked-stair"
@@ -247,7 +247,7 @@ metadata/district_id = "the-warrens"
 [node name="Collision" type="StaticBody2D" parent="The_Crooked_Stair"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="The_Crooked_Stair/Collision"]
-position = Vector2(96, 96)
+position = Vector2(432, 432)
 shape = SubResource("RectShape_5")
 
 [node name="Navigation" type="NavigationRegion2D" parent="The_Crooked_Stair"]
@@ -256,7 +256,7 @@ navigation_polygon = SubResource("NavPoly_5")
 [node name="Entities" type="Node2D" parent="The_Crooked_Stair"]
 
 [node name="A_Collector_on_the_Stair" parent="The_Crooked_Stair/Entities" instance=ExtResource("ext_3")]
-position = Vector2(64, 96)
+position = Vector2(288, 432)
 metadata/entity_id = "npc-stair-collector"
 metadata/role = "enemy"
 metadata/display_name = "A Collector on the Stair"
@@ -264,7 +264,7 @@ metadata/display_name = "A Collector on the Stair"
 [node name="Props" type="Node2D" parent="."]
 
 [node name="Standing_Desk" type="Node2D" parent="Props"]
-position = Vector2(96, 160)
+position = Vector2(432, 720)
 metadata/prop_id = "pp-desk"
 metadata/prop_def = "prop-desk"
 metadata/display_name = "Standing Desk"
@@ -275,7 +275,7 @@ metadata/height = 1
 metadata/zone_id = "counting-house"
 
 [node name="Brass_Scales" type="Node2D" parent="Props"]
-position = Vector2(352, 192)
+position = Vector2(1584, 864)
 metadata/prop_id = "pp-scale-1"
 metadata/prop_def = "prop-scales"
 metadata/display_name = "Brass Scales"
@@ -286,7 +286,7 @@ metadata/height = 1
 metadata/zone_id = "weighing-floor"
 
 [node name="Brass_Scales_2" type="Node2D" parent="Props"]
-position = Vector2(384, 192)
+position = Vector2(1728, 864)
 metadata/prop_id = "pp-scale-2"
 metadata/prop_def = "prop-scales"
 metadata/display_name = "Brass Scales"
@@ -297,7 +297,7 @@ metadata/height = 1
 metadata/zone_id = "weighing-floor"
 
 [node name="Brass_Scales_3" type="Node2D" parent="Props"]
-position = Vector2(416, 192)
+position = Vector2(1872, 864)
 metadata/prop_id = "pp-scale-3"
 metadata/prop_def = "prop-scales"
 metadata/display_name = "Brass Scales"
@@ -308,7 +308,7 @@ metadata/height = 1
 metadata/zone_id = "weighing-floor"
 
 [node name="Brass_Scales_4" type="Node2D" parent="Props"]
-position = Vector2(448, 192)
+position = Vector2(2016, 864)
 metadata/prop_id = "pp-scale-4"
 metadata/prop_def = "prop-scales"
 metadata/display_name = "Brass Scales"
@@ -319,7 +319,7 @@ metadata/height = 1
 metadata/zone_id = "weighing-floor"
 
 [node name="Brass_Scales_5" type="Node2D" parent="Props"]
-position = Vector2(480, 192)
+position = Vector2(2160, 864)
 metadata/prop_id = "pp-scale-5"
 metadata/prop_def = "prop-scales"
 metadata/display_name = "Brass Scales"
@@ -330,7 +330,7 @@ metadata/height = 1
 metadata/zone_id = "weighing-floor"
 
 [node name="Brass_Scales_6" type="Node2D" parent="Props"]
-position = Vector2(512, 192)
+position = Vector2(2304, 864)
 metadata/prop_id = "pp-scale-6"
 metadata/prop_def = "prop-scales"
 metadata/display_name = "Brass Scales"
@@ -341,7 +341,7 @@ metadata/height = 1
 metadata/zone_id = "weighing-floor"
 
 [node name="The_Open_Cage" type="Node2D" parent="Props"]
-position = Vector2(800, 192)
+position = Vector2(3600, 864)
 metadata/prop_id = "pp-cage"
 metadata/prop_def = "prop-cage"
 metadata/display_name = "The Open Cage"
@@ -352,7 +352,7 @@ metadata/height = 2
 metadata/zone_id = "bonded-warehouse"
 
 [node name="Crate_Under_Seal" type="Node2D" parent="Props"]
-position = Vector2(672, 128)
+position = Vector2(3024, 576)
 metadata/prop_id = "pp-crate-1"
 metadata/prop_def = "prop-crate-sealed"
 metadata/display_name = "Crate Under Seal"
@@ -363,7 +363,7 @@ metadata/height = 1
 metadata/zone_id = "bonded-warehouse"
 
 [node name="Crate_Under_Seal_2" type="Node2D" parent="Props"]
-position = Vector2(704, 128)
+position = Vector2(3168, 576)
 metadata/prop_id = "pp-crate-2"
 metadata/prop_def = "prop-crate-sealed"
 metadata/display_name = "Crate Under Seal"
@@ -374,7 +374,7 @@ metadata/height = 1
 metadata/zone_id = "bonded-warehouse"
 
 [node name="Crate_Under_Seal_3" type="Node2D" parent="Props"]
-position = Vector2(736, 128)
+position = Vector2(3312, 576)
 metadata/prop_id = "pp-crate-3"
 metadata/prop_def = "prop-crate-sealed"
 metadata/display_name = "Crate Under Seal"
@@ -385,7 +385,7 @@ metadata/height = 1
 metadata/zone_id = "bonded-warehouse"
 
 [node name="Coiled_Hawsers" type="Node2D" parent="Props"]
-position = Vector2(384, 512)
+position = Vector2(1728, 2304)
 metadata/prop_id = "pp-hawsers"
 metadata/prop_def = "prop-hawsers"
 metadata/display_name = "Coiled Hawsers"
@@ -396,7 +396,7 @@ metadata/height = 1
 metadata/zone_id = "long-quay"
 
 [node name="The_Crane" type="Node2D" parent="Props"]
-position = Vector2(608, 448)
+position = Vector2(2736, 2016)
 metadata/prop_id = "pp-crane"
 metadata/prop_def = "prop-crane"
 metadata/display_name = "The Crane"
@@ -409,7 +409,7 @@ metadata/zone_id = "long-quay"
 [node name="Markets" type="Node2D" parent="."]
 
 [node name="Market_market-weighing-floor" type="Node2D" parent="Markets"]
-position = Vector2(448, 224)
+position = Vector2(2016, 1008)
 metadata/market_id = "market-weighing-floor"
 metadata/zone_id = "weighing-floor"
 metadata/supply_categories = "salt,tools"
@@ -420,7 +420,7 @@ metadata/merchant_entity_id = "npc-corvane"
 [node name="Hazards" type="Node2D" parent="."]
 
 [node name="Hazard_long-quay_tide-slick" type="Area2D" parent="Hazards"]
-position = Vector2(544, 512)
+position = Vector2(2448, 2304)
 metadata/hazard_id = "tide-slick"
 metadata/zone_id = "long-quay"
 metadata/trigger = "on-enter"
@@ -436,8 +436,8 @@ shape = SubResource("HazardShape_0")
 [node name="NavigationLinks" type="Node2D" parent="."]
 
 [node name="Link_0" type="NavigationLink2D" parent="NavigationLinks"]
-start_position = Vector2(256, 208)
-end_position = Vector2(320, 224)
+start_position = Vector2(1152, 936)
+end_position = Vector2(1440, 1008)
 bidirectional = true
 metadata/from_zone = "counting-house"
 metadata/to_zone = "weighing-floor"
@@ -445,8 +445,8 @@ metadata/kind = "door"
 metadata/transition_mode = "door"
 
 [node name="Link_1" type="NavigationLink2D" parent="NavigationLinks"]
-start_position = Vector2(576, 224)
-end_position = Vector2(640, 192)
+start_position = Vector2(2592, 1008)
+end_position = Vector2(2880, 864)
 bidirectional = true
 metadata/from_zone = "weighing-floor"
 metadata/to_zone = "bonded-warehouse"
@@ -454,8 +454,8 @@ metadata/kind = "door"
 metadata/transition_mode = "door"
 
 [node name="Link_2" type="NavigationLink2D" parent="NavigationLinks"]
-start_position = Vector2(448, 320)
-end_position = Vector2(544, 416)
+start_position = Vector2(2016, 1440)
+end_position = Vector2(2448, 1872)
 bidirectional = true
 metadata/from_zone = "weighing-floor"
 metadata/to_zone = "long-quay"
@@ -463,8 +463,8 @@ metadata/kind = "passage"
 metadata/transition_mode = "walk"
 
 [node name="Link_3" type="NavigationLink2D" parent="NavigationLinks"]
-start_position = Vector2(768, 512)
-end_position = Vector2(832, 528)
+start_position = Vector2(3456, 2304)
+end_position = Vector2(3744, 2376)
 bidirectional = true
 metadata/from_zone = "long-quay"
 metadata/to_zone = "customs-shed"
@@ -472,8 +472,8 @@ metadata/kind = "door"
 metadata/transition_mode = "door"
 
 [node name="Link_4" type="NavigationLink2D" parent="NavigationLinks"]
-start_position = Vector2(320, 512)
-end_position = Vector2(320, 736)
+start_position = Vector2(1440, 2304)
+end_position = Vector2(1440, 3312)
 bidirectional = true
 metadata/from_zone = "long-quay"
 metadata/to_zone = "crooked-stair"
