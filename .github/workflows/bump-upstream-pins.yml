@@ -1,6 +1,6 @@
 name: Bump upstream pins
 
-# ci.yml pins ENGINE_REF and FORGE_REF to SHAs because the "Export Salt Road"
+# .github/upstream-pins.env holds the SHAs ci.yml runs against, because the "Export Salt Road"
 # step GENERATES stage/fixtures/world.tscn from world-forge's exporter — with a
 # floating `main` the scene under test was never a fixed artifact, and the suite
 # went red with no commit in this repo. Pinning fixed that and introduced the
@@ -45,9 +45,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          CI=.github/workflows/ci.yml
-          cur_engine=$(grep -oE "ENGINE_REF: '[0-9a-f]{40}'" "$CI" | grep -oE "[0-9a-f]{40}")
-          cur_forge=$(grep -oE "FORGE_REF: '[0-9a-f]{40}'" "$CI" | grep -oE "[0-9a-f]{40}")
+          PINS=.github/upstream-pins.env
+          cur_engine=$(grep -oE "^ENGINE_REF=[0-9a-f]{40}$" "$PINS" | cut -d= -f2)
+          cur_forge=$(grep -oE "^FORGE_REF=[0-9a-f]{40}$" "$PINS" | cut -d= -f2)
           new_engine=$(gh api repos/mcp-tool-shop-org/ai-rpg-engine/commits/main --jq .sha)
           new_forge=$(gh api repos/mcp-tool-shop-org/world-forge/commits/main --jq .sha)
           echo "engine: $cur_engine -> $new_engine"
@@ -74,12 +74,14 @@ jobs:
         run: |
           set -euo pipefail
           BRANCH=chore/bump-upstream-pins
-          CI=.github/workflows/ci.yml
-          sed -i "s/${CUR_ENGINE}/${NEW_ENGINE}/; s/${CUR_FORGE}/${NEW_FORGE}/" "$CI"
+          # Only this data file is touched. GITHUB_TOKEN may not modify anything
+          # under .github/workflows/, which is exactly why the pins live here.
+          PINS=.github/upstream-pins.env
+          sed -i "s/${CUR_ENGINE}/${NEW_ENGINE}/; s/${CUR_FORGE}/${NEW_FORGE}/" "$PINS"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
-          git add "$CI"
+          git add "$PINS"
           git commit -m "chore(ci): bump upstream pins to current main" \
                      -m "engine ${CUR_ENGINE:0:7} -> ${NEW_ENGINE:0:7}; forge ${CUR_FORGE:0:7} -> ${NEW_FORGE:0:7}. Opened by the weekly bump job; CI on this branch is what proves the new pair."
           git push -f origin "$BRANCH"
