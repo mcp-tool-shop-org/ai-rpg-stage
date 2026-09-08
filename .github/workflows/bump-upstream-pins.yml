@@ -1,0 +1,111 @@
+name: Bump upstream pins
+
+# ci.yml pins ENGINE_REF and FORGE_REF to SHAs because the "Export Salt Road"
+# step GENERATES stage/fixtures/world.tscn from world-forge's exporter — with a
+# floating `main` the scene under test was never a fixed artifact, and the suite
+# went red with no commit in this repo. Pinning fixed that and introduced the
+# opposite risk: pins rot silently.
+#
+# So freshness arrives as a reviewable commit instead of an invisible one. This
+# job proposes the bump; a human merges it, and CI proves the new pair first.
+#
+# Permitted under .claude/rules/automation.md as amended 2026-09-08: it does
+# something a push trigger cannot (upstream drift), runs weekly, is bounded
+# (ubuntu-latest + timeout-minutes + concurrency), opens a PR rather than
+# pushing to a protected branch, and carries workflow_dispatch so it can be
+# exercised without waiting for the cron. It is not push-triggered, so it does
+# not count against the two-push-workflow cap in rules/github-actions.md.
+
+on:
+  schedule:
+    # Mondays 07:00 UTC. Weekly is the rule's default; these pins move slowly
+    # and a stale pin is not an incident.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write        # to dispatch ci.yml on the branch — see the last step
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Resolve upstream tips and compare against the pins
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          CI=.github/workflows/ci.yml
+          cur_engine=$(grep -oE "ENGINE_REF: '[0-9a-f]{40}'" "$CI" | grep -oE "[0-9a-f]{40}")
+          cur_forge=$(grep -oE "FORGE_REF: '[0-9a-f]{40}'" "$CI" | grep -oE "[0-9a-f]{40}")
+          new_engine=$(gh api repos/mcp-tool-shop-org/ai-rpg-engine/commits/main --jq .sha)
+          new_forge=$(gh api repos/mcp-tool-shop-org/world-forge/commits/main --jq .sha)
+          echo "engine: $cur_engine -> $new_engine"
+          echo "forge:  $cur_forge -> $new_forge"
+          echo "cur_engine=$cur_engine" >> "$GITHUB_OUTPUT"
+          echo "new_engine=$new_engine" >> "$GITHUB_OUTPUT"
+          echo "cur_forge=$cur_forge" >> "$GITHUB_OUTPUT"
+          echo "new_forge=$new_forge" >> "$GITHUB_OUTPUT"
+          if [ "$cur_engine" = "$new_engine" ] && [ "$cur_forge" = "$new_forge" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Pins are current."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open (or update) the bump PR
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CUR_ENGINE: ${{ steps.check.outputs.cur_engine }}
+          NEW_ENGINE: ${{ steps.check.outputs.new_engine }}
+          CUR_FORGE: ${{ steps.check.outputs.cur_forge }}
+          NEW_FORGE: ${{ steps.check.outputs.new_forge }}
+        run: |
+          set -euo pipefail
+          BRANCH=chore/bump-upstream-pins
+          CI=.github/workflows/ci.yml
+          sed -i "s/${CUR_ENGINE}/${NEW_ENGINE}/; s/${CUR_FORGE}/${NEW_FORGE}/" "$CI"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add "$CI"
+          git commit -m "chore(ci): bump upstream pins to current main" \
+                     -m "engine ${CUR_ENGINE:0:7} -> ${NEW_ENGINE:0:7}; forge ${CUR_FORGE:0:7} -> ${NEW_FORGE:0:7}. Opened by the weekly bump job; CI on this branch is what proves the new pair."
+          git push -f origin "$BRANCH"
+          # Show the size of the jump, not two opaque SHAs.
+          eng_n=$(gh api "repos/mcp-tool-shop-org/ai-rpg-engine/compare/${CUR_ENGINE}...${NEW_ENGINE}" --jq .total_commits 2>/dev/null || echo '?')
+          fg_n=$(gh api "repos/mcp-tool-shop-org/world-forge/compare/${CUR_FORGE}...${NEW_FORGE}" --jq .total_commits 2>/dev/null || echo '?')
+          {
+            printf 'Weekly upstream-pin bump.\n\n'
+            printf '| repo | from | to | commits |\n|---|---|---|---|\n'
+            printf '| ai-rpg-engine | `%s` | `%s` | %s |\n' "${CUR_ENGINE:0:7}" "${NEW_ENGINE:0:7}" "$eng_n"
+            printf '| world-forge | `%s` | `%s` | %s |\n\n' "${CUR_FORGE:0:7}" "${NEW_FORGE:0:7}" "$fg_n"
+            printf 'These pins exist because the *Export Salt Road* step generates '
+            printf '`stage/fixtures/world.tscn` from world-forge'"'"'s exporter. Floating them made '
+            printf 'the suite measure a moving target; bumping them is meant to be a reviewable commit.\n\n'
+            printf '**CI does not start itself here.** A PR created with `GITHUB_TOKEN` does not '
+            printf 'trigger workflows, so this job dispatches `ci.yml` against the branch explicitly. '
+            printf 'If that dispatch failed, run it by hand before merging — do not merge on the '
+            printf 'strength of the diff alone, because the whole point of the pin is that the new '
+            printf 'pair has to be proven.\n'
+          } > /tmp/pr-body.md
+          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            gh pr edit "$BRANCH" --body-file /tmp/pr-body.md
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "chore(ci): bump upstream pins to current main" --body-file /tmp/pr-body.md
+          fi
+          # Kick CI on the branch, since the PR itself cannot.
+          gh workflow run ci --ref "$BRANCH" \
+            || echo "::warning::could not dispatch ci.yml on $BRANCH — run it manually before merging"
