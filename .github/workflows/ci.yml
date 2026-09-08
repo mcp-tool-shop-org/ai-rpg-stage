@@ -41,16 +41,28 @@ env:
   # are both version-bound; "whatever is latest" is how a green suite starts
   # testing a different engine than the one the work was proven on.
   GODOT_VERSION: '4.7-stable'
-  # The wire tests drive the REAL simulation, so CI checks the engine out and builds
-  # it. A mock would prove the stage agrees with a mock.
+  # PINNED TO SHAs, and this time the comment is true. These previously read
+  # `main`, three lines under a comment that said "Pinned, not floating" -- a
+  # comment asserting a property the code did not have, which is worse than no
+  # comment at all because it tells the next reader not to look.
   #
-  # Both refs point at `main`: the C4 engine half (`--listen`, `--content`) merged as
-  # `0d1fbc4` and the forge stage lane (Salt Road) as `10bed6b`, 2026-07-29. The refs
-  # stay stated here rather than hidden in a default so nobody has to wonder which
-  # engine the suite ran against. (They were branch-pinned while C4 was unmerged.)
+  # The Export Salt Road step GENERATES stage/fixtures/world.tscn from whatever
+  # world-forge main happens to be at that minute. Floating the ref meant the
+  # scene under test was not a fixed artifact, so this suite could go red with
+  # no commit in this repo -- and it did: the generated scene began referencing
+  # res://scripts/player.gd and res://world_data/zones/*.tres, paths this repo
+  # does not contain, and Godot refused to parse it.
+  #
+  # These are the exact refs of the last green run (30507542487, 2026-07-30) --
+  # and they are the same two SHAs the old comment already named. It described
+  # the pin without making it. Drift they were hiding: ai-rpg-engine main has
+  # since moved to e7be7e6 and world-forge to 45f6171.
+  #
+  # Bumping these is meant to be a reviewable commit: raise a SHA, let the suite
+  # prove the new pair, merge. Freshness that arrives invisibly is what broke it.
   ENGINE_REPO: 'mcp-tool-shop-org/ai-rpg-engine'
-  ENGINE_REF: 'main'
-  FORGE_REF: 'main'
+  ENGINE_REF: '0d1fbc4dfda18964ee2490df619e5b546508d996'
+  FORGE_REF: '10bed6b86fb4fa05c6da50a12bb3e4d1f367e41d'
 
 jobs:
   headless:
