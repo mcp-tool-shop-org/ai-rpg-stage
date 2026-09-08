@@ -1,20 +1,20 @@
 name: Bump upstream pins
 
-# .github/upstream-pins.env holds the SHAs ci.yml runs against, because the "Export Salt Road"
-# step GENERATES stage/fixtures/world.tscn from world-forge's exporter — with a
-# floating `main` the scene under test was never a fixed artifact, and the suite
-# went red with no commit in this repo. Pinning fixed that and introduced the
-# opposite risk: pins rot silently.
+# .github/upstream-pins.env holds the SHAs ci.yml runs against, because the
+# "Export Salt Road" step GENERATES stage/fixtures/world.tscn from the
+# world-forge exporter — with a floating `main` the scene under test was never a
+# fixed artifact, and the suite went red with no commit in this repo. Pinning
+# fixed that and introduced the opposite risk: pins rot silently.
 #
 # So freshness arrives as a reviewable commit instead of an invisible one. This
-# job proposes the bump; a human merges it, and CI proves the new pair first.
+# job prepares the bump; a human merges it, and CI proves the new pair first.
 #
 # Permitted under .claude/rules/automation.md as amended 2026-09-08: it does
 # something a push trigger cannot (upstream drift), runs weekly, is bounded
-# (ubuntu-latest + timeout-minutes + concurrency), opens a PR rather than
-# pushing to a protected branch, and carries workflow_dispatch so it can be
-# exercised without waiting for the cron. It is not push-triggered, so it does
-# not count against the two-push-workflow cap in rules/github-actions.md.
+# (ubuntu-latest + timeout-minutes + concurrency), never pushes to a protected
+# branch, and carries workflow_dispatch so it can be exercised without waiting
+# for the cron. It is not push-triggered, so it does not count against the
+# two-push-workflow cap in rules/github-actions.md.
 
 on:
   schedule:
@@ -29,7 +29,7 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: write
+  issues: write         # Actions may open issues; it may NOT open PRs (org setting)
   actions: write        # to dispatch ci.yml on the branch — see the last step
 
 jobs:
@@ -63,7 +63,7 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Open (or update) the bump PR
+      - name: Push the bump branch and file the drift issue
         if: steps.check.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -74,40 +74,53 @@ jobs:
         run: |
           set -euo pipefail
           BRANCH=chore/bump-upstream-pins
+
           # Only this data file is touched. GITHUB_TOKEN may not modify anything
-          # under .github/workflows/, which is exactly why the pins live here.
+          # under .github/workflows/ under ANY permission setting, which is
+          # exactly why the pins were moved out of ci.yml.
           PINS=.github/upstream-pins.env
           sed -i "s/${CUR_ENGINE}/${NEW_ENGINE}/; s/${CUR_FORGE}/${NEW_FORGE}/" "$PINS"
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
           git add "$PINS"
           git commit -m "chore(ci): bump upstream pins to current main" \
-                     -m "engine ${CUR_ENGINE:0:7} -> ${NEW_ENGINE:0:7}; forge ${CUR_FORGE:0:7} -> ${NEW_FORGE:0:7}. Opened by the weekly bump job; CI on this branch is what proves the new pair."
+                     -m "engine ${CUR_ENGINE:0:7} -> ${NEW_ENGINE:0:7}; forge ${CUR_FORGE:0:7} -> ${NEW_FORGE:0:7}. Prepared by the weekly bump job; CI on this branch is what proves the new pair."
           git push -f origin "$BRANCH"
+
           # Show the size of the jump, not two opaque SHAs.
           eng_n=$(gh api "repos/mcp-tool-shop-org/ai-rpg-engine/compare/${CUR_ENGINE}...${NEW_ENGINE}" --jq .total_commits 2>/dev/null || echo '?')
           fg_n=$(gh api "repos/mcp-tool-shop-org/world-forge/compare/${CUR_FORGE}...${NEW_FORGE}" --jq .total_commits 2>/dev/null || echo '?')
+
           {
-            printf 'Weekly upstream-pin bump.\n\n'
-            printf '| repo | from | to | commits |\n|---|---|---|---|\n'
+            printf 'The pinned upstream SHAs are behind `main`.\n\n'
+            printf '| repo | pinned | current | commits behind |\n|---|---|---|---|\n'
             printf '| ai-rpg-engine | `%s` | `%s` | %s |\n' "${CUR_ENGINE:0:7}" "${NEW_ENGINE:0:7}" "$eng_n"
             printf '| world-forge | `%s` | `%s` | %s |\n\n' "${CUR_FORGE:0:7}" "${NEW_FORGE:0:7}" "$fg_n"
-            printf 'These pins exist because the *Export Salt Road* step generates '
-            printf '`stage/fixtures/world.tscn` from world-forge'"'"'s exporter. Floating them made '
-            printf 'the suite measure a moving target; bumping them is meant to be a reviewable commit.\n\n'
-            printf '**CI does not start itself here.** A PR created with `GITHUB_TOKEN` does not '
-            printf 'trigger workflows, so this job dispatches `ci.yml` against the branch explicitly. '
-            printf 'If that dispatch failed, run it by hand before merging — do not merge on the '
-            printf 'strength of the diff alone, because the whole point of the pin is that the new '
-            printf 'pair has to be proven.\n'
-          } > /tmp/pr-body.md
-          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
-            gh pr edit "$BRANCH" --body-file /tmp/pr-body.md
+            printf 'A branch carrying the bump is already pushed. Open the PR here:\n\n'
+            printf '  https://github.com/%s/pull/new/%s\n\n' "$GITHUB_REPOSITORY" "$BRANCH"
+            printf 'This job pushes the branch and files an issue rather than opening the PR '
+            printf 'itself, because the org has "Allow GitHub Actions to create and approve pull '
+            printf 'requests" disabled. That is a sensible default and not worth changing for '
+            printf 'this; if it is ever enabled, the last step here can become a gh pr create.\n\n'
+            printf 'These pins exist because the Export Salt Road step generates '
+            printf 'stage/fixtures/world.tscn from the world-forge exporter. Floating them made '
+            printf 'the suite measure a moving target. CI has been dispatched against the '
+            printf 'branch - check it is green before merging, because the whole point of the '
+            printf 'pin is that the new pair has to be proven.\n'
+          } > /tmp/issue-body.md
+
+          TITLE="Upstream pins are behind main (engine ${NEW_ENGINE:0:7}, forge ${NEW_FORGE:0:7})"
+          existing=$(gh issue list --state open --label upstream-pins --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --title "$TITLE" --body-file /tmp/issue-body.md
+            echo "updated issue #$existing"
           else
-            gh pr create --base main --head "$BRANCH" \
-              --title "chore(ci): bump upstream pins to current main" --body-file /tmp/pr-body.md
+            gh label create upstream-pins --description 'Weekly upstream pin drift' --color ededed 2>/dev/null || true
+            gh issue create --title "$TITLE" --label upstream-pins --body-file /tmp/issue-body.md
           fi
-          # Kick CI on the branch, since the PR itself cannot.
+
+          # Kick CI on the branch so the proof exists before anyone opens the PR.
           gh workflow run ci --ref "$BRANCH" \
-            || echo "::warning::could not dispatch ci.yml on $BRANCH — run it manually before merging"
+            || echo "::warning::could not dispatch ci.yml on $BRANCH - run it manually before merging"
