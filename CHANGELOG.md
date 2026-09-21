@@ -23,7 +23,8 @@ and the fixture-driven test suite; history before this file lives in the git log
   (`fixtures/harbour-occupancy.json`); `FrontProof`/`BehindProof` are not the
   play layout. `encounter.spawned` plants IsoActors on zone diamonds. Long-quay
   diamonds use `stone_wet` when that plate is in the library. Juice shakes the
-  iso camera.
+  iso camera. CI `ENGINE_REF` is engine `015f505` (felt sidecar) so live session
+  can pin `capabilities.audio`.
 
 ### Added (earlier on `main`)
 
