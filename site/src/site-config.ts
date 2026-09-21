@@ -71,7 +71,7 @@ export const config: SiteConfig = {
         },
         {
           title: 'Gate a plate',
-          code: 'python assets/dimetric/andon/iso_andon.py assets/dimetric/ground/dirt_a.png --kind ground\npython assets/dimetric/andon/iso_andon.py structures/shed_2x2/beauty.png --kind structure --footprint 2,2\n# exit 0 only when every gate passes',
+          code: 'python assets/dimetric/andon/iso_andon.py assets/dimetric/ground/dirt_a.png --kind ground\npython assets/dimetric/andon/iso_andon.py assets/dimetric/structures/shed_2x2/beauty.png --kind structure --footprint 2,2\n# exit 0 only when every gate passes',
         },
         {
           title: 'Attach by hand',
