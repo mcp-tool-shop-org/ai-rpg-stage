@@ -7,17 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-No tagged release yet. `main` carries the JSON-RPC client, the stage renderer,
-and the fixture-driven test suite; history before this file lives in the git log.
+## [0.2.0] - 2026-09-21
+
+**The felt harbour is playable.** The stage walks one continuous 2:1 dimetric
+town, the named cast stands on cells an author chose rather than cells the
+client guessed, the quay is wet under the light, and the sim can plant an
+encounter on a diamond. It still decides nothing: every cell, facing and floor
+here is drawing truth, and the simulation wins any dispute about which zone a
+person is in. This is the first release; history before it lives in the git log.
+273 checks across eleven headless suites.
 
 ### Added
 
 - **Full treatment (public surfaces).** Brand logo in the README, trust and threat-model section,
   keys and launcher flags, `verify.sh` (import + suite + plate re-gate + site build), landing page and
   Starlight handbook under `site/` (deployed by `pages.yml`), GitHub metadata, translations.
-  `project.godot` now carries `config/version="0.1.0"`; no tag is cut.
+  `project.godot` carries `config/version="0.2.0"`.
 - CI's "every expected suite ran" manifest lists all eleven suites (it had drifted to six).
-
 - **Felt harbour runtime.** Mixer loads `res://assets/felt/<cueId>.wav` when present
   (sine stand-in otherwise). Named cast stands on occupancy cells
   (`fixtures/harbour-occupancy.json`); `FrontProof`/`BehindProof` are not the

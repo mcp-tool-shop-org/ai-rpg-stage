@@ -47,6 +47,11 @@ Two Godot facts the code works around: `local_to_map()` is rectangle-bounded on 
 click-to-cell runs a diamond test after it; and moving the active `Camera2D` does not refresh the canvas
 transform in the same frame, so `force_update_scroll()` is called before any pick during a walk.
 
+The standing cells are not computed here: `iso_world.gd` takes each townsperson's cell, zone and facing —
+and the anchor of every zone's 3×3 — from the `presentation` block World Forge authors onto
+`fixtures/pack.json`, falling back to `fixtures/harbour-occupancy.json` and then to a derived corner cell
+when the pack carries none.
+
 ## Lighting
 
 One 2D canvas. Torches are `PointLight2D`s with a nonzero `height` (the light's Z in pixels), which is what

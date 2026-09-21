@@ -9,7 +9,7 @@ export const config: SiteConfig = {
   footerText: 'MIT Licensed — built by <a href="https://mcp-tool-shop.github.io/" style="color:var(--color-muted);text-decoration:underline">MCP Tool Shop</a>',
 
   hero: {
-    badge: 'Godot 4.7 · open source',
+    badge: 'Godot 4.7 · 0.2.0 · open source',
     headline: 'A client that decides nothing.',
     headlineAccent: 'The simulation is the truth.',
     description:
@@ -36,7 +36,7 @@ export const config: SiteConfig = {
         },
         {
           title: '2:1 dimetric harbour',
-          desc: 'One TileMapLayer, 256×128 diamonds, Y-sorted. Buildings sliced into 128 px strips so every diamond has one drawable. Contact blobs under every actor.',
+          desc: 'One TileMapLayer, 256×128 diamonds, Y-sorted. Buildings sliced into 128 px strips so every diamond has one drawable. Contact blobs under every actor. Who stands on which cell is authored in World Forge and read off the pack, not guessed here.',
         },
         {
           title: 'Gated art',
