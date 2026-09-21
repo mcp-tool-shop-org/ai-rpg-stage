@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Authoring levers.** The handbook names the drawing knobs this client
+  reads (floor, occupancy, zone anchors, felt files, plates) and points at
+  World Forge for anything the simulation decides. The fixture command in
+  Getting Started is the Salt Road join-graph export.
 - **The committed fixture is the 4.9.0 join-graph export.** `world.tscn` no longer
   needs `player.gd` or `world_data`, and `pack.json` is that same export
   (presentation included). CI regenerates both from `FORGE_REF`.

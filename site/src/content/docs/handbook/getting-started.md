@@ -108,9 +108,16 @@ The fixtures under `fixtures/` are exported by World Forge and committed as a pa
 wire-side manifest) so the join between them can be checked. From a `world-forge` checkout:
 
 ```bash
-npx tsx dogfood/export-stage-fixture.ts --world=coverage --out=<this-repo>/fixtures --doctor
+npx tsx dogfood/export-stage-fixture.ts \
+  --world=salt-road \
+  --out=<this-repo>/fixtures \
+  --doctor \
+  --strict \
+  --engine-out=dogfood/output/salt-road/pack.json
 ```
 
-The exporter refuses to write a fixture with zero zones, duplicate ids, a gate count that disagrees with
-the authored world, or a zone the scene has no node for. A generated hole is worse than a missing file,
-because a hole passes.
+Salt Road is the harbour this client plays. `--strict` refuses a presentation block that draws someone
+in the wrong room. The scene is a join graph: zone nodes and gate text, no `player.gd`, no `world_data`.
+The `--engine-out` file is what the sidecar loads, and it does not carry `presentation` — that block stays
+on `fixtures/pack.json`. The exporter also refuses zero zones, duplicate ids, a gate count that disagrees
+with the authored world, or a zone the scene has no node for.

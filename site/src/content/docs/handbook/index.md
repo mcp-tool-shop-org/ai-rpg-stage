@@ -42,6 +42,7 @@ allowed in. See [The dimetric camera](./dimetric/).
 - [Getting started](./getting-started/): Godot 4.7, the play launcher, the headless suite, `verify.sh`.
 - [Attaching](./attach/): the TCP sidecar, the handshake capabilities, `felt` audio, what a hash mismatch does.
 - [The dimetric camera](./dimetric/): projection, Y-sort, strips, blobs, the ANDON, the lie budget.
+- [Authoring levers](./levers/): which drawing knobs this client reads, and which decisions stay in World Forge and the engine.
 - [Reference](./reference/): keys, flags, suites, directories, manifest and sidecar fields, environment.
 
 ## What this is not
