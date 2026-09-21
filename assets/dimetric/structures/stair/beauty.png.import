@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blli366j8f8ro"
-path="res://.godot/imported/crate_1x1.png-8e04ceac0b8eecfe0ac1a01ae7a87fd4.ctex"
+uid="uid://cdlwc6sb0gj6l"
+path="res://.godot/imported/beauty.png-40856238b7dca52df0fdd8ae8df0f6d1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dimetric/props/crate_1x1.png"
-dest_files=["res://.godot/imported/crate_1x1.png-8e04ceac0b8eecfe0ac1a01ae7a87fd4.ctex"]
+source_file="res://assets/dimetric/structures/stair/beauty.png"
+dest_files=["res://.godot/imported/beauty.png-40856238b7dca52df0fdd8ae8df0f6d1.ctex"]
 
 [params]
 

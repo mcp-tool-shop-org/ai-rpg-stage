@@ -1,6 +1,6 @@
 {
   "library": "dimetric-town",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "tile": [
     256,
     128
@@ -26,13 +26,15 @@
   ],
   "andon": {
     "script": "andon/iso_andon.py",
-    "version": "0.1.1"
+    "version": "0.1.1",
+    "builder": "andon/build_manifest.py"
   },
   "renderer": {
     "blender": "5.2.0 LTS",
     "engine": "BLENDER_EEVEE",
     "camera_script": "camera/dimetric_60_45.py",
-    "ground_clip": "camera/diamond_clip.py"
+    "ground_clip": "camera/diamond_clip.py",
+    "sources": "_src/<id>/blockout.blend"
   },
   "godot_import": {
     "compress": "Lossless",
@@ -53,55 +55,11 @@
       ],
       "andon": "pass",
       "phase": 0,
-      "andon_log": "camera/calibration_andon.json"
-    },
-    {
-      "id": "dirt_a",
-      "kind": "ground",
-      "path": "ground/dirt_a.png",
-      "footprint": [
-        1,
-        1
-      ],
-      "andon": "pass",
-      "phase": 1,
-      "andon_log": "ground/dirt_a.json"
-    },
-    {
-      "id": "dirt_b",
-      "kind": "ground",
-      "path": "ground/dirt_b.png",
-      "footprint": [
-        1,
-        1
-      ],
-      "andon": "pass",
-      "phase": 1,
-      "andon_log": "ground/dirt_b.json"
-    },
-    {
-      "id": "stone_a",
-      "kind": "ground",
-      "path": "ground/stone_a.png",
-      "footprint": [
-        1,
-        1
-      ],
-      "andon": "pass",
-      "phase": 1,
-      "andon_log": "ground/stone_a.json"
-    },
-    {
-      "id": "shed_2x2",
-      "kind": "structure",
-      "path": "structures/shed_2x2/beauty.png",
-      "footprint": [
-        2,
-        2
-      ],
-      "andon": "pass",
-      "phase": 1,
-      "andon_log": "structures/shed_2x2/beauty.andon.json"
+      "andon_log": "camera/calibration_andon.json",
+      "resolution": [
+        256,
+        128
+      ]
     },
     {
       "id": "building_counting_house",
@@ -113,7 +71,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/building_counting_house.andon.json"
+      "andon_log": "_rejected/building_counting_house.andon.json",
+      "resolution": [
+        1024,
+        1024
+      ]
     },
     {
       "id": "building_shed",
@@ -125,7 +87,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/building_shed.andon.json"
+      "andon_log": "_rejected/building_shed.andon.json",
+      "resolution": [
+        1024,
+        1024
+      ]
     },
     {
       "id": "building_stair",
@@ -137,7 +103,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/building_stair.andon.json"
+      "andon_log": "_rejected/building_stair.andon.json",
+      "resolution": [
+        1024,
+        1024
+      ]
     },
     {
       "id": "building_warehouse",
@@ -149,7 +119,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/building_warehouse.andon.json"
+      "andon_log": "_rejected/building_warehouse.andon.json",
+      "resolution": [
+        1024,
+        1024
+      ]
     },
     {
       "id": "ground_dirt",
@@ -161,7 +135,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/ground_dirt.andon.json"
+      "andon_log": "_rejected/ground_dirt.andon.json",
+      "resolution": [
+        1408,
+        704
+      ]
     },
     {
       "id": "ground_stone",
@@ -173,7 +151,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/ground_stone.andon.json"
+      "andon_log": "_rejected/ground_stone.andon.json",
+      "resolution": [
+        1408,
+        704
+      ]
     },
     {
       "id": "prop_cart",
@@ -185,7 +167,11 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/prop_cart.andon.json"
+      "andon_log": "_rejected/prop_cart.andon.json",
+      "resolution": [
+        1024,
+        1024
+      ]
     },
     {
       "id": "prop_well",
@@ -197,7 +183,233 @@
       ],
       "andon": "fail",
       "phase": 0,
-      "andon_log": "_rejected/prop_well.andon.json"
+      "andon_log": "_rejected/prop_well.andon.json",
+      "resolution": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "id": "dirt_a",
+      "kind": "ground",
+      "path": "ground/dirt_a.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "ground/dirt_a.json",
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
+      "id": "dirt_b",
+      "kind": "ground",
+      "path": "ground/dirt_b.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "ground/dirt_b.json",
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
+      "id": "stone_a",
+      "kind": "ground",
+      "path": "ground/stone_a.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "ground/stone_a.json",
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
+      "id": "counting_house",
+      "kind": "structure",
+      "path": "structures/counting_house/beauty.png",
+      "footprint": [
+        3,
+        3
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "structures/counting_house/beauty.andon.json",
+      "resolution": [
+        768,
+        1408
+      ],
+      "sidecar": "structures/counting_house/sidecar.json"
+    },
+    {
+      "id": "shed_2x2",
+      "kind": "structure",
+      "path": "structures/shed_2x2/beauty.png",
+      "footprint": [
+        2,
+        2
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "structures/shed_2x2/beauty.andon.json",
+      "resolution": [
+        512,
+        768
+      ],
+      "sidecar": "structures/shed_2x2/sidecar.json"
+    },
+    {
+      "id": "stair",
+      "kind": "structure",
+      "path": "structures/stair/beauty.png",
+      "footprint": [
+        2,
+        3
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "structures/stair/beauty.andon.json",
+      "resolution": [
+        640,
+        768
+      ],
+      "sidecar": "structures/stair/sidecar.json"
+    },
+    {
+      "id": "warehouse",
+      "kind": "structure",
+      "path": "structures/warehouse/beauty.png",
+      "footprint": [
+        3,
+        3
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "structures/warehouse/beauty.andon.json",
+      "resolution": [
+        768,
+        1024
+      ],
+      "sidecar": "structures/warehouse/sidecar.json"
+    },
+    {
+      "id": "barrel_1x1",
+      "kind": "prop",
+      "path": "props/barrel_1x1/beauty.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "props/barrel_1x1/beauty.andon.json",
+      "resolution": [
+        256,
+        256
+      ],
+      "sidecar": "props/barrel_1x1/sidecar.json"
+    },
+    {
+      "id": "bollard_1x1",
+      "kind": "prop",
+      "path": "props/bollard_1x1/beauty.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "props/bollard_1x1/beauty.andon.json",
+      "resolution": [
+        256,
+        256
+      ],
+      "sidecar": "props/bollard_1x1/sidecar.json"
+    },
+    {
+      "id": "cart_1x1",
+      "kind": "prop",
+      "path": "props/cart_1x1/beauty.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "props/cart_1x1/beauty.andon.json",
+      "resolution": [
+        256,
+        256
+      ],
+      "sidecar": "props/cart_1x1/sidecar.json"
+    },
+    {
+      "id": "crate_1x1",
+      "kind": "prop",
+      "path": "props/crate_1x1/beauty.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "props/crate_1x1/beauty.andon.json",
+      "resolution": [
+        256,
+        256
+      ],
+      "sidecar": "props/crate_1x1/sidecar.json"
+    },
+    {
+      "id": "torch_1x1",
+      "kind": "prop",
+      "path": "props/torch_1x1/beauty.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "props/torch_1x1/beauty.andon.json",
+      "resolution": [
+        256,
+        256
+      ],
+      "light_px": [
+        128.0,
+        71.9
+      ],
+      "sidecar": "props/torch_1x1/sidecar.json"
+    },
+    {
+      "id": "well_1x1",
+      "kind": "prop",
+      "path": "props/well_1x1/beauty.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "props/well_1x1/beauty.andon.json",
+      "resolution": [
+        256,
+        256
+      ],
+      "sidecar": "props/well_1x1/sidecar.json"
     }
   ]
 }

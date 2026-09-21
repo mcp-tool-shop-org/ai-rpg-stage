@@ -44,6 +44,9 @@ func run_async(t: RefCounted) -> void:
 		t.check(player.get_node_or_null("Sprite") != null,
 			"player is a Foundry sprite, not a ColorRect")
 
+	t.check(iso.get_node_or_null("Props/counting-house") != null, "counting house is a sliced structure")
+	t.check(iso.get_node_or_null("Props/bonded-warehouse") != null, "warehouse is a sliced structure")
+	t.check(iso.get_node_or_null("Props/weighing-floor") != null, "well is a 1-cell prop")
 	var shed := iso.get_node_or_null("Props/customs-shed")
 	t.check(shed != null, "proof shed is an IsoStructure, not a 1024 plate",
 		"exists=%s children=%s" % [ResourceLoader.exists("res://assets/dimetric/structures/shed_2x2/beauty.png"), str(iso.get_node_or_null("Props").get_child_count() if iso.get_node_or_null("Props") else -1)])

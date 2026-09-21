@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkcj0nl4stkb8"
-path="res://.godot/imported/shed_2x2.png-cac126d515107d3242229ec7cfeaeded.ctex"
+uid="uid://c8sn8et8vfkom"
+path="res://.godot/imported/beauty.png-856c544385f4be601d466bc26f6da602.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/dimetric/structures/shed_2x2.png"
-dest_files=["res://.godot/imported/shed_2x2.png-cac126d515107d3242229ec7cfeaeded.ctex"]
+source_file="res://assets/dimetric/props/torch_1x1/beauty.png"
+dest_files=["res://.godot/imported/beauty.png-856c544385f4be601d466bc26f6da602.ctex"]
 
 [params]
 

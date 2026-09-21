@@ -1,0 +1,80 @@
+{
+  "andon_version": "0.1.1",
+  "file": "structures/stair/beauty.png",
+  "kind": "structure",
+  "gates": {
+    "0": {
+      "ok": true,
+      "detail": "decoded mode RGBA (need RGBA)"
+    },
+    "1": {
+      "ok": true,
+      "detail": "opaque ratio 0.638 (allowed 0.00\u20130.85)"
+    },
+    "2": {
+      "ok": true,
+      "detail": "corner 8\u00d78 alpha max {'tl': 0, 'tr': 0, 'bl': 0, 'br': 0} (need all 0)"
+    },
+    "3": {
+      "ok": true,
+      "detail": "slab edges L 26.57\u00b0 R 26.57\u00b0 (need 26.565 \u00b1 1.5)"
+    },
+    "4": {
+      "ok": true,
+      "detail": "slab width 640 px (need 640 \u00b1 4)"
+    },
+    "5": {
+      "ok": true,
+      "detail": "used-rect centre X 319.5 vs image centre 319.5 (\u0394 0.0, need \u2264 2); bottom vertex X 255.5"
+    },
+    "6": {
+      "ok": true,
+      "detail": "640\u00d7768 (need 640\u00d7128\u00b7K with K \u2265 3)"
+    },
+    "7": {
+      "ok": true,
+      "detail": "checker correlation max 0.21 (fail \u2265 0.35; measured plates: baked 0.80 / 0.41, clean \u2264 0.27) {'cell_8': 0.089, 'cell_12': 0.141, 'cell_16': 0.21}"
+    },
+    "8": {
+      "ok": true,
+      "detail": "3578 px with 0 < alpha < 255 (need \u2265 48)"
+    },
+    "9": {
+      "ok": true,
+      "detail": "no .import sidecar; dimensions gated by 6"
+    }
+  },
+  "measured": {
+    "mode": "RGBA",
+    "size": [
+      640,
+      768
+    ],
+    "opaque_ratio": 0.6376,
+    "corner_alpha_max": {
+      "tl": 0,
+      "tr": 0,
+      "bl": 0,
+      "br": 0
+    },
+    "bottom_row": 766,
+    "bottom_vertex_x": 255.5,
+    "edge_left_deg": 26.57,
+    "edge_right_deg": 26.57,
+    "slab_width_px": 640,
+    "used_rect": [
+      0,
+      103,
+      639,
+      767
+    ],
+    "used_centre_x": 319.5,
+    "checker_scores": {
+      "cell_8": 0.089,
+      "cell_12": 0.141,
+      "cell_16": 0.21
+    },
+    "intermediate_alpha_px": 3578
+  },
+  "pass": true
+}

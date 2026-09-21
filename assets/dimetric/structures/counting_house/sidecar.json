@@ -1,19 +1,19 @@
 {
-  "id": "shed_2x2",
+  "id": "counting_house",
   "kind": "structure",
   "footprint": [
-    2,
-    2
+    3,
+    3
   ],
   "resolution": [
-    512,
-    768
+    768,
+    1408
   ],
-  "slab_width_px": 512,
-  "slab_row_px": 767,
+  "slab_width_px": 768,
+  "slab_row_px": 1407,
   "strip_px": 128,
   "azimuth_deg": 135,
-  "storeys": 1,
+  "storeys": 2,
   "andon": "pass",
   "person_px": 128,
   "facade_px": 384,
@@ -27,6 +27,6 @@
     0.0,
     45.0
   ],
-  "blend": "_src/shed_2x2/blockout.blend",
+  "blend": "_src/counting_house/blockout.blend",
   "world_to_screen": "world +X = screen down-right (cart x), world +Y = screen up-right; near vertex = (N,0,0)"
 }

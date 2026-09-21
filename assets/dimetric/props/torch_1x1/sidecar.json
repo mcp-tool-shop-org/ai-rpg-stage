@@ -1,0 +1,27 @@
+{
+  "id": "torch_1x1",
+  "kind": "prop",
+  "footprint": [
+    1,
+    1
+  ],
+  "resolution": [
+    256,
+    256
+  ],
+  "foot_px": [
+    128.0,
+    255
+  ],
+  "foot_is": "the cell's near (bottom) vertex",
+  "andon": "pass",
+  "sun_euler_deg": [
+    73.376,
+    0.0,
+    -54.926
+  ],
+  "light_px": [
+    128.0,
+    71.9
+  ]
+}
