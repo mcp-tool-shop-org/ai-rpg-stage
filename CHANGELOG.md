@@ -28,3 +28,6 @@ and the fixture-driven test suite; history before this file lives in the git log
 - **Plaque HUD.** Zone name and doors top-left; last event as a bottom toast;
   the prose log is behind `I`. Click a diamond to walk; neighbour-zone clicks
   submit `move`. Intra-zone walking is presentation and is not hashed.
+- **Library authorship.** Plates are authored under `assets/dimetric/` (ANDON
+  `andon/iso_andon.py`). `tools/iso_andon.py` is a shim. The PIL proof-kit
+  generator is retired so it cannot overwrite a Blender plate.

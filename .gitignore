@@ -18,4 +18,7 @@ desktop.ini
 # Failed dimetric plates (wrong camera / no alpha). Evidence, not product.
 assets/iso/*.png
 assets/dimetric/_rejected/
+assets/dimetric/_raw/
+assets/dimetric/ground/_raw/
+assets/dimetric/_src/
 *.blend1

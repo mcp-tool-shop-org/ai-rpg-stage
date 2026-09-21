@@ -46,7 +46,7 @@ func run_async(t: RefCounted) -> void:
 
 	var shed := iso.get_node_or_null("Props/customs-shed")
 	t.check(shed != null, "proof shed is an IsoStructure, not a 1024 plate",
-		"exists=%s children=%s" % [ResourceLoader.exists("res://assets/dimetric/structures/shed_2x2.png"), str(iso.get_node_or_null("Props").get_child_count() if iso.get_node_or_null("Props") else -1)])
+		"exists=%s children=%s" % [ResourceLoader.exists("res://assets/dimetric/structures/shed_2x2/beauty.png"), str(iso.get_node_or_null("Props").get_child_count() if iso.get_node_or_null("Props") else -1)])
 	if shed and shed.has_method("owning_cells"):
 		var cells: Array = shed.call("owning_cells")
 		var seen := {}
