@@ -14,7 +14,9 @@ const IsoStructure := preload("res://stage/iso/iso_structure.gd")
 const DIRT_A := "res://assets/dimetric/ground/dirt_a.png"
 const DIRT_B := "res://assets/dimetric/ground/dirt_b.png"
 const STONE := "res://assets/dimetric/ground/stone_a.png"
+const STONE_WET := "res://assets/dimetric/ground/stone_wet.png"
 const LIB := "res://assets/dimetric/"
+const OCCUPANCY_PATH := "res://fixtures/harbour-occupancy.json"
 
 ## Zone id → ANDON-passing structure (path under LIB, footprint cells).
 const ZONE_STRUCTURE := {
@@ -106,7 +108,7 @@ func walk_player_to(zone_id: String, motion: Vector2) -> void:
 		return
 	if player_actor.has_method("face"):
 		player_actor.call("face", motion)
-	var dest := world_pos_of(zone_id) + Vector2(40, 24)
+	var dest := IsoMath.cell_to_world(_stand_cell(zone_id))
 	_tween_actor_to(dest)
 	look_at_zone(zone_id)
 
@@ -204,6 +206,7 @@ func _build_ground() -> void:
 	atlas.create_tile(Vector2i(0, 0))
 	atlas.create_tile(Vector2i(1, 0))
 	atlas.create_tile(Vector2i(2, 0))
+	atlas.create_tile(Vector2i(3, 0))
 	tileset.add_source(atlas, 0)
 	ground.tile_set = tileset
 	add_child(ground)
@@ -215,18 +218,30 @@ func _build_ground() -> void:
 			elif (x * 3 + y) % 2 == 0:
 				src = Vector2i(1, 0)
 			ground.set_cell(Vector2i(x, y), 0, src)
+	_paint_quay_wet()
 
 
 func _ground_atlas() -> Texture2D:
 	var dirt_a := _load_rgba(DIRT_A, Color(0.45, 0.38, 0.28))
 	var dirt_b := _load_rgba(DIRT_B, Color(0.42, 0.35, 0.25))
 	var stone := _load_rgba(STONE, Color(0.32, 0.33, 0.34))
-	var img := Image.create(IsoMath.TILE_W * 3, IsoMath.TILE_H, false, Image.FORMAT_RGBA8)
+	var wet := _load_rgba(STONE_WET, Color(0.28, 0.30, 0.32))
+	var img := Image.create(IsoMath.TILE_W * 4, IsoMath.TILE_H, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	img.blit_rect(dirt_a, Rect2i(0, 0, IsoMath.TILE_W, IsoMath.TILE_H), Vector2i(0, 0))
 	img.blit_rect(dirt_b, Rect2i(0, 0, IsoMath.TILE_W, IsoMath.TILE_H), Vector2i(IsoMath.TILE_W, 0))
 	img.blit_rect(stone, Rect2i(0, 0, IsoMath.TILE_W, IsoMath.TILE_H), Vector2i(IsoMath.TILE_W * 2, 0))
+	img.blit_rect(wet, Rect2i(0, 0, IsoMath.TILE_W, IsoMath.TILE_H), Vector2i(IsoMath.TILE_W * 3, 0))
 	return ImageTexture.create_from_image(img)
+
+
+func _paint_quay_wet() -> void:
+	if ground == null:
+		return
+	var anchor: Vector2i = ZONE_CELLS["long-quay"]
+	for x in ZONE_SPAN:
+		for y in ZONE_SPAN:
+			ground.set_cell(anchor + Vector2i(x, y), 0, Vector2i(3, 0))
 
 
 func _load_rgba(path: String, fallback: Color) -> Image:
@@ -349,35 +364,110 @@ func _place_torch() -> void:
 
 
 func _place_cast(player_character: String, cast: Array) -> void:
-	player_actor = IsoActor.new()
-	player_actor.name = "Player"
-	player_actor.position = world_pos_of("counting-house") + Vector2(40, 24)
-	actors.add_child(player_actor)
-	player_actor.call("setup", player_character)
-
-	# Walk-behind proof: one actor in front of the shed, one behind its left wall.
-	var shed_anchor: Vector2i = ZONE_CELLS["customs-shed"]
-	var front_cell := shed_anchor + Vector2i(2, 2)
-	var behind_cell := shed_anchor + Vector2i(0, 0)
-	if cast.size() >= 1:
-		var a: Node2D = IsoActor.new()
-		a.name = "FrontProof"
-		a.position = IsoMath.cell_to_world(front_cell)
-		actors.add_child(a)
-		a.call("setup", String((cast[0] as Dictionary).get("character", "guard")))
-	if cast.size() >= 2:
-		var b: Node2D = IsoActor.new()
-		b.name = "BehindProof"
-		b.position = IsoMath.cell_to_world(behind_cell)
-		actors.add_child(b)
-		b.call("setup", String((cast[1] as Dictionary).get("character", "scribe")))
-	for i in range(2, cast.size()):
-		var m: Dictionary = cast[i]
+	var rows: Array = _occupancy_rows(player_character, cast)
+	for item: Variant in rows:
+		if not (item is Dictionary):
+			continue
+		var row: Dictionary = item
+		var id := String(row.get("id", "npc"))
+		var character := String(row.get("character", ""))
+		var zone := String(row.get("zone", "counting-house"))
+		var cell := _cell_of(row, zone)
 		var actor: Node2D = IsoActor.new()
-		actor.name = String(m.get("id", "npc"))
-		actor.position = world_pos_of(String(m.get("zone", ""))) + Vector2(-28, 18)
+		actor.name = id
+		actor.set_meta("zone", zone)
+		actor.set_meta("cell", cell)
+		actor.position = IsoMath.cell_to_world(cell)
 		actors.add_child(actor)
-		actor.call("setup", String(m.get("character", "")))
+		actor.call("setup", character)
+		var facing := String(row.get("facing", ""))
+		if not facing.is_empty() and actor.has_method("face_named"):
+			actor.call("face_named", facing)
+		if id == "player":
+			player_actor = actor
+	if player_actor == null:
+		player_actor = IsoActor.new()
+		player_actor.name = "player"
+		player_actor.position = IsoMath.cell_to_world(_stand_cell("counting-house"))
+		actors.add_child(player_actor)
+		player_actor.call("setup", player_character)
+
+
+## A spawn the sim named. Presentation: a free cell in that zone's 3×3, never
+## a leftover cartesian (150, 150) from the hidden fourth-wall rooms.
+func spawn_entity(zone_id: String, entity_id: String, index: int) -> Node2D:
+	if actors == null:
+		return null
+	var anchor: Vector2i = ZONE_CELLS.get(zone_id, Vector2i.ZERO)
+	var cell := Vector2i(anchor.x + ZONE_SPAN - 1, anchor.y + (index % ZONE_SPAN))
+	var actor: Node2D = IsoActor.new()
+	actor.name = "Spawn_%s" % entity_id
+	actor.set_meta("entity_id", entity_id)
+	actor.set_meta("zone", zone_id)
+	actor.set_meta("cell", cell)
+	actor.position = IsoMath.cell_to_world(cell)
+	actors.add_child(actor)
+	actor.call("setup", "fisherman")
+	return actor
+
+
+func _stand_cell(zone_id: String) -> Vector2i:
+	var anchor: Vector2i = ZONE_CELLS.get(zone_id, Vector2i.ZERO)
+	return anchor + Vector2i(ZONE_SPAN - 1, ZONE_SPAN - 1)
+
+
+func _occupancy_rows(player_character: String, cast: Array) -> Array:
+	var authored := _load_occupancy()
+	if not authored.is_empty():
+		return authored
+	var rows: Array = []
+	rows.append({
+		"id": "player",
+		"character": player_character,
+		"zone": "counting-house",
+		"cell": [_stand_cell("counting-house").x, _stand_cell("counting-house").y],
+		"facing": "front",
+	})
+	for item: Variant in cast:
+		if not (item is Dictionary):
+			continue
+		var m: Dictionary = item
+		var zone := String(m.get("zone", "counting-house"))
+		var cell := _stand_cell(zone)
+		rows.append({
+			"id": String(m.get("id", "npc")),
+			"character": String(m.get("character", "")),
+			"zone": zone,
+			"cell": [cell.x, cell.y],
+			"facing": "front",
+		})
+	return rows
+
+
+func _load_occupancy() -> Array:
+	if not FileAccess.file_exists(OCCUPANCY_PATH):
+		return []
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(OCCUPANCY_PATH))
+	if parsed is Dictionary:
+		var actors_v: Variant = (parsed as Dictionary).get("actors", [])
+		if actors_v is Array:
+			return actors_v
+	return []
+
+
+func _cell_of(row: Dictionary, zone: String) -> Vector2i:
+	var raw: Variant = row.get("cell", [])
+	var cell := _stand_cell(zone)
+	if raw is Array and (raw as Array).size() >= 2:
+		cell = Vector2i(int((raw as Array)[0]), int((raw as Array)[1]))
+	if not _cell_in_zone(cell, zone):
+		return _stand_cell(zone)
+	return cell
+
+
+func _cell_in_zone(cell: Vector2i, zone: String) -> bool:
+	var a: Vector2i = ZONE_CELLS.get(zone, Vector2i.ZERO)
+	return cell.x >= a.x and cell.x < a.x + ZONE_SPAN and cell.y >= a.y and cell.y < a.y + ZONE_SPAN
 
 
 func _load_texture(path: String) -> Texture2D:

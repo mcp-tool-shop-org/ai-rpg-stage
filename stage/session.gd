@@ -228,18 +228,23 @@ func _present_rejected(payload: Dictionary) -> Variant:
 func _present_spawned(payload: Dictionary) -> Variant:
 	var zone_id := String(payload.get("zoneId", ""))
 	var ids: Array = payload.get("spawnedEntityIds", payload.get("entityIds", []))
+	var iso: Node = diorama.get("iso") if diorama else null
+	if iso and iso.has_method("spawn_entity"):
+		for i in range(ids.size()):
+			iso.call("spawn_entity", zone_id, String(ids[i]), i)
+		_log("someone is on the stair (%d)" % ids.size())
+		spawned.emit(zone_id, ids)
+		return null
+
+	# Hidden fourth-wall world: keep a marker so older join tests can still see a node.
 	var zn := diorama.call("zone_node", zone_id) as Node2D
 	if zn == null:
 		return null
-
-	# Spawned entities are real nodes, placed where the sim said, so the scene population
-	# tracks the simulation's rather than being decorative.
 	var holder := zn.get_node_or_null("Spawned")
 	if holder == null:
 		holder = Node2D.new()
 		holder.name = "Spawned"
 		zn.add_child(holder)
-
 	for i in range(ids.size()):
 		var marker := Node2D.new()
 		marker.name = "Spawn_%s" % String(ids[i])
@@ -247,7 +252,6 @@ func _present_spawned(payload: Dictionary) -> Variant:
 		marker.set_meta("entity_id", String(ids[i]))
 		holder.add_child(marker)
 		SpriteBinder.attach(marker, "collector", diorama.CHARACTER_SCALE)
-
 	_log("someone is on the stair (%d)" % ids.size())
 	spawned.emit(zone_id, ids)
 	return null

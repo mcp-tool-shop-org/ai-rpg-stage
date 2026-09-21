@@ -18,6 +18,13 @@ and the fixture-driven test suite; history before this file lives in the git log
   `project.godot` now carries `config/version="0.1.0"`; no tag is cut.
 - CI's "every expected suite ran" manifest lists all eleven suites (it had drifted to six).
 
+- **Felt harbour runtime.** Mixer loads `res://assets/felt/<cueId>.wav` when present
+  (sine stand-in otherwise). Named cast stands on occupancy cells
+  (`fixtures/harbour-occupancy.json`); `FrontProof`/`BehindProof` are not the
+  play layout. `encounter.spawned` plants IsoActors on zone diamonds. Long-quay
+  diamonds use `stone_wet` when that plate is in the library. Juice shakes the
+  iso camera.
+
 ### Added (earlier on `main`)
 
 - `SECURITY.md` stating the trust boundary: the stage renders what the engine
