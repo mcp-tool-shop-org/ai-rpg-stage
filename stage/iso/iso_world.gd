@@ -14,7 +14,7 @@ const IsoStructure := preload("res://stage/iso/iso_structure.gd")
 const DIRT_A := "res://assets/dimetric/ground/dirt_a.png"
 const DIRT_B := "res://assets/dimetric/ground/dirt_b.png"
 const STONE := "res://assets/dimetric/ground/stone_a.png"
-const SHED := "res://assets/dimetric/structures/shed_2x2.png"
+const SHED := "res://assets/dimetric/structures/shed_2x2/beauty.png"
 const CRATE := "res://assets/dimetric/props/crate_1x1.png"
 
 const ZONE_CELLS := {

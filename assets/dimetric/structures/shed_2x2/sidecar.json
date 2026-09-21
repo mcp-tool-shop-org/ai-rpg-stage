@@ -1,0 +1,31 @@
+{
+  "id": "shed_2x2",
+  "kind": "structure",
+  "footprint": [
+    2,
+    2
+  ],
+  "resolution": [
+    512,
+    768
+  ],
+  "slab_width_px": 512,
+  "slab_row_px": 767,
+  "strip_px": 128,
+  "azimuth_deg": 135,
+  "storeys": 1,
+  "andon": "pass",
+  "person_px": 128,
+  "facade_px": 384,
+  "sun_euler_deg": [
+    73.376,
+    0.0,
+    -54.926
+  ],
+  "camera_euler_deg": [
+    60.0,
+    0.0,
+    45.0
+  ],
+  "world_to_screen": "world +X = screen down-right (cart x), world +Y = screen up-right; near vertex = (N,0,0)"
+}
