@@ -31,6 +31,13 @@ import math
 import os
 import sys
 
+# Windows cp1252 dies printing a gate delta. Linux CI is already UTF-8.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except (AttributeError, OSError, ValueError):
+    pass
+
 import numpy as np
 from PIL import Image
 

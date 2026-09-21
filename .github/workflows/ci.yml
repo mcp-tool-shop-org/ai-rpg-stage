@@ -30,7 +30,11 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  # head_ref is empty on push, so `head_ref || ref` is refs/heads/<branch>
+  # for the push and <branch> for the pull_request. Those are different
+  # groups, and a same-repo PR runs the Godot job twice. ref_name on push
+  # is the short branch name, which matches head_ref.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -62,6 +66,10 @@ env:
 jobs:
   headless:
     runs-on: ubuntu-latest
+    # A same-repo pull_request is the same commit as the push that opened it.
+    # Fork PRs have no push on this repository, so they still run. Path
+    # filters stay on both triggers.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
       - uses: actions/checkout@v5
         with:

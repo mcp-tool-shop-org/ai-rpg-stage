@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **The committed fixture is the 4.9.0 join-graph export.** `world.tscn` no longer
+  needs `player.gd` or `world_data`, and `pack.json` is that same export
+  (presentation included). CI regenerates both from `FORGE_REF`.
+- **`presentation.floor` paints the atlas.** `long-quay: stone_wet` comes from
+  the pack. If the key is absent, the long quay is still the wet slot.
+- ANDON reconfigures stdout to UTF-8 so a passing gate can print its delta
+  on Windows cp1252.
+- CI cancels the same-repo push + pull_request double run. Path filters stay.
+
 ## [0.2.0] - 2026-09-21
 
 **The felt harbour is playable.** The stage walks one continuous 2:1 dimetric

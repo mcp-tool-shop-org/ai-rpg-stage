@@ -84,8 +84,8 @@ func run_async(t: RefCounted) -> void:
 			var occ: Variant = (pres as Dictionary).get("occupancy", [])
 			if occ is Array:
 				pack_occ = (occ as Array).size()
-	# CI regenerates pack.json from FORGE_REF (still the 4.8-era exporter).
-	# Committed pack.json on main has presentation; the sidecar is the fallback.
+	# The committed pack is the forge export. The sidecar remains the fallback
+	# when a pin's pack has no presentation block.
 	t.check(pack_occ == 6 or FileAccess.file_exists("res://fixtures/harbour-occupancy.json"),
 		"pack presentation occupancy is six rows, or the sidecar is present")
 
@@ -96,9 +96,23 @@ func run_async(t: RefCounted) -> void:
 		"shed front cell sorts in front of the far cell (higher Y)")
 
 	var quay: Vector2i = Vector2i(5, 5)
+	var house := Vector2i(2, 2)
 	if ground:
 		t.equals(ground.get_cell_atlas_coords(quay), Vector2i(3, 0),
 			"long-quay diamonds use the wet-stone atlas slot")
+		t.check(ground.get_cell_atlas_coords(house) != Vector2i(3, 0),
+			"a zone the floor key does not name stays dry")
+		iso.set("_presentation_cache", {
+			"floor": {"counting-house": "stone_wet"},
+			"zoneCells": {},
+		})
+		iso.call("_paint_floors")
+		t.equals(ground.get_cell_atlas_coords(house), Vector2i(3, 0),
+			"presentation.floor blits the named plate onto that zone")
+		iso.set("_presentation_cache", {"zoneCells": {}})
+		iso.call("_paint_floors")
+		t.equals(ground.get_cell_atlas_coords(quay), Vector2i(3, 0),
+			"absent floor key still wets the long quay")
 
 	if player:
 		var before := player.position

@@ -220,7 +220,7 @@ func _build_ground() -> void:
 			elif (x * 3 + y) % 2 == 0:
 				src = Vector2i(1, 0)
 			ground.set_cell(Vector2i(x, y), 0, src)
-	_paint_quay_wet()
+	_paint_floors()
 
 
 func _ground_atlas() -> Texture2D:
@@ -235,6 +235,39 @@ func _ground_atlas() -> Texture2D:
 	img.blit_rect(stone, Rect2i(0, 0, IsoMath.TILE_W, IsoMath.TILE_H), Vector2i(IsoMath.TILE_W * 2, 0))
 	img.blit_rect(wet, Rect2i(0, 0, IsoMath.TILE_W, IsoMath.TILE_H), Vector2i(IsoMath.TILE_W * 3, 0))
 	return ImageTexture.create_from_image(img)
+
+
+## Atlas columns match _ground_atlas: dirt_a, dirt_b, stone_a, stone_wet.
+func _atlas_slot(plate: String) -> Vector2i:
+	match plate:
+		"dirt_a", "dirt":
+			return Vector2i(0, 0)
+		"dirt_b":
+			return Vector2i(1, 0)
+		"stone_a", "stone":
+			return Vector2i(2, 0)
+		"stone_wet":
+			return Vector2i(3, 0)
+		_:
+			return Vector2i(-1, 0)
+
+
+## presentation.floor is zone id -> plate id. Absent key keeps the wet quay.
+func _paint_floors() -> void:
+	if ground == null:
+		return
+	var floor_map: Variant = _presentation().get("floor", null)
+	if not (floor_map is Dictionary):
+		_paint_quay_wet()
+		return
+	for zone_id: Variant in (floor_map as Dictionary).keys():
+		var slot := _atlas_slot(String((floor_map as Dictionary)[zone_id]))
+		if slot.x < 0:
+			continue
+		var anchor: Vector2i = _anchor(String(zone_id))
+		for x in ZONE_SPAN:
+			for y in ZONE_SPAN:
+				ground.set_cell(anchor + Vector2i(x, y), 0, slot)
 
 
 func _paint_quay_wet() -> void:
