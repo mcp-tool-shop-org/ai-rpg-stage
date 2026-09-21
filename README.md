@@ -27,7 +27,7 @@ That constraint is the product. A deterministic simulation whose client is allow
 to guess is a simulation with two truths, and the second one desynchronises
 quietly. Everything here is arranged so the stage cannot become the second truth.
 
-**Status:** `0.x`, no tagged release yet; `main` is the supported line. Godot **4.7**.
+**Status:** `0.2.0` — the felt harbour is playable. `main` is the supported line. Godot **4.7**.
 
 ## What it draws
 
@@ -44,6 +44,16 @@ Occupancy in the engine is still a **zone id**. A diamond under the cursor is a
 view of a zone, never a second spatial simulation. The contract both sides keep is
 [Visual Clients](https://mcp-tool-shop-org.github.io/ai-rpg-engine/handbook/66-visual-clients/)
 in the engine handbook.
+
+Who stands where is **authored upstream**, not improvised here.
+[World Forge](https://github.com/mcp-tool-shop-org/world-forge) writes a
+`presentation` block onto `fixtures/pack.json`: one occupancy row per named
+townsperson (character, zone, cell, facing, and the reason that cell was chosen)
+plus the anchor cell of each zone's 3×3. The harbour prefers that block when the
+pack carries it, falls back to `fixtures/harbour-occupancy.json` when it does
+not, and derives a corner cell only when neither exists. The block is additive
+and read straight off the committed fixture; the engine is never asked to
+understand it.
 
 Town art lives under [`assets/dimetric/`](assets/dimetric/README.md). Every plate
 was rendered through a Blender orthographic camera at X 60° / Z 45° and must pass
