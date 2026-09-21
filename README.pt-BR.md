@@ -27,7 +27,7 @@ Essa restrição é o produto. Uma simulação determinística cujo cliente tem 
 para adivinhar é uma simulação com duas verdades, e a segunda se dessincroniza
 silenciosamente. Tudo aqui está organizado para que o cenário não possa se tornar a segunda verdade.
 
-**Status:** `0.x`, ainda sem versão com tags; `main` é a versão suportada. Godot **4.7**.
+**Estado:** `0.2.0` — o porto virtual está funcional. `main` é a linha suportada. Godot **4.7**.
 
 ## O que ele desenha
 
@@ -42,6 +42,15 @@ A ocupação no motor ainda é um **ID de zona**. Um diamante sob o cursor é um
 visão de uma zona, nunca uma segunda simulação espacial. O contrato que ambos os lados mantêm é
 [Visual Clients](https://mcp-tool-shop-org.github.io/ai-rpg-engine/handbook/66-visual-clients/)
 no manual do motor.
+
+Quem está onde é definido no código original, não é algo improvisado aqui.
+[World Forge](https://github.com/mcp-tool-shop-org/world-forge) cria um
+bloco `presentation` em `fixtures/pack.json`: uma linha de ocupação por habitante nomeado
+(personagem, zona, célula, direção e o motivo pelo qual essa célula foi escolhida)
+mais a célula âncora de cada zona de 3×3. O porto prefere esse bloco quando
+o conjunto o carrega, recorre a `fixtures/harbour-occupancy.json` quando não o faz e deriva uma célula de canto apenas quando nenhum dos dois existe. O bloco é aditivo
+e é lido diretamente da configuração definida; o motor nunca é solicitado a
+interpretá-lo.
 
 A arte da cidade está localizada em [`assets/dimetric/`](assets/dimetric/README.md). Cada placa
 foi renderizada por meio de uma câmera ortográfica do Blender em X 60° / Z 45° e deve passar

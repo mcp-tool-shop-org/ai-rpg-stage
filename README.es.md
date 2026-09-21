@@ -28,7 +28,7 @@ adivinar es una simulación con dos verdades, y la segunda se desincroniza
 silenciosamente. Todo aquí está organizado de tal manera que el escenario no puede
 convertirse en la segunda verdad.
 
-**Estado:** `0.x`, aún no hay una versión etiquetada; `main` es la versión compatible. Godot **4.7**.
+**Estado:** `0.2.0`: el puerto virtual es funcional. `main` es la línea admitida. Godot **4.7**.
 
 ## Lo que dibuja
 
@@ -46,6 +46,14 @@ La ocupación en el motor sigue siendo un **ID de zona**. Un diamante debajo del
 cursor es una vista de una zona, nunca una segunda simulación espacial. El
 contrato que ambas partes cumplen es [Clientes visuales](https://mcp-tool-shop-org.github.io/ai-rpg-engine/handbook/66-visual-clients/)
 en el manual del motor.
+
+La ubicación de cada elemento está **definida en el código original**, no es algo que se improvisa aquí.
+[World Forge](https://github.com/mcp-tool-shop-org/world-forge) escribe un
+bloque `presentation` en `fixtures/pack.json`: una fila de ocupación por cada habitante (personaje, zona, celda, orientación y la razón por la que se eligió esa celda).
+Además, se incluye la celda de anclaje de cada zona de 3×3. El puerto prefiere este bloque cuando
+el paquete lo contiene; si no, recurre a `fixtures/harbour-occupancy.json` y deriva una celda de esquina solo cuando ninguna de las dos existe. El bloque es aditivo
+y se lee directamente del objeto configurado; nunca se le pide al motor que lo
+interprete.
 
 El arte de la ciudad se encuentra en [`assets/dimetric/`](assets/dimetric/README.md). Cada placa
 se renderizó a través de una cámara ortográfica de Blender en X 60° / Z 45° y debe
