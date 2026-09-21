@@ -80,7 +80,8 @@ def main():
 
     # ground tiles
     for png in sorted(glob.glob(os.path.join(ROOT, "ground", "*.png"))):
-        add(png, "ground", 1, [1, 1])
+        gid = os.path.splitext(os.path.basename(png))[0]
+        add(png, "ground", 1 if gid in ("dirt_a", "dirt_b", "stone_a") else 2, [1, 1])
 
     # structures: write sidecars
     for png in sorted(glob.glob(os.path.join(ROOT, "structures", "*", "beauty.png"))):

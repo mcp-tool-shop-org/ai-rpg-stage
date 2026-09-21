@@ -1,0 +1,102 @@
+{
+  "library": "felt-core",
+  "version": "0.1.0",
+  "cue_contract": "CORE_SOUND_PACK",
+  "format": "wav_pcm16_mono",
+  "sample_rate": 44100,
+  "generator": "synth_felt_pack.py (numpy, seed 71)",
+  "grey_box": true,
+  "entries": [
+    {
+      "id": "music_dread",
+      "path": "music_dread.wav",
+      "loop": true,
+      "seconds": 8.0,
+      "role": "stem"
+    },
+    {
+      "id": "music_calm",
+      "path": "music_calm.wav",
+      "loop": true,
+      "seconds": 8.0,
+      "role": "stem"
+    },
+    {
+      "id": "music_triumph",
+      "path": "music_triumph.wav",
+      "loop": true,
+      "seconds": 8.0,
+      "role": "stem"
+    },
+    {
+      "id": "ambient_drone",
+      "path": "ambient_drone.wav",
+      "loop": true,
+      "seconds": 8.0,
+      "role": "bed"
+    },
+    {
+      "id": "ambient_white_noise",
+      "path": "ambient_white_noise.wav",
+      "loop": true,
+      "seconds": 8.0,
+      "role": "bed"
+    },
+    {
+      "id": "ambient_rain",
+      "path": "ambient_rain.wav",
+      "loop": true,
+      "seconds": 8.0,
+      "role": "bed"
+    },
+    {
+      "id": "music_victory_sting",
+      "path": "music_victory_sting.wav",
+      "loop": false,
+      "seconds": 1.2,
+      "role": "sting"
+    },
+    {
+      "id": "music_defeat_sting",
+      "path": "music_defeat_sting.wav",
+      "loop": false,
+      "seconds": 1.4,
+      "role": "sting"
+    },
+    {
+      "id": "music_retreat_sting",
+      "path": "music_retreat_sting.wav",
+      "loop": false,
+      "seconds": 0.7,
+      "role": "sting"
+    },
+    {
+      "id": "ui_click",
+      "path": "ui_click.wav",
+      "loop": false,
+      "seconds": 0.08,
+      "role": "ui"
+    },
+    {
+      "id": "ui_success",
+      "path": "ui_success.wav",
+      "loop": false,
+      "seconds": 0.25,
+      "role": "ui"
+    },
+    {
+      "id": "alert_warning",
+      "path": "alert_warning.wav",
+      "loop": false,
+      "seconds": 1.0,
+      "role": "alert"
+    },
+    {
+      "id": "alert_critical",
+      "path": "alert_critical.wav",
+      "loop": false,
+      "seconds": 1.2,
+      "role": "alert"
+    }
+  ]
+}
