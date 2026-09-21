@@ -92,8 +92,9 @@ assets/dimetric/
   props/<id>/          beauty.png + sidecar.json (foot pixel; light_px for the torch)
 ```
 
-The runtime reads `MANIFEST.json` and loads only entries whose `andon` is `pass`. Authoring is a separate
-concern from rendering: the stage never generates art, and the camera script never touches the stage.
+The runtime reads `MANIFEST.json` and loads only entries whose `andon` is `pass`. A plate is not a room.
+Rooms, gates, and where a person stands are [authoring levers](./levers/) in World Forge. The stage never
+generates art, and the camera script never touches the stage.
 
 ## The lie budget
 

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Reference lists the plates and cue ids.** Floor slot names, the six
+  zone anchors' meaning, character pack ids, and the grey-box felt filenames
+  are on the reference page. The dimetric page points at the lever page.
 - **Authoring levers.** The handbook names the drawing knobs this client
   reads (floor, occupancy, zone anchors, felt files, plates) and points at
   World Forge for anything the simulation decides. The fixture command in

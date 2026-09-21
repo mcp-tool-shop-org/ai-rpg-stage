@@ -5,6 +5,19 @@ sidebar:
   order: 5
 ---
 
+## Drawing levers the pack actually reads
+
+`fixtures/pack.json` → `presentation`:
+
+| Key | Salt Road | Atlas / binding |
+|---|---|---|
+| `floor.<zone>` | `long-quay` = `stone_wet` | `stone_wet` slot 3, `stone_a` / `stone` slot 2, `dirt_b` slot 1, `dirt_a` / `dirt` slot 0. Any other plate id is skipped. |
+| `zoneCells` | six anchors, span 3 | Where the zone's diamond sits. |
+| `occupancy[].character` | pack id | `merchant`, `elder`, `scribe`, `guard`, `child`, `fisherman`. Not a display name. |
+| `occupancy[].facing` | eight buckets | `front` through `front_right`, matching `sprite_binder.gd`. |
+
+Felt files are `assets/felt/<cueId>.wav`. The mixer falls back to a sine tone when the file is missing. Cue ids in the grey-box pack include `music_dread`, `ambient_drone`, `music_calm`, `ambient_white_noise`, `music_victory_sting`, `music_defeat_sting`, `music_retreat_sting`, `ui_click`, `alert_warning`.
+
 ## Keys
 
 | Key | Does |
