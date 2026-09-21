@@ -11,6 +11,12 @@ JSON-RPC, submits what the player is trying to do, and draws what comes back. It
 holds no rules. It advances no clock. When it disagrees with the simulation, the
 simulation is right and the stage says so out loud.
 
+Play camera is **2:1 dimetric** (one harbour, Y-sorted buildings, Foundry
+characters). Occupancy in the engine is still a zone id — see
+[Visual Clients](https://mcp-tool-shop-org.github.io/ai-rpg-engine/handbook/66-visual-clients/)
+in the engine handbook. Town plates are authored under `assets/dimetric/` and
+must pass the ANDON before they are loaded.
+
 That constraint is the product. A deterministic simulation whose client is allowed
 to guess is a simulation with two truths, and the second one desynchronises
 quietly. Everything here is arranged so the stage cannot become the second truth.
