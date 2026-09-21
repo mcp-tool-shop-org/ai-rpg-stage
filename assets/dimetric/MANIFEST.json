@@ -238,6 +238,22 @@
       ]
     },
     {
+      "id": "stone_wet",
+      "kind": "ground",
+      "path": "ground/stone_wet.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 2,
+      "andon_log": "ground/stone_wet.json",
+      "resolution": [
+        256,
+        128
+      ]
+    },
+    {
       "id": "counting_house",
       "kind": "structure",
       "path": "structures/counting_house/beauty.png",

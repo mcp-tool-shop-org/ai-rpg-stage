@@ -50,7 +50,7 @@ def parse_args():
     ap.add_argument("--m", type=int, default=None, help="footprint tiles along world Y (default = n)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--name", default=None)
-    ap.add_argument("--variant", default="a", help="ground look: a | b | stone")
+    ap.add_argument("--variant", default="a", help="ground look: a | b | stone | stone_wet")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--samples", type=int, default=64)
     ap.add_argument("--save", default=None, help="save the .blend here after rendering")
@@ -161,7 +161,67 @@ def ground_material(variant, seed):
     mix.inputs[0].default_value = 0.35   # Factor_Float; colour sockets are inputs 6/7, colour result is outputs[2]
     bump = nt.nodes.new("ShaderNodeBump")
     bump.inputs["Strength"].default_value = 0.25
-    if variant == "stone":
+    if variant == "stone_wet":
+        # Salt Road's floor line: where the tide gets over the lip the stone stays wet. Same cells as
+        # stone_a, darker and cooler, roughness driven low where puddle noise pools so the one Sun glints.
+        bsdf.inputs["Roughness"].default_value = 0.22
+        bsdf.inputs["Specular IOR Level"].default_value = 0.8 if "Specular IOR Level" in bsdf.inputs else 0.5
+        vor = nt.nodes.new("ShaderNodeTexVoronoi")
+        vor.feature = "DISTANCE_TO_EDGE"
+        vor.inputs["Scale"].default_value = 5.5
+        vor.inputs["Randomness"].default_value = 0.6
+        vramp = nt.nodes.new("ShaderNodeValToRGB")
+        vramp.color_ramp.elements[0].position = 0.0
+        vramp.color_ramp.elements[0].color = (0.07, 0.08, 0.09, 1)   # grout, wet-dark
+        vramp.color_ramp.elements[1].position = 0.08
+        vramp.color_ramp.elements[1].color = (0.24, 0.27, 0.29, 1)   # stone face, wet and cool
+        noise.inputs["Scale"].default_value = 9.0
+        ramp.color_ramp.elements[0].color = (0.20, 0.23, 0.25, 1)
+        ramp.color_ramp.elements[1].color = (0.30, 0.32, 0.33, 1)
+        mix2 = nt.nodes.new("ShaderNodeMix")
+        mix2.data_type = "RGBA"
+        mix2.blend_type = "MULTIPLY"
+        mix2.inputs[0].default_value = 1.0
+        puddle = nt.nodes.new("ShaderNodeTexNoise")
+        puddle.noise_dimensions = "4D"
+        puddle.inputs["W"].default_value = float(seed) * 2.1 + 3.0
+        puddle.inputs["Scale"].default_value = 2.2
+        puddle.inputs["Detail"].default_value = 3.0
+        rough_ramp = nt.nodes.new("ShaderNodeValToRGB")
+        rough_ramp.color_ramp.elements[0].position = 0.40
+        rough_ramp.color_ramp.elements[0].color = (0.08, 0.08, 0.08, 1)   # pooled water: mirror-ish
+        rough_ramp.color_ramp.elements[1].position = 0.65
+        rough_ramp.color_ramp.elements[1].color = (0.45, 0.45, 0.45, 1)   # damp stone
+        nt.links.new(tex.outputs["Object"], vor.inputs["Vector"])
+        nt.links.new(vor.outputs["Distance"], vramp.inputs["Fac"])
+        nt.links.new(tex.outputs["Object"], noise.inputs["Vector"])
+        nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+        nt.links.new(ramp.outputs["Color"], mix2.inputs[6])
+        nt.links.new(vramp.outputs["Color"], mix2.inputs[7])
+        nt.links.new(mix2.outputs[2], mix.inputs[6])
+        nt.links.new(vor.outputs["Distance"], bump.inputs["Height"])
+        nt.links.new(tex.outputs["Object"], puddle.inputs["Vector"])
+        nt.links.new(puddle.outputs["Fac"], rough_ramp.inputs["Fac"])
+        nt.links.new(rough_ramp.outputs["Color"], bsdf.inputs["Roughness"])
+        bump.inputs["Strength"].default_value = 0.12
+        # Standing water reads by what it reflects, and a flat plane under one Sun and an ortho camera
+        # never catches the glint. So pooled areas lift toward a cool sky-grey: the reflection a wet quay
+        # shows at this camera, painted into base colour rather than a second light.
+        sheen = nt.nodes.new("ShaderNodeMix")
+        sheen.data_type = "RGBA"
+        sheen.blend_type = "MIX"
+        sheen.inputs[7].default_value = (0.46, 0.52, 0.56, 1.0)
+        sheen_ramp = nt.nodes.new("ShaderNodeValToRGB")
+        sheen_ramp.color_ramp.elements[0].position = 0.36
+        sheen_ramp.color_ramp.elements[0].color = (0.55, 0.55, 0.55, 1)   # pooled: half sky
+        sheen_ramp.color_ramp.elements[1].position = 0.60
+        sheen_ramp.color_ramp.elements[1].color = (0.0, 0.0, 0.0, 1)      # damp stone: none
+        nt.links.new(puddle.outputs["Fac"], sheen_ramp.inputs["Fac"])
+        nt.links.new(sheen_ramp.outputs["Color"], sheen.inputs[0])
+        nt.links.new(mix2.outputs[2], sheen.inputs[6])
+        nt.links.remove(next(l for l in nt.links if l.to_node == mix and l.to_socket == mix.inputs[6]))
+        nt.links.new(sheen.outputs[2], mix.inputs[6])
+    elif variant == "stone":
         vor = nt.nodes.new("ShaderNodeTexVoronoi")
         vor.feature = "DISTANCE_TO_EDGE"
         vor.inputs["Scale"].default_value = 5.5
