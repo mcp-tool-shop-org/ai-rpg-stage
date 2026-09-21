@@ -425,6 +425,10 @@ func _disable_export_cameras() -> void:
 
 
 func camera() -> Camera2D:
+	if iso:
+		var iso_cam := iso.get_node_or_null("IsoCamera") as Camera2D
+		if iso_cam:
+			return iso_cam
 	return get_node_or_null("DioramaCamera") as Camera2D
 
 

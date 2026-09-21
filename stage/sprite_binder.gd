@@ -155,3 +155,17 @@ static func face(sprite: Sprite2D, motion: Vector2) -> String:
 	sprite.texture = tex
 	sprite.set_meta("facing", wanted)
 	return wanted
+
+
+## Rest an actor on an authored Foundry bucket. Occupancy sidecars name a facing;
+## they do not send a motion vector. Same no-op if that facing is not vendored.
+static func face_named(sprite: Sprite2D, bucket: String) -> String:
+	var i := DIRECTIONS.find(bucket)
+	if i < 0:
+		i = 0
+	# Screen-space motions that `direction_for` maps onto DIRECTIONS, in order.
+	var motions: Array[Vector2] = [
+		Vector2(0, 1), Vector2(-1, 1), Vector2(-1, 0), Vector2(-1, -1),
+		Vector2(0, -1), Vector2(1, -1), Vector2(1, 0), Vector2(1, 1),
+	]
+	return face(sprite, motions[i])

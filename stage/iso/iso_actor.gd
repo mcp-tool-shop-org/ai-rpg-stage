@@ -45,3 +45,8 @@ func setup(character_id: String) -> void:
 func face(motion: Vector2) -> void:
 	if sprite:
 		SpriteBinder.face(sprite, motion)
+
+
+func face_named(bucket: String) -> void:
+	if sprite:
+		SpriteBinder.face_named(sprite, bucket)

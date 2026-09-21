@@ -138,6 +138,9 @@ func _run_session(t: RefCounted, tree: SceneTree, pack_path: String, label: Stri
 		t.check(false, "%s: the handshake completes" % label, "attach returned nothing")
 		harness.call("stop")
 		return {"ok": false}
+	var caps: Dictionary = handshake.get("capabilities", {}) as Dictionary
+	t.is_true(bool(caps.get("audio", false)),
+		"%s: initialize echoed capabilities.audio" % label)
 
 	# A snapshot first, so the stage has a position before it changes one.
 	await client.call("snapshot")
@@ -183,6 +186,16 @@ func _movement(t: RefCounted, bag: Dictionary, d: Node2D) -> void:
 				entered += 1
 	t.check(entered > 0, "the player really moved through the sim", "entered %d zones" % entered)
 
+	var felt_audio := 0
+	for r: Dictionary in (bag["walk_results"] as Array):
+		var felt: Variant = r.get("felt", {})
+		if felt is Dictionary:
+			var audio: Variant = (felt as Dictionary).get("audio", [])
+			if audio is Array:
+				felt_audio += (audio as Array).size()
+	t.check(felt_audio > 0, "zone-entry results carry felt.audio",
+		"felt cue count across walks: %d" % felt_audio)
+
 
 func _refusal(t: RefCounted, bag: Dictionary) -> void:
 	# The gated warehouse. The stage walked into it WITHOUT checking, because checking is
@@ -220,11 +233,21 @@ func _spawns(t: RefCounted, bag: Dictionary, d: Node2D) -> void:
 	t.check(stair != null, "the anchor's zone is on stage")
 
 	if spawn_lines > 0:
-		var holder := stair.get_node_or_null("Spawned")
-		t.check(holder != null, "a spawn produced real nodes in the zone")
-		if holder != null:
-			t.check(holder.get_child_count() > 0, "and there is at least one of them")
-			var marker := holder.get_child(0)
+		var iso: Node = d.get("iso")
+		var marker: Node = null
+		if iso:
+			for child in iso.get_node("Actors").get_children():
+				if String(child.name).begins_with("Spawn_"):
+					marker = child
+					break
+		if marker == null:
+			var holder := stair.get_node_or_null("Spawned")
+			t.check(holder != null, "a spawn produced real nodes in the zone")
+			if holder != null:
+				t.check(holder.get_child_count() > 0, "and there is at least one of them")
+				marker = holder.get_child(0)
+		t.check(marker != null, "a spawn produced a real node on the iso harbour")
+		if marker != null:
 			t.check(marker.has_meta("entity_id"), "each spawned node carries the sim's entity id")
 			t.check(marker.get_node_or_null("Sprite") != null, "and is bound to a sprite")
 	else:

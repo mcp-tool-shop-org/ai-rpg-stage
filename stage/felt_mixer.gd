@@ -18,6 +18,12 @@ var beds: Dictionary = {}
 var last_sting := ""
 var executed: Array = []
 var mute := false
+## Last `_stream_for` origin: "file" if `res://assets/felt/<id>.wav` loaded, else "tone".
+var last_source := "tone"
+## Per-cue origin, same vocabulary. Tests pin file-vs-tone without depending on order.
+var last_sources: Dictionary = {}
+## Pack root. Override in tests; play uses the authored felt library.
+var pack_root := "res://assets/felt"
 
 var _stem: AudioStreamPlayer
 var _sting: AudioStreamPlayer
@@ -75,10 +81,10 @@ func _audible(cmd: Dictionary) -> void:
 	var action := String(cmd.get("action", ""))
 	var resource := String(cmd.get("resourceId", ""))
 	if domain == "music" and action == "sting":
-		_play(_sting, _tone_for(resource, 0.35, false))
+		_play(_sting, _stream_for(resource, 0.35, false))
 		return
 	if domain == "music" and action == "play":
-		_play(_stem, _tone_for(resource, 2.0, true))
+		_play(_stem, _stream_for(resource, 2.0, true))
 		return
 	if domain == "music" and action == "stop":
 		if _stem:
@@ -86,7 +92,7 @@ func _audible(cmd: Dictionary) -> void:
 		return
 	if domain == "ambient" and (action == "start" or action == "play"):
 		var p := _bed_player(resource)
-		_play(p, _tone_for(resource, 3.0, true))
+		_play(p, _stream_for(resource, 3.0, true))
 		return
 	if domain == "ambient" and action == "stop":
 		var existing: AudioStreamPlayer = _bed_players.get(resource) as AudioStreamPlayer
@@ -94,10 +100,10 @@ func _audible(cmd: Dictionary) -> void:
 			existing.stop()
 		return
 	if domain == "sfx":
-		_play(_sfx, _tone_for(resource, 0.12, false))
+		_play(_sfx, _stream_for(resource, 0.12, false))
 		return
 	if domain == "voice":
-		_play(_voice, _tone_for(resource, 0.4, false))
+		_play(_voice, _stream_for(resource, 0.4, false))
 
 
 func _bed_player(resource: String) -> AudioStreamPlayer:
@@ -123,7 +129,28 @@ func _play(player: AudioStreamPlayer, stream: AudioStream) -> void:
 	player.play()
 
 
-## Procedural stand-in for CORE_SOUND_PACK. Real files can replace this later;
+## Cue-id contract: a WAV at `pack_root/<id>.wav` wins; otherwise a procedural
+## stand-in. The id is the waveform's name, never a second vocabulary.
+func _stream_for(resource: String, seconds: float, loop: bool) -> AudioStream:
+	var path := "%s/%s.wav" % [pack_root.rstrip("/"), resource]
+	if ResourceLoader.exists(path):
+		var loaded: Variant = load(path)
+		if loaded is AudioStream:
+			last_source = "file"
+			last_sources[resource] = "file"
+			if loop and loaded is AudioStreamWAV:
+				var wav := (loaded as AudioStreamWAV).duplicate() as AudioStreamWAV
+				if wav.loop_mode == AudioStreamWAV.LOOP_DISABLED:
+					wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+					wav.loop_begin = 0
+				return wav
+			return loaded as AudioStream
+	last_source = "tone"
+	last_sources[resource] = "tone"
+	return _tone_for(resource, seconds, loop)
+
+
+## Procedural stand-in for CORE_SOUND_PACK. Real files replace this when present;
 ## the mixer contract is the cue id, not the waveform.
 func _tone_for(resource: String, seconds: float, loop: bool) -> AudioStreamWAV:
 	var freq := 220.0

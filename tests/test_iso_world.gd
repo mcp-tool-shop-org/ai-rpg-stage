@@ -66,6 +66,27 @@ func run_async(t: RefCounted) -> void:
 	t.check(cam != null and cam.is_current(), "iso camera is current")
 	t.check(iso.get_node_or_null("DoorTorch") != null, "door torch is on the canvas")
 
+	t.check(iso.get_node_or_null("Actors/FrontProof") == null, "play layout is not FrontProof")
+	t.check(iso.get_node_or_null("Actors/BehindProof") == null, "play layout is not BehindProof")
+	var drell: Node2D = iso.get_node_or_null("Actors/npc-drell") as Node2D
+	if drell == null:
+		# CAST fallback in this test uses id "front" / "behind"; occupancy uses npc-drell.
+		drell = iso.get_node_or_null("Actors/front") as Node2D
+	t.check(iso.get_node_or_null("Actors/player") != null or iso.get("player_actor") != null,
+		"player actor is named from occupancy or fallback")
+	t.check(drell != null, "named guard stands on the harbour (occupancy npc-drell or CAST fallback)")
+
+	var shed_anchor := Vector2i(8, 5)
+	var front_pos: Vector2 = IsoMath.cell_to_world(shed_anchor + Vector2i(2, 2))
+	var behind_pos: Vector2 = IsoMath.cell_to_world(shed_anchor + Vector2i(0, 0))
+	t.check(front_pos.y > behind_pos.y,
+		"shed front cell sorts in front of the far cell (higher Y)")
+
+	var quay: Vector2i = Vector2i(5, 5)
+	if ground:
+		t.equals(ground.get_cell_atlas_coords(quay), Vector2i(3, 0),
+			"long-quay diamonds use the wet-stone atlas slot")
+
 	if player:
 		var before := player.position
 		iso.call("face_only", Vector2.LEFT)
@@ -96,8 +117,10 @@ func _assert_atlas_corners(t: RefCounted, ground: TileMapLayer) -> void:
 		return
 	if img.get_format() != Image.FORMAT_RGBA8:
 		img.convert(Image.FORMAT_RGBA8)
-	# Three tiles side by side. Each 256×128 diamond has alpha-0 8×8 corners.
-	for tile_i in 3:
+	# Atlas is N 256×128 diamonds. Each has alpha-0 8×8 corners.
+	var tiles := img.get_width() / IsoMath.TILE_W
+	t.check(tiles >= 3, "ground atlas has dirt_a/dirt_b/stone_a")
+	for tile_i in tiles:
 		var ox := tile_i * IsoMath.TILE_W
 		var corners := [
 			Vector2i(ox, 0), Vector2i(ox + IsoMath.TILE_W - 8, 0),

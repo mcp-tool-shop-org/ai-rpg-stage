@@ -28,4 +28,10 @@ func run(t: RefCounted) -> void:
 	])
 	t.is_false(bool(mixer.call("stem_alive")), "an explicit stop does kill the stem")
 
+	var stream: Variant = mixer.call("_stream_for", "music_dread", 2.0, true)
+	t.check(stream != null, "cue id always resolves to a stream")
+	var want_file := ResourceLoader.exists("res://assets/felt/music_dread.wav")
+	t.equals(String(mixer.get("last_source")), "file" if want_file else "tone",
+		"WAV at assets/felt/<id>.wav wins; otherwise the procedural stand-in")
+
 	mixer.free()
