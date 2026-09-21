@@ -38,6 +38,19 @@ non-zero on any failure. It also fails on a test that asserted nothing and on a
 `--only=` filter that matched nothing — an empty run is a failure here, not a
 pass.
 
+Play it (Salt Road, sidecar + this window). The engine must be built
+(`npm run build` in `../ai-rpg-engine`):
+
+```bash
+node tools/play.mjs
+```
+
+Number keys walk through a door. Click a diamond to walk; a neighbour zone
+submits `move`. Space waits a round. `I` opens the log. `J` toggles camera
+juice. `M` mutes.
+The handshake requests `capabilities.audio` so the harbour can hear zone stems,
+overlay stings, and the spoken line.
+
 One suite, one file:
 
 ```bash

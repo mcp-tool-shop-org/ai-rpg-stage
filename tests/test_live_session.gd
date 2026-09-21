@@ -100,6 +100,7 @@ func _run_session(t: RefCounted, tree: SceneTree, pack_path: String, label: Stri
 	var harness: RefCounted = Harness.new()
 	harness.set("extra_args", [
 		"--content", pack_path,
+		"--manifest", Harness.salt_road_manifest(),
 		"--start", Diorama.PLAYER_START_ZONE,
 		"--shock", CUE,
 	] as Array[String])
@@ -295,6 +296,6 @@ func _visible_in_zone(tree: SceneTree, group: String, zone: Node) -> int:
 		return 0
 	var n := 0
 	for node: Node in tree.get_nodes_in_group(group):
-		if node is CanvasItem and (node as CanvasItem).is_visible_in_tree() and zone.is_ancestor_of(node):
+		if node is CanvasItem and (node as CanvasItem).visible and zone.is_ancestor_of(node):
 			n += 1
 	return n

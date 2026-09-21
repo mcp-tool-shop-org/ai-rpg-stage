@@ -101,6 +101,22 @@ func painted_props() -> int:
 
 func _paint_floor(zone: Node2D, extent: Vector2, biome: String) -> void:
 	var tint: Color = BIOME_FLOOR.get(biome, FLOOR_FALLBACK)
+	var tex_path := "res://assets/floors/%s.png" % biome
+	if ResourceLoader.exists(tex_path):
+		var sprite := Sprite2D.new()
+		sprite.name = "Floor"
+		sprite.texture = load(tex_path) as Texture2D
+		sprite.centered = false
+		sprite.position = Vector2.ZERO
+		if sprite.texture:
+			sprite.scale = Vector2(
+				extent.x / float(sprite.texture.get_width()),
+				extent.y / float(sprite.texture.get_height()),
+			)
+		sprite.z_index = FLOOR_Z
+		sprite.z_as_relative = false
+		zone.add_child(sprite)
+		return
 
 	var floor_poly := Polygon2D.new()
 	floor_poly.name = "Floor"

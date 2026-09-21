@@ -16,6 +16,10 @@ config/description="Renders ai-rpg-engine's authoritative simulation. The stage 
 config/features=PackedStringArray("4.7", "Forward Plus")
 run/main_scene="res://stage/diorama.tscn"
 
+[audio]
+
+buses/default_bus_layout="res://audio/default_bus_layout.tres"
+
 [debug]
 
 ; Surface GDScript errors loudly in CI rather than letting a scene load

@@ -24,12 +24,14 @@ const SpriteBinder := preload("res://stage/sprite_binder.gd")
 const SceneJoin := preload("res://client/scene_join.gd")
 const FloorPainter := preload("res://stage/floor_painter.gd")
 
+const IsoWorld := preload("res://stage/iso/iso_world.gd")
+
 const WORLD_SCENE := "res://fixtures/world.tscn"
 const PACK_JSON := "res://fixtures/pack.json"
 
-## 512px sprites in a 32px-tile world. The pack is built for a much larger presentation
-## than a tile; this brings a person to roughly two tiles tall, which is the JRPG
-## convention and what the zone rectangles were laid out against.
+## 512px HD sprites. Map-token scale (0.125) made them ants on a strategy atlas.
+## Room view fills the screen with one zone; this is "a person standing in a room"
+## — about 40% of a 160px-tall interior, which is the 2.5D read.
 const CHARACTER_SCALE := 0.125
 
 ## Where the cast stands, and WHO each one is.
@@ -39,39 +41,39 @@ const CHARACTER_SCALE := 0.125
 ## the first concrete character order any authored world has put to it.
 const CAST := [
 	{
-		"id": "npc-corvane", "character": "corvane", "zone": "weighing-floor",
+		"id": "npc-corvane", "character": "elder", "zone": "weighing-floor",
 		"offset": Vector2(96, 128),
-		"fit": "good — an old man who wants to retire without signing a false weight",
+		"fit": "townsfolk-hd elder — Assay Master Corvane",
 		"pack_source": "elder",
 	},
 	{
-		"id": "npc-halle", "character": "halle", "zone": "bonded-warehouse",
+		"id": "npc-halle", "character": "scribe", "zone": "bonded-warehouse",
 		"offset": Vector2(64, 112),
-		"fit": "COMPROMISE — right period and register, but she is holding herbs, not a register",
-		"pack_source": "herbalist",
+		"fit": "townsfolk-hd scribe — Bonded Clerk Halle at the register",
+		"pack_source": "scribe",
 	},
 	{
-		"id": "npc-drell", "character": "drell", "zone": "customs-shed",
+		"id": "npc-drell", "character": "guard", "zone": "customs-shed",
 		"offset": Vector2(72, 104),
-		"fit": "acceptable — reads as officialdom, which is most of Drell",
-		"pack_source": "noble",
+		"fit": "townsfolk-hd guard — Inspector Drell",
+		"pack_source": "guard",
 	},
 	{
-		"id": "npc-tally-boy", "character": "tally-boy", "zone": "long-quay",
+		"id": "npc-tally-boy", "character": "child", "zone": "long-quay",
 		"offset": Vector2(240, 120),
-		"fit": "good — he is a boy with bad news",
+		"fit": "townsfolk-hd child — the tally-boy",
 		"pack_source": "child",
 	},
 	{
-		"id": "npc-stair-collector", "character": "collector", "zone": "crooked-stair",
+		"id": "npc-stair-collector", "character": "fisherman", "zone": "crooked-stair",
 		"offset": Vector2(80, 128),
-		"fit": "acceptable — a hard dockside figure; nothing in the pack collects debts",
+		"fit": "townsfolk-hd fisherman — dockside collector",
 		"pack_source": "fisherman",
 	},
 ]
 
-## The player: a factor. The one casting the pack got exactly right.
-const PLAYER_CHARACTER := "factor"
+## The player: the harbour factor. townsfolk-hd merchant, 4-layer 2.5D pack.
+const PLAYER_CHARACTER := "merchant"
 const PLAYER_START_ZONE := "counting-house"
 
 var world: Node2D
@@ -81,6 +83,8 @@ var join: RefCounted
 var painter: Node2D
 var player: Node2D
 var pack: Dictionary = {}
+var room: CanvasLayer
+var iso: Node2D
 
 ## zone id -> the local lights belonging to it, so a re-dress can touch a zone's lamps
 ## without walking the whole tree.
@@ -139,6 +143,18 @@ func build() -> void:
 	_populate_cast()
 	_place_player()
 	_frame_camera()
+
+	# Fourth-wall interiors stay in the tree for later, but they are not the play
+	# camera. Play is dimetric: one harbour, Y-sorted, Foundry actors on a 2:1 grid.
+	if world:
+		world.visible = false
+	iso = IsoWorld.new()
+	iso.name = "IsoHarbour"
+	add_child(iso)
+	iso.call("build", pack, PLAYER_CHARACTER, CAST)
+	var old_cam := get_node_or_null("DioramaCamera") as Camera2D
+	if old_cam:
+		old_cam.enabled = false
 
 	# Open on the authored descriptor of the zone the player starts in, so the diorama's
 	# first frame is a real state rather than a default.
@@ -352,8 +368,64 @@ func _frame_camera() -> void:
 	move_child(water, 0)
 
 	cam.position = bounds.get_center()
-	cam.zoom = Vector2(0.72, 0.72)
 	add_child(cam)
+	# The export also ships a Camera2D aimed at the harbour centroid. If that
+	# one stays enabled, Godot renders THE ATLAS and this camera's zoom is a
+	# lie the tests can pass while the player still sees postage stamps.
+	_disable_export_cameras()
+	look_at_zone(PLAYER_START_ZONE)
+
+
+## One room. Not a village map. Not six floating carpets.
+##
+## Salt Road is a ZONE GRAPH — counting house, quay, warehouse, stair — authored
+## as separate rectangles with gaps. Drawing them all at once is a debug view of
+## the graph. Play is: you are in this room; walking submits a move; the next
+## room replaces this one.
+func look_at_zone(zone_id: String) -> void:
+	var cam := camera()
+	var zn := zone_node(zone_id) as Node2D
+	if cam == null or zn == null:
+		return
+	_disable_export_cameras()
+	# The 19-tile "ground" layer is leftover atlas dressing. It is not a street.
+	var ground := world.get_node_or_null("Ground") if world else null
+	if ground:
+		ground.visible = false
+	var extent: Vector2 = FloorPainter.zone_extent(zn)
+	if extent == Vector2.ZERO:
+		extent = Vector2(192, 160)
+	if iso:
+		var from := String(iso.get("current_zone"))
+		if from.is_empty():
+			from = PLAYER_START_ZONE
+		var motion: Vector2 = iso.call("world_pos_of", zone_id) - iso.call("world_pos_of", from)
+		iso.call("walk_player_to", zone_id, motion)
+		return
+	cam.enabled = true
+	cam.make_current()
+	cam.global_position = zn.global_position + extent * 0.5
+	var vp := get_viewport().get_visible_rect().size
+	if vp.x < 8.0 or vp.y < 8.0:
+		vp = Vector2(1280, 720)
+	var margin := 1.06
+	var zx := vp.x / (extent.x * margin)
+	var zy := (vp.y * 0.70) / (extent.y * margin)
+	var z := clampf(minf(zx, zy), 3.5, 14.0)
+	cam.zoom = Vector2(z, z)
+
+
+func _disable_export_cameras() -> void:
+	if world == null:
+		return
+	for node: Node in world.find_children("*", "Camera2D", true, false):
+		var export_cam := node as Camera2D
+		if export_cam:
+			export_cam.enabled = false
+
+
+func camera() -> Camera2D:
+	return get_node_or_null("DioramaCamera") as Camera2D
 
 
 ## The biome key for a zone, for the floor painter. A separate accessor so the painter

@@ -99,11 +99,16 @@ static func canvas_texture(character: String, direction: String) -> CanvasTextur
 	var tex := CanvasTexture.new()
 	tex.diffuse_texture = load(albedo_path)
 
-	# The normal map is optional per character but present for the whole vendored cast.
-	# When absent the sprite still lights, just flatly.
+	# 2.5D pack (schema 2.0.0): normal + mask[R=AO,G=roughness,B=emissive].
+	# Without these the sprite is a sticker. Pack viewer sets the same specular.
 	var normal_path := sprite_path(character, "normal", direction)
 	if ResourceLoader.exists(normal_path):
 		tex.normal_texture = load(normal_path)
+	var mask_path := sprite_path(character, "mask", direction)
+	if ResourceLoader.exists(mask_path):
+		tex.specular_texture = load(mask_path)
+	tex.specular_color = Color(0.35, 0.32, 0.28, 1.0)
+	tex.specular_shininess = 0.28
 
 	return tex
 
