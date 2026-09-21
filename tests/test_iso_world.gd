@@ -75,6 +75,16 @@ func run_async(t: RefCounted) -> void:
 	t.check(iso.get_node_or_null("Actors/player") != null or iso.get("player_actor") != null,
 		"player actor is named from occupancy or fallback")
 	t.check(drell != null, "named guard stands on the harbour (occupancy npc-drell or CAST fallback)")
+	var pack_txt := FileAccess.get_file_as_string("res://fixtures/pack.json")
+	var pack: Variant = JSON.parse_string(pack_txt)
+	t.check(pack is Dictionary and (pack as Dictionary).has("presentation"),
+		"fixture pack.json carries the presentation block")
+	if pack is Dictionary:
+		var pres: Variant = (pack as Dictionary).get("presentation", {})
+		if pres is Dictionary:
+			var occ: Variant = (pres as Dictionary).get("occupancy", [])
+			t.check(occ is Array and (occ as Array).size() == 6,
+				"pack presentation occupancy has six rows")
 
 	var shed_anchor := Vector2i(8, 5)
 	var front_pos: Vector2 = IsoMath.cell_to_world(shed_anchor + Vector2i(2, 2))

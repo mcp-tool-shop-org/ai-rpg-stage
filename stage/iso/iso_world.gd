@@ -17,6 +17,7 @@ const STONE := "res://assets/dimetric/ground/stone_a.png"
 const STONE_WET := "res://assets/dimetric/ground/stone_wet.png"
 const LIB := "res://assets/dimetric/"
 const OCCUPANCY_PATH := "res://fixtures/harbour-occupancy.json"
+const PACK_PATH := "res://fixtures/pack.json"
 
 ## Zone id → ANDON-passing structure (path under LIB, footprint cells).
 const ZONE_STRUCTURE := {
@@ -55,6 +56,8 @@ var current_zone := "counting-house"
 var _zone_world: Dictionary = {}
 var _walk_tween: Tween
 var _torch: PointLight2D
+var _presentation_cache: Dictionary = {}
+var _presentation_loaded := false
 
 
 func build(_pack: Dictionary, player_character: String, cast: Array) -> void:
@@ -82,14 +85,13 @@ func build(_pack: Dictionary, player_character: String, cast: Array) -> void:
 func world_pos_of(zone_id: String) -> Vector2:
 	if _zone_world.has(zone_id):
 		return _zone_world[zone_id]
-	var cell: Vector2i = ZONE_CELLS.get(zone_id, Vector2i.ZERO)
-	return IsoMath.cell_to_world(cell)
+	return IsoMath.cell_to_world(_anchor(zone_id))
 
 
 func zone_at_cell(cell: Vector2i) -> String:
-	for zone_id: Variant in ZONE_CELLS.keys():
+	for zone_id: Variant in _zone_ids():
 		var id := String(zone_id)
-		var a: Vector2i = ZONE_CELLS[id]
+		var a: Vector2i = _anchor(id)
 		if cell.x >= a.x and cell.x < a.x + ZONE_SPAN and cell.y >= a.y and cell.y < a.y + ZONE_SPAN:
 			return id
 	return ""
@@ -238,7 +240,7 @@ func _ground_atlas() -> Texture2D:
 func _paint_quay_wet() -> void:
 	if ground == null:
 		return
-	var anchor: Vector2i = ZONE_CELLS["long-quay"]
+	var anchor: Vector2i = _anchor("long-quay")
 	for x in ZONE_SPAN:
 		for y in ZONE_SPAN:
 			ground.set_cell(anchor + Vector2i(x, y), 0, Vector2i(3, 0))
@@ -295,9 +297,9 @@ func _build_hover() -> void:
 
 
 func _place_buildings() -> void:
-	for zone_id: Variant in ZONE_CELLS.keys():
+	for zone_id: Variant in _zone_ids():
 		var id := String(zone_id)
-		var cell: Vector2i = ZONE_CELLS[id]
+		var cell: Vector2i = _anchor(id)
 		_zone_world[id] = IsoMath.cell_to_world(cell)
 	for zone_id: Variant in ZONE_STRUCTURE.keys():
 		var id := String(zone_id)
@@ -308,7 +310,7 @@ func _place_buildings() -> void:
 		var building: Node2D = IsoStructure.new()
 		building.name = id
 		props.add_child(building)
-		building.call("setup", tex, spec["fp"], ZONE_CELLS[id])
+		building.call("setup", tex, spec["fp"], _anchor(id))
 	for zone_id: Variant in ZONE_PROP.keys():
 		var id := String(zone_id)
 		var tex := _load_texture(LIB + String(ZONE_PROP[id]))
@@ -316,13 +318,13 @@ func _place_buildings() -> void:
 			continue
 		var prop: Node2D = IsoProp.new()
 		prop.name = id
-		prop.position = IsoMath.cell_to_world(ZONE_CELLS[id])
+		prop.position = IsoMath.cell_to_world(_anchor(id))
 		prop.call("setup", tex)
 		props.add_child(prop)
 	# Harbour dressing — 1-cell props, not occupancy.
-	_place_dressing_prop("barrel", "props/barrel_1x1/beauty.png", ZONE_CELLS["long-quay"] + Vector2i(-1, 0))
-	_place_dressing_prop("crate", "props/crate_1x1/beauty.png", ZONE_CELLS["long-quay"] + Vector2i(1, 1))
-	_place_dressing_prop("bollard", "props/bollard_1x1/beauty.png", ZONE_CELLS["long-quay"] + Vector2i(0, 1))
+	_place_dressing_prop("barrel", "props/barrel_1x1/beauty.png", _anchor("long-quay") + Vector2i(-1, 0))
+	_place_dressing_prop("crate", "props/crate_1x1/beauty.png", _anchor("long-quay") + Vector2i(1, 1))
+	_place_dressing_prop("bollard", "props/bollard_1x1/beauty.png", _anchor("long-quay") + Vector2i(0, 1))
 
 
 func _place_dressing_prop(node_name: String, rel: String, cell: Vector2i) -> void:
@@ -339,7 +341,7 @@ func _place_dressing_prop(node_name: String, rel: String, cell: Vector2i) -> voi
 func _place_torch() -> void:
 	# Plate is 256×256; sidecar light_px is (128, 72) from top-left; foot is
 	# the near vertex at the bottom centre. Offset from the IsoProp origin.
-	var torch_cell: Vector2i = ZONE_CELLS["customs-shed"] + Vector2i(1, 1)
+	var torch_cell: Vector2i = _anchor("customs-shed") + Vector2i(1, 1)
 	_place_dressing_prop("torch", "props/torch_1x1/beauty.png", torch_cell)
 	_torch = PointLight2D.new()
 	_torch.name = "DoorTorch"
@@ -398,7 +400,7 @@ func _place_cast(player_character: String, cast: Array) -> void:
 func spawn_entity(zone_id: String, entity_id: String, index: int) -> Node2D:
 	if actors == null:
 		return null
-	var anchor: Vector2i = ZONE_CELLS.get(zone_id, Vector2i.ZERO)
+	var anchor: Vector2i = _anchor(zone_id)
 	var cell := Vector2i(anchor.x + ZONE_SPAN - 1, anchor.y + (index % ZONE_SPAN))
 	var actor: Node2D = IsoActor.new()
 	actor.name = "Spawn_%s" % entity_id
@@ -412,8 +414,7 @@ func spawn_entity(zone_id: String, entity_id: String, index: int) -> Node2D:
 
 
 func _stand_cell(zone_id: String) -> Vector2i:
-	var anchor: Vector2i = ZONE_CELLS.get(zone_id, Vector2i.ZERO)
-	return anchor + Vector2i(ZONE_SPAN - 1, ZONE_SPAN - 1)
+	return _anchor(zone_id) + Vector2i(ZONE_SPAN - 1, ZONE_SPAN - 1)
 
 
 func _occupancy_rows(player_character: String, cast: Array) -> Array:
@@ -445,6 +446,9 @@ func _occupancy_rows(player_character: String, cast: Array) -> Array:
 
 
 func _load_occupancy() -> Array:
+	var from_pack: Variant = _presentation().get("occupancy", [])
+	if from_pack is Array and (from_pack as Array).size() > 0:
+		return from_pack
 	if not FileAccess.file_exists(OCCUPANCY_PATH):
 		return []
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(OCCUPANCY_PATH))
@@ -453,6 +457,35 @@ func _load_occupancy() -> Array:
 		if actors_v is Array:
 			return actors_v
 	return []
+
+
+func _presentation() -> Dictionary:
+	if _presentation_loaded:
+		return _presentation_cache
+	_presentation_loaded = true
+	if FileAccess.file_exists(PACK_PATH):
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(PACK_PATH))
+		if parsed is Dictionary:
+			var block: Variant = (parsed as Dictionary).get("presentation", {})
+			if block is Dictionary:
+				_presentation_cache = block
+	return _presentation_cache
+
+
+func _anchor(zone_id: String) -> Vector2i:
+	var zc: Variant = _presentation().get("zoneCells", {})
+	if zc is Dictionary and (zc as Dictionary).has(zone_id):
+		var raw: Variant = (zc as Dictionary)[zone_id]
+		if raw is Array and (raw as Array).size() >= 2:
+			return Vector2i(int((raw as Array)[0]), int((raw as Array)[1]))
+	return ZONE_CELLS.get(zone_id, Vector2i.ZERO)
+
+
+func _zone_ids() -> Array:
+	var zc: Variant = _presentation().get("zoneCells", {})
+	if zc is Dictionary and (zc as Dictionary).size() > 0:
+		return (zc as Dictionary).keys()
+	return ZONE_CELLS.keys()
 
 
 func _cell_of(row: Dictionary, zone: String) -> Vector2i:
@@ -466,7 +499,7 @@ func _cell_of(row: Dictionary, zone: String) -> Vector2i:
 
 
 func _cell_in_zone(cell: Vector2i, zone: String) -> bool:
-	var a: Vector2i = ZONE_CELLS.get(zone, Vector2i.ZERO)
+	var a: Vector2i = _anchor(zone)
 	return cell.x >= a.x and cell.x < a.x + ZONE_SPAN and cell.y >= a.y and cell.y < a.y + ZONE_SPAN
 
 
