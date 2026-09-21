@@ -309,7 +309,7 @@ def build_prop(scene, kind):
     nt = flame.node_tree
     em = nt.nodes.new("ShaderNodeEmission")
     em.inputs[0].default_value = (1.0, 0.55, 0.15, 1.0)
-    em.inputs[1].default_value = 6.0
+    em.inputs[1].default_value = 2.2   # keeps the flame orange under the Standard view transform
     nt.links.new(em.outputs[0], nt.nodes.get("Material Output").inputs[0])
     cx, cy = 0.5, 0.5
     objs = []
@@ -366,7 +366,6 @@ def build_prop(scene, kind):
             objs.append(add_box("End", cx - 0.36, cy + sy, 0.28, 0.72, 0.06, 0.18, darkwood, scene))
         for sy in (-0.27, 0.27):
             cyl("Wheel", 0.19, 0.05, 0.0, darkwood, x=cx + 0.05, y=cy + sy, rot=(math.radians(90), 0, 0))
-        objs.append(add_box("Shaft", cx - 0.48, cy - 0.03, 0.20, 0.14, 0.06, 0.06, darkwood, scene))
     return objs, light_point
 
 
@@ -440,9 +439,13 @@ def main():
         # provisional frame, measure, then size K and shift the foot to the bottom
         cam = add_camera(scene, n, m, res_x, PX_PER_TILE_H * max(n, m))
         sun, sun_euler = add_sun(scene)
+        bpy.context.view_layer.update()          # scale/location set via properties are lazy until this
         lo, hi = screen_extent(scene, cam, objs)
-        height_px = (hi - lo) * scene.render.resolution_y
+        v_foot = world_to_camera_view(scene, cam, Vector((n, 0.0, 0.0))).y   # the cell's near vertex, pinned at the bottom
+        height_px = (hi - v_foot) * scene.render.resolution_y
         k = max(max(n, m), math.ceil((height_px + 6) / PX_PER_TILE_H))
+        if args.scene == "prop" and k > 2:
+            print(f"WARN prop {args.prop} needs {height_px:.0f} px above the foot -> K={k}; shrink the mesh (gate 6 allows 256x128 or 256x256)")
         scene.render.resolution_y = PX_PER_TILE_H * k
         foot = place_foot_at_bottom(scene, cam, n, m, pad_px=1)
 
@@ -451,6 +454,7 @@ def main():
     bpy.ops.render.render(write_still=True)
 
     if args.save:
+        os.makedirs(os.path.dirname(os.path.abspath(args.save)), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(args.save))
 
     info = {

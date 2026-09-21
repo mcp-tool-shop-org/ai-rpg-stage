@@ -1,0 +1,35 @@
+{
+  "blender": "5.2.0 LTS",
+  "engine": "BLENDER_EEVEE",
+  "scene": "house",
+  "name": "beauty",
+  "footprint": [
+    3,
+    3
+  ],
+  "resolution": [
+    768,
+    1408
+  ],
+  "k": 11,
+  "camera_euler_deg": [
+    60.0,
+    0.0,
+    45.0
+  ],
+  "sensor_fit": "HORIZONTAL",
+  "ortho_scale": 4.24264,
+  "shift_y": 0.66536,
+  "sun_euler_deg": [
+    73.376,
+    0.0,
+    -54.926
+  ],
+  "foot_vertex_ndc": [
+    0.5,
+    0.0007
+  ],
+  "px_per_bu": 181.019,
+  "actor_bu": 0.8165,
+  "out": "E:/AI/ai-rpg-stage/assets/dimetric/structures/counting_house\\beauty.png"
+}

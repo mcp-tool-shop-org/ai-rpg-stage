@@ -31,3 +31,6 @@ and the fixture-driven test suite; history before this file lives in the git log
 - **Library authorship.** Plates are authored under `assets/dimetric/` (ANDON
   `andon/iso_andon.py`). `tools/iso_andon.py` is a shim. The PIL proof-kit
   generator is retired so it cannot overwrite a Blender plate.
+- **Harbour set (library v0.2.0).** Counting house, warehouse, stair, well,
+  cart, barrel, crate, torch, bollard — ANDON-passing plates, sliced on the
+  diamond. Flat leftover `shed_2x2.png` / `crate_1x1.png` copies removed.

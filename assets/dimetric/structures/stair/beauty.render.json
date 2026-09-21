@@ -1,0 +1,35 @@
+{
+  "blender": "5.2.0 LTS",
+  "engine": "BLENDER_EEVEE",
+  "scene": "stair",
+  "name": "beauty",
+  "footprint": [
+    2,
+    3
+  ],
+  "resolution": [
+    640,
+    768
+  ],
+  "k": 6,
+  "camera_euler_deg": [
+    60.0,
+    0.0,
+    45.0
+  ],
+  "sensor_fit": "HORIZONTAL",
+  "ortho_scale": 3.53553,
+  "shift_y": 0.34844,
+  "sun_euler_deg": [
+    73.376,
+    0.0,
+    -54.926
+  ],
+  "foot_vertex_ndc": [
+    0.4,
+    0.0013
+  ],
+  "px_per_bu": 181.019,
+  "actor_bu": 0.8165,
+  "out": "E:/AI/ai-rpg-stage/assets/dimetric/structures/stair\\beauty.png"
+}

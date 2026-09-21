@@ -14,8 +14,19 @@ const IsoStructure := preload("res://stage/iso/iso_structure.gd")
 const DIRT_A := "res://assets/dimetric/ground/dirt_a.png"
 const DIRT_B := "res://assets/dimetric/ground/dirt_b.png"
 const STONE := "res://assets/dimetric/ground/stone_a.png"
-const SHED := "res://assets/dimetric/structures/shed_2x2/beauty.png"
-const CRATE := "res://assets/dimetric/props/crate_1x1.png"
+const LIB := "res://assets/dimetric/"
+
+## Zone id → ANDON-passing structure (path under LIB, footprint cells).
+const ZONE_STRUCTURE := {
+	"counting-house": { "path": "structures/counting_house/beauty.png", "fp": Vector2i(3, 3) },
+	"bonded-warehouse": { "path": "structures/warehouse/beauty.png", "fp": Vector2i(3, 3) },
+	"customs-shed": { "path": "structures/shed_2x2/beauty.png", "fp": Vector2i(2, 2) },
+	"crooked-stair": { "path": "structures/stair/beauty.png", "fp": Vector2i(2, 3) },
+}
+const ZONE_PROP := {
+	"weighing-floor": "props/well_1x1/beauty.png",
+	"long-quay": "props/cart_1x1/beauty.png",
+}
 
 const ZONE_CELLS := {
 	"counting-house": Vector2i(2, 2),
@@ -273,30 +284,52 @@ func _place_buildings() -> void:
 		var id := String(zone_id)
 		var cell: Vector2i = ZONE_CELLS[id]
 		_zone_world[id] = IsoMath.cell_to_world(cell)
-	# One honest 2×2 shed. Other zones get a 1-cell crate so the graph is
-	# visible without loading the rejected plates.
-	var shed_tex := _load_texture(SHED)
-	if shed_tex:
-		var shed: Node2D = IsoStructure.new()
-		shed.name = "customs-shed"
-		props.add_child(shed)
-		shed.call("setup", shed_tex, Vector2i(2, 2), ZONE_CELLS["customs-shed"])
-	var crate_tex := _load_texture(CRATE)
-	for id in ["counting-house", "weighing-floor", "bonded-warehouse", "long-quay", "crooked-stair"]:
-		if crate_tex == null:
-			break
+	for zone_id: Variant in ZONE_STRUCTURE.keys():
+		var id := String(zone_id)
+		var spec: Dictionary = ZONE_STRUCTURE[id]
+		var tex := _load_texture(LIB + String(spec["path"]))
+		if tex == null:
+			continue
+		var building: Node2D = IsoStructure.new()
+		building.name = id
+		props.add_child(building)
+		building.call("setup", tex, spec["fp"], ZONE_CELLS[id])
+	for zone_id: Variant in ZONE_PROP.keys():
+		var id := String(zone_id)
+		var tex := _load_texture(LIB + String(ZONE_PROP[id]))
+		if tex == null:
+			continue
 		var prop: Node2D = IsoProp.new()
 		prop.name = id
 		prop.position = IsoMath.cell_to_world(ZONE_CELLS[id])
-		prop.call("setup", crate_tex)
+		prop.call("setup", tex)
 		props.add_child(prop)
+	# Harbour dressing — 1-cell props, not occupancy.
+	_place_dressing_prop("barrel", "props/barrel_1x1/beauty.png", ZONE_CELLS["long-quay"] + Vector2i(-1, 0))
+	_place_dressing_prop("crate", "props/crate_1x1/beauty.png", ZONE_CELLS["long-quay"] + Vector2i(1, 1))
+	_place_dressing_prop("bollard", "props/bollard_1x1/beauty.png", ZONE_CELLS["long-quay"] + Vector2i(0, 1))
+
+
+func _place_dressing_prop(node_name: String, rel: String, cell: Vector2i) -> void:
+	var tex := _load_texture(LIB + rel)
+	if tex == null:
+		return
+	var prop: Node2D = IsoProp.new()
+	prop.name = node_name
+	prop.position = IsoMath.cell_to_world(cell)
+	prop.call("setup", tex)
+	props.add_child(prop)
 
 
 func _place_torch() -> void:
+	# Plate is 256×256; sidecar light_px is (128, 72) from top-left; foot is
+	# the near vertex at the bottom centre. Offset from the IsoProp origin.
+	var torch_cell: Vector2i = ZONE_CELLS["customs-shed"] + Vector2i(1, 1)
+	_place_dressing_prop("torch", "props/torch_1x1/beauty.png", torch_cell)
 	_torch = PointLight2D.new()
 	_torch.name = "DoorTorch"
-	_torch.color = Color(1.0, 0.72, 0.42, 1)
-	_torch.energy = 1.15
+	_torch.color = Color(1.0, 0.78, 0.45, 1)
+	_torch.energy = 0.95
 	_torch.height = 48.0
 	_torch.texture_scale = 2.2
 	_torch.shadow_enabled = false
@@ -311,7 +344,7 @@ func _place_torch() -> void:
 	light_tex.fill_from = Vector2(0.5, 0.5)
 	light_tex.fill_to = Vector2(0.5, 0.0)
 	_torch.texture = light_tex
-	_torch.position = IsoMath.cell_to_world(ZONE_CELLS["customs-shed"]) + Vector2(20, 10)
+	_torch.position = IsoMath.cell_to_world(torch_cell) + Vector2(0, -183)
 	add_child(_torch)
 
 
