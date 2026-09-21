@@ -23,6 +23,9 @@ extends Node
 
 const TickQueue := preload("res://client/tick_queue.gd")
 const SpriteBinder := preload("res://stage/sprite_binder.gd")
+const FeltMixer := preload("res://stage/felt_mixer.gd")
+const FeltJuice := preload("res://stage/felt_juice.gd")
+const FeltVoice := preload("res://stage/felt_voice.gd")
 
 ## Events this session knows how to show. Anything else is IGNORED, not an error —
 ## tolerant out (RFC 9413): the sim may learn to say things this stage does not render
@@ -49,6 +52,9 @@ var diorama: Node2D
 var client: Node
 var bus: Node
 var queue: RefCounted
+var mixer: Node
+var juice: Node
+var voice: Node
 
 ## Everything the stage SHOWED THE PLAYER, in presentation order.
 ##
@@ -79,6 +85,16 @@ func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
 	queue = TickQueue.new()
 	queue.set("presenter", Callable(self, "_present"))
 
+	mixer = FeltMixer.new()
+	mixer.name = "FeltMixer"
+	add_child(mixer)
+	juice = FeltJuice.new()
+	juice.name = "FeltJuice"
+	add_child(juice)
+	voice = FeltVoice.new()
+	voice.name = "FeltVoice"
+	add_child(voice)
+
 	bus.tick_received.connect(_on_tick)
 	bus.staleness_detected.connect(_on_staleness)
 	bus.refused.connect(func(reason: String) -> void: _note("sim refused the connection: %s" % reason))
@@ -103,6 +119,7 @@ func walk_to(zone_id: String) -> Dictionary:
 		# one is a bug, the other is the game working.
 		_log("wire error on move: %s" % result.get("message", ""))
 		return result
+	_apply_felt(result)
 	queue.call("enqueue", result.get("events", []))
 	await queue.call("drain")
 	return result
@@ -115,6 +132,7 @@ func advance() -> Dictionary:
 	if result.get("__error__", false):
 		_log("wire error on advance: %s" % result.get("message", ""))
 		return result
+	_apply_felt(result)
 	queue.call("enqueue", result.get("events", []))
 	await queue.call("drain")
 	return result
@@ -171,6 +189,7 @@ func _present_entered(payload: Dictionary) -> Variant:
 
 	# And the zone's own descriptor drives the light, so walking indoors looks like it.
 	diorama.call("apply_zone_state", zone_id, [])
+	diorama.call("look_at_zone", zone_id)
 	zone_entered.emit(zone_id)
 	return null
 
@@ -200,6 +219,9 @@ func _present_rejected(payload: Dictionary) -> Variant:
 	# out door — the sentence Halle actually says.
 	_log(reason)
 	refused.emit(reason)
+	var iso: Node = diorama.get("iso") if diorama else null
+	if iso and iso.has_method("face_only"):
+		iso.call("face_only", Vector2.DOWN)
 	return null
 
 
@@ -233,11 +255,27 @@ func _present_spawned(payload: Dictionary) -> Variant:
 
 # ── Wire ──────────────────────────────────────────────────────
 
+func _apply_felt(result: Dictionary) -> void:
+	# One beat per committed turn, from the RPC result — not from the tick
+	# notification, which would double-play the same commands.
+	var felt: Dictionary = result.get("felt", {}) as Dictionary
+	if felt.is_empty():
+		return
+	if mixer:
+		mixer.call("execute", felt.get("audio", []))
+	if juice and diorama:
+		juice.call("apply", felt.get("uiEffects", []), diorama.call("camera"))
+	var speaker: Variant = felt.get("speaker", {})
+	if speaker is Dictionary and not (speaker as Dictionary).is_empty() and voice:
+		voice.call("speak", speaker)
+
+
 func _on_tick(_tick: int, _hash: String, events: Array, _delta: Array) -> void:
 	# Tick notifications arrive alongside the submitAction response that caused them. The
 	# queue dedups nothing — the SERVER already does, by event id — so enqueuing both
 	# would double-present. Notifications are recorded and the response drives
 	# presentation, which keeps one code path in charge of what the player sees.
+	# Felt rides the same rule: play from the response, ignore the tick copy.
 	if events.is_empty():
 		return
 
@@ -276,3 +314,5 @@ func _face_toward(zone_id: String) -> void:
 	if from == null or to == null:
 		return
 	SpriteBinder.face(sprite, to.position - from.position)
+	if diorama.get("room"):
+		diorama.get("room").call("face_player", to.position - from.position)

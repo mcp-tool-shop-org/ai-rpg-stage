@@ -52,6 +52,16 @@ static func salt_road_pack() -> String:
 	return engine_dir.get_base_dir() + "/world-forge/dogfood/output/salt-road/pack.json"
 
 
+## Sibling of the stage fixtures. The sidecar load gate refuses --content
+## without --manifest (SIDECAR_MANIFEST_REQUIRED).
+static func salt_road_manifest() -> String:
+	var from_env := OS.get_environment("SALT_ROAD_MANIFEST")
+	if not from_env.is_empty():
+		return from_env.replace("\\", "/")
+	var project_dir := ProjectSettings.globalize_path("res://").rstrip("/")
+	return project_dir + "/fixtures/salt-road.manifest.json"
+
+
 ## Extra sidecar arguments — content, start zone, scenario cue. Set before `start`.
 ##
 ## Kept as a plain array rather than typed fields so the harness does not have to grow a

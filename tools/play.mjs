@@ -47,6 +47,7 @@ const HOST_PACK = 'chapel-threshold';
 
 const BIN = path.join(ENGINE, 'packages', 'cli', 'dist', 'bin.js');
 const PACK = path.join(FORGE, 'dogfood', 'output', 'salt-road', 'pack.json');
+const MANIFEST = path.join(STAGE, 'fixtures', 'salt-road.manifest.json');
 
 function die(message, hint) {
   console.error(`\n✗ ${message}`);
@@ -70,6 +71,12 @@ if (!fs.existsSync(PACK)) {
       + `--out="${path.join(STAGE, 'fixtures')}" --doctor   (or pass --forge <dir>)`,
   );
 }
+if (!fs.existsSync(MANIFEST)) {
+  die(
+    `Salt Road manifest missing at ${MANIFEST}`,
+    `the sidecar load gate requires --manifest beside --content`,
+  );
+}
 
 // --- The sim ----------------------------------------------------------------
 
@@ -77,6 +84,7 @@ const simArgs = [
   BIN, 'sidecar', HOST_PACK,
   '--seed', SEED,
   '--content', PACK,
+  '--manifest', MANIFEST,
   '--start', 'counting-house',
   '--listen', String(PORT),
   ...(SHOCK ? ['--shock', SHOCK] : []),

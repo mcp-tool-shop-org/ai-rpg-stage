@@ -1,0 +1,35 @@
+{
+  "blender": "5.2.0 LTS",
+  "engine": "BLENDER_EEVEE",
+  "scene": "calibration",
+  "name": "calibration_square",
+  "footprint": [
+    1,
+    1
+  ],
+  "resolution": [
+    256,
+    128
+  ],
+  "k": null,
+  "camera_euler_deg": [
+    60.0,
+    0.0,
+    45.0
+  ],
+  "sensor_fit": "HORIZONTAL",
+  "ortho_scale": 1.41421,
+  "shift_y": 0.0,
+  "sun_euler_deg": [
+    73.376,
+    0.0,
+    -54.926
+  ],
+  "foot_vertex_ndc": [
+    0.5,
+    0.0
+  ],
+  "px_per_bu": 181.019,
+  "actor_bu": 0.8165,
+  "out": "E:/AI/ai-rpg-stage/assets/dimetric/camera\\calibration_square.png"
+}

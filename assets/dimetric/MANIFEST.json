@@ -1,0 +1,203 @@
+{
+  "library": "dimetric-town",
+  "version": "0.1.0",
+  "tile": [
+    256,
+    128
+  ],
+  "strip_px": 128,
+  "person_to_storey": 0.33,
+  "camera": {
+    "ortho": true,
+    "euler_deg": [
+      60,
+      0,
+      45
+    ],
+    "sensor_fit": "HORIZONTAL",
+    "ortho_scale_per_tile": 1.41421,
+    "px_per_bu": 181.019
+  },
+  "azimuth_deg": 135,
+  "sun_euler_deg": [
+    73.376,
+    0.0,
+    -54.926
+  ],
+  "andon": {
+    "script": "andon/iso_andon.py",
+    "version": "0.1.1"
+  },
+  "renderer": {
+    "blender": "5.2.0 LTS",
+    "engine": "BLENDER_EEVEE",
+    "camera_script": "camera/dimetric_60_45.py",
+    "ground_clip": "camera/diamond_clip.py"
+  },
+  "godot_import": {
+    "compress": "Lossless",
+    "fix_alpha_border": true,
+    "premult_alpha": false,
+    "vram_compressed": false,
+    "mipmaps_ground": false,
+    "mipmaps_strips": "only if the camera zooms out"
+  },
+  "entries": [
+    {
+      "id": "calibration_square",
+      "kind": "ground",
+      "path": "camera/calibration_square.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 0,
+      "andon_log": "camera/calibration_andon.json"
+    },
+    {
+      "id": "dirt_a",
+      "kind": "ground",
+      "path": "ground/dirt_a.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "ground/dirt_a.json"
+    },
+    {
+      "id": "dirt_b",
+      "kind": "ground",
+      "path": "ground/dirt_b.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "ground/dirt_b.json"
+    },
+    {
+      "id": "stone_a",
+      "kind": "ground",
+      "path": "ground/stone_a.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "ground/stone_a.json"
+    },
+    {
+      "id": "shed_2x2",
+      "kind": "structure",
+      "path": "structures/shed_2x2/beauty.png",
+      "footprint": [
+        2,
+        2
+      ],
+      "andon": "pass",
+      "phase": 1,
+      "andon_log": "structures/shed_2x2/beauty.andon.json"
+    },
+    {
+      "id": "building_counting_house",
+      "kind": "structure",
+      "path": "_rejected/building_counting_house.png",
+      "footprint": [
+        3,
+        3
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/building_counting_house.andon.json"
+    },
+    {
+      "id": "building_shed",
+      "kind": "structure",
+      "path": "_rejected/building_shed.png",
+      "footprint": [
+        3,
+        3
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/building_shed.andon.json"
+    },
+    {
+      "id": "building_stair",
+      "kind": "structure",
+      "path": "_rejected/building_stair.png",
+      "footprint": [
+        3,
+        3
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/building_stair.andon.json"
+    },
+    {
+      "id": "building_warehouse",
+      "kind": "structure",
+      "path": "_rejected/building_warehouse.png",
+      "footprint": [
+        3,
+        3
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/building_warehouse.andon.json"
+    },
+    {
+      "id": "ground_dirt",
+      "kind": "ground",
+      "path": "_rejected/ground_dirt.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/ground_dirt.andon.json"
+    },
+    {
+      "id": "ground_stone",
+      "kind": "ground",
+      "path": "_rejected/ground_stone.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/ground_stone.andon.json"
+    },
+    {
+      "id": "prop_cart",
+      "kind": "prop",
+      "path": "_rejected/prop_cart.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/prop_cart.andon.json"
+    },
+    {
+      "id": "prop_well",
+      "kind": "prop",
+      "path": "_rejected/prop_well.png",
+      "footprint": [
+        1,
+        1
+      ],
+      "andon": "fail",
+      "phase": 0,
+      "andon_log": "_rejected/prop_well.andon.json"
+    }
+  ]
+}

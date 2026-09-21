@@ -16,6 +16,7 @@ extends RefCounted
 const Diorama := preload("res://stage/diorama.gd")
 const SpriteBinder := preload("res://stage/sprite_binder.gd")
 const LightRig := preload("res://stage/light_rig.gd")
+const FloorPainter := preload("res://stage/floor_painter.gd")
 
 ## The zone the shock lands on: Dockward is authored fragile so it can actually move.
 const SHOCK_ZONE := "long-quay"
@@ -122,7 +123,17 @@ func _assembled(t: RefCounted, d: Node2D) -> void:
 	t.check(d.get("rig") != null, "the light rig exists")
 	t.check(d.get("dressing") != null, "the dressing system exists")
 	t.check(d.get("player") != null, "the player is placed")
-	t.check(d.get_node_or_null("DioramaCamera") != null, "a camera frames the scene")
+	var iso: Node2D = d.get("iso") as Node2D
+	t.check(iso != null, "the play view is a dimetric harbour, not a room painting")
+	if iso:
+		t.is_true(iso.y_sort_enabled, "the harbour Y-sorts")
+		var iso_cam := iso.get_node_or_null("IsoCamera") as Camera2D
+		t.check(iso_cam != null and iso_cam.is_current(), "the iso camera is current")
+		t.equals(String(iso.get("current_zone")), d.PLAYER_START_ZONE,
+			"the harbour camera opens on the counting house cell")
+	var export_cam := (d.get("world") as Node).get_node_or_null("Camera2D") as Camera2D
+	if export_cam:
+		t.is_false(export_cam.enabled, "the export's harbour-atlas camera is off")
 
 	var rig: Node = d.get("rig")
 	t.check(rig.get("ambient") != null, "the rig has a CanvasModulate")
@@ -200,10 +211,8 @@ func _cast_is_lit(t: RefCounted, d: Node2D) -> void:
 	t.check(psprite != null, "the player has a sprite")
 	t.is_true(SpriteBinder.has_all_directions(Diorama.PLAYER_CHARACTER),
 		"the player has all eight facings vendored")
-	# And the standing cast honestly does not — asserted so a later phase does not try to
-	# turn them and get a blank texture.
-	t.is_false(SpriteBinder.has_all_directions("halle"),
-		"a standing NPC has one facing, and the binder knows it")
+	t.is_true(SpriteBinder.has_all_directions("elder"),
+		"townsfolk-hd NPCs are full 8-direction 2.5D packs")
 
 	if psprite != null:
 		var before := String(psprite.get_meta("facing"))
@@ -315,6 +324,6 @@ func _visible_in_zone(tree: SceneTree, group: String, zone: Node) -> int:
 		return 0
 	var n := 0
 	for node: Node in tree.get_nodes_in_group(group):
-		if node is CanvasItem and (node as CanvasItem).is_visible_in_tree() and zone.is_ancestor_of(node):
+		if node is CanvasItem and (node as CanvasItem).visible and zone.is_ancestor_of(node):
 			n += 1
 	return n

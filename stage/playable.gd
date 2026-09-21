@@ -26,17 +26,22 @@ var client: Node
 var bus: Node
 
 var _log: RichTextLabel
+var _log_panel: Control
 var _doors: RichTextLabel
 var _status: Label
+var _toast: RichTextLabel
 var _lines: Array[String] = []
 var _busy := false
+var _toast_left := 0.0
 
 
 func _ready() -> void:
+	layer = 20
 	diorama = get_parent() as Node2D
 	_build_ui()
 
 	var target := _attach_target()
+	_wire_iso()
 	if target.is_empty():
 		_status.text = "not attached — run: node tools/play.mjs"
 		_say("[i]The stage is standing on its own. Nothing is deciding anything.[/i]")
@@ -87,6 +92,7 @@ func _attach(target: String) -> void:
 		return
 
 	_status.text = "attached — %s" % String(handshake.get("engineVersion", "?"))
+	_wire_iso()
 	await client.call("snapshot")
 
 	# Open on the zone the sim says the player is in, with its prose, so the first thing on
@@ -97,7 +103,7 @@ func _attach(target: String) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if session == null or _busy:
+	if _busy:
 		return
 	if not (event is InputEventKey) or not (event as InputEventKey).pressed:
 		return
@@ -105,10 +111,23 @@ func _input(event: InputEvent) -> void:
 	var key := (event as InputEventKey).keycode
 
 	# Number keys walk. `advance` waits a round — which is how a shock reaches you.
-	if key >= KEY_1 and key <= KEY_9:
+	if session != null and key >= KEY_1 and key <= KEY_9:
 		_walk(key - KEY_1)
-	elif key == KEY_SPACE:
+	elif session != null and key == KEY_SPACE:
 		_wait_a_round()
+	elif key == KEY_J:
+		if session != null and session.get("juice") != null:
+			var j: Node = session.get("juice")
+			j.set("enabled", not bool(j.get("enabled")))
+			_status.text = "juice %s" % ("on" if bool(j.get("enabled")) else "off")
+	elif key == KEY_M:
+		if session != null and session.get("mixer") != null:
+			var mx: Node = session.get("mixer")
+			mx.set("mute", not bool(mx.get("mute")))
+			_status.text = "audio %s" % ("muted" if bool(mx.get("mute")) else "on")
+	elif key == KEY_I:
+		if _log_panel:
+			_log_panel.visible = not _log_panel.visible
 	elif key == KEY_ESCAPE:
 		if client != null:
 			client.call("detach")
@@ -163,7 +182,7 @@ func _refresh_doors() -> void:
 	var doors := _current_doors()
 	for i in range(doors.size()):
 		text += "  [%d] %s\n" % [i + 1, name_of.call(doors[i])]
-	text += "\n  [space] wait a round\n  [esc] leave"
+	text += "  [space] wait   [i] log   [j] juice   [m] mute   [esc] leave"
 	_doors.text = text
 
 
@@ -173,58 +192,101 @@ func _say(line: String) -> void:
 	_lines.append(line)
 	while _lines.size() > MAX_LINES:
 		_lines.pop_front()
-	_log.text = "\n\n".join(_lines)
+	if _log:
+		_log.text = "\n\n".join(_lines)
+	if _toast:
+		_toast.text = line
+		_toast.visible = true
+		_toast_left = 4.0
+
+
+func _process(delta: float) -> void:
+	if _toast_left <= 0.0:
+		return
+	_toast_left -= delta
+	if _toast_left <= 0.0 and _toast:
+		_toast.visible = false
+
+
+func _wire_iso() -> void:
+	if diorama == null:
+		return
+	var iso: Node = diorama.get("iso")
+	if iso == null:
+		return
+	if iso.has_signal("move_requested") and not iso.move_requested.is_connected(_on_iso_move):
+		iso.move_requested.connect(_on_iso_move)
+
+
+func _on_iso_move(zone_id: String) -> void:
+	if _busy:
+		return
+	if session != null:
+		_busy = true
+		await session.call("walk_to", zone_id)
+		_refresh_doors()
+		_busy = false
+		return
+	var iso: Node = diorama.get("iso")
+	if iso:
+		iso.call("walk_player_to", zone_id, Vector2.DOWN)
 
 
 # ── UI ────────────────────────────────────────────────────────
 
 func _build_ui() -> void:
-	var log_panel := PanelContainer.new()
-	log_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	log_panel.offset_top = -260
-	log_panel.offset_left = 16
-	log_panel.offset_right = -360
-	log_panel.offset_bottom = -16
-	add_child(log_panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	log_panel.add_child(margin)
-
-	_log = RichTextLabel.new()
-	_log.bbcode_enabled = true
-	_log.scroll_following = true
-	_log.fit_content = false
-	_log.add_theme_font_size_override("normal_font_size", 15)
-	margin.add_child(_log)
-
-	var door_panel := PanelContainer.new()
-	door_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	door_panel.offset_left = -330
-	door_panel.offset_right = -16
-	door_panel.offset_top = 16
-	door_panel.offset_bottom = 260
-	add_child(door_panel)
-
-	var dmargin := MarginContainer.new()
-	dmargin.add_theme_constant_override("margin_left", 14)
-	dmargin.add_theme_constant_override("margin_right", 14)
-	dmargin.add_theme_constant_override("margin_top", 10)
-	dmargin.add_theme_constant_override("margin_bottom", 10)
-	door_panel.add_child(dmargin)
-
-	_doors = RichTextLabel.new()
-	_doors.bbcode_enabled = true
-	_doors.add_theme_font_size_override("normal_font_size", 15)
-	dmargin.add_child(_doors)
-
 	_status = Label.new()
 	_status.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_status.offset_left = 20
 	_status.offset_top = 14
 	_status.add_theme_font_size_override("font_size", 13)
-	_status.modulate = Color(1, 1, 1, 0.55)
+	_status.modulate = Color(1, 1, 1, 0.7)
 	add_child(_status)
+
+	_doors = RichTextLabel.new()
+	_doors.bbcode_enabled = true
+	_doors.fit_content = true
+	_doors.scroll_active = false
+	_doors.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_doors.offset_left = 20
+	_doors.offset_top = 36
+	_doors.offset_right = 720
+	_doors.offset_bottom = 120
+	_doors.add_theme_font_size_override("normal_font_size", 15)
+	_doors.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_doors)
+
+	_toast = RichTextLabel.new()
+	_toast.bbcode_enabled = true
+	_toast.fit_content = true
+	_toast.scroll_active = false
+	_toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_toast.anchor_left = 0.2
+	_toast.anchor_right = 0.8
+	_toast.offset_top = -72
+	_toast.offset_bottom = -16
+	_toast.add_theme_font_size_override("normal_font_size", 16)
+	_toast.modulate = Color(1, 1, 1, 0.92)
+	_toast.visible = false
+	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_toast)
+
+	_log_panel = PanelContainer.new()
+	_log_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_log_panel.offset_left = 80
+	_log_panel.offset_right = -80
+	_log_panel.offset_top = 80
+	_log_panel.offset_bottom = -80
+	_log_panel.visible = false
+	add_child(_log_panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	_log_panel.add_child(margin)
+	_log = RichTextLabel.new()
+	_log.bbcode_enabled = true
+	_log.scroll_following = true
+	_log.add_theme_font_size_override("normal_font_size", 15)
+	margin.add_child(_log)

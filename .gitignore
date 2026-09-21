@@ -14,3 +14,8 @@ desktop.ini
 # Scratch. If a file here matters, it belongs in the repo under a real name.
 /scratch/
 *.tmp
+
+# Failed dimetric plates (wrong camera / no alpha). Evidence, not product.
+assets/iso/*.png
+assets/dimetric/_rejected/
+*.blend1

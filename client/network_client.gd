@@ -141,7 +141,7 @@ func attach(host: String, port: int, client_name := "ai-rpg-stage", client_versi
 		"clientVersion": client_version,
 		# Declared honestly. `hashes` says this client checks what it can check and
 		# reports staleness; it does not claim to recompute the sim's hash.
-		"capabilities": {"notifications": true, "hashes": true},
+		"capabilities": {"notifications": true, "hashes": true, "audio": true},
 	})
 	if result.get("__error__", false):
 		_report("initialize failed: %s" % result.get("message", "unknown"))
