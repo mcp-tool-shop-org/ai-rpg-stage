@@ -23,8 +23,14 @@ and the fixture-driven test suite; history before this file lives in the git log
   (`fixtures/harbour-occupancy.json`); `FrontProof`/`BehindProof` are not the
   play layout. `encounter.spawned` plants IsoActors on zone diamonds. Long-quay
   diamonds use `stone_wet` when that plate is in the library. Juice shakes the
-  iso camera. CI `ENGINE_REF` is engine `015f505` (felt sidecar) so live session
-  can pin `capabilities.audio`.
+  iso camera.
+- **World Forge presentation on the fixture.** `fixtures/pack.json` carries the
+  additive `presentation` block (six occupancy rows, zone anchors, `stone_wet`
+  on the quay) and `packFormat` `1.1.0`. The harbour prefers pack occupancy and
+  `zoneCells` when present, and falls back to the sidecar. CI `ENGINE_REF` is
+  engine 3.12.0 (`97d6ef1`). `FORGE_REF` stays on the last scene this repo can
+  instantiate (4.9.0's generated `.tscn` references `player.gd` / `world_data`
+  this tree does not contain).
 
 ### Added (earlier on `main`)
 

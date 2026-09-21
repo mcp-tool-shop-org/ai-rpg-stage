@@ -41,7 +41,12 @@ func index(scene_root: Node) -> void:
 	orphan_tags.clear()
 
 	# Pass 1 — the zones. Direct children only, by the exporter's contract.
+	# 4.9.0 stamps metadata/zone_id on the root CharacterBody2D pawn as well;
+	# that is not a zone. Skipping it keeps The_Counting_House as the zone node
+	# (ai-rpg-stage's play camera is not this pawn).
 	for child: Node in scene_root.get_children():
+		if child is CharacterBody2D or String(child.name) == "Player":
+			continue
 		var id := _zone_id_of(child)
 		if id.is_empty():
 			continue

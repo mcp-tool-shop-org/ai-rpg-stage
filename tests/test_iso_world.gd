@@ -75,6 +75,19 @@ func run_async(t: RefCounted) -> void:
 	t.check(iso.get_node_or_null("Actors/player") != null or iso.get("player_actor") != null,
 		"player actor is named from occupancy or fallback")
 	t.check(drell != null, "named guard stands on the harbour (occupancy npc-drell or CAST fallback)")
+	var pack_txt := FileAccess.get_file_as_string("res://fixtures/pack.json")
+	var pack: Variant = JSON.parse_string(pack_txt)
+	var pack_occ := 0
+	if pack is Dictionary:
+		var pres: Variant = (pack as Dictionary).get("presentation", {})
+		if pres is Dictionary:
+			var occ: Variant = (pres as Dictionary).get("occupancy", [])
+			if occ is Array:
+				pack_occ = (occ as Array).size()
+	# CI regenerates pack.json from FORGE_REF (still the 4.8-era exporter).
+	# Committed pack.json on main has presentation; the sidecar is the fallback.
+	t.check(pack_occ == 6 or FileAccess.file_exists("res://fixtures/harbour-occupancy.json"),
+		"pack presentation occupancy is six rows, or the sidecar is present")
 
 	var shed_anchor := Vector2i(8, 5)
 	var front_pos: Vector2 = IsoMath.cell_to_world(shed_anchor + Vector2i(2, 2))
