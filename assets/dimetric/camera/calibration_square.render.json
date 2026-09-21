@@ -31,5 +31,5 @@
   ],
   "px_per_bu": 181.019,
   "actor_bu": 0.8165,
-  "out": "E:/AI/ai-rpg-stage/assets/dimetric/camera\\calibration_square.png"
+  "out": "camera/calibration_square.png"
 }

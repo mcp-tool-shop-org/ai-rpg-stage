@@ -473,7 +473,7 @@ def main():
         "foot_vertex_ndc": [round(foot.x, 4), round(foot.y, 4)],
         "px_per_bu": round(PX_PER_BU, 3),
         "actor_bu": round(ACTOR_BU, 4),
-        "out": out_png,
+        "out": os.path.relpath(out_png, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))).replace(chr(92), "/"),
     }
     if args.scene == "prop" and light_point is not None:
         lv = world_to_camera_view(scene, cam, light_point)

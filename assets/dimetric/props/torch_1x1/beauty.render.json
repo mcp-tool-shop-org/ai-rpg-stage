@@ -31,7 +31,7 @@
   ],
   "px_per_bu": 181.019,
   "actor_bu": 0.8165,
-  "out": "E:/AI/ai-rpg-stage/assets/dimetric/props/torch_1x1\\beauty.png",
+  "out": "props/torch_1x1/beauty.png",
   "light_px": [
     128.0,
     71.9

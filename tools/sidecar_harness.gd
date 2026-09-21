@@ -25,7 +25,7 @@ var failure := ""
 
 ## Resolve the engine checkout. Env var first, then a sibling directory.
 ##
-## No rig-specific absolute path: this repo is public and a hard-coded `E:/AI/...`
+## No rig-specific absolute path: this repo is public and a hard-coded absolute drive path
 ## would be both wrong for everyone else and quietly wrong here the day it moves.
 static func find_engine_dir() -> String:
 	var from_env := OS.get_environment("AI_RPG_ENGINE_DIR")

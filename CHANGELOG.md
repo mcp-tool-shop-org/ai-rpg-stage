@@ -12,6 +12,14 @@ and the fixture-driven test suite; history before this file lives in the git log
 
 ### Added
 
+- **Full treatment (public surfaces).** Brand logo in the README, trust and threat-model section,
+  keys and launcher flags, `verify.sh` (import + suite + plate re-gate + site build), landing page and
+  Starlight handbook under `site/` (deployed by `pages.yml`), GitHub metadata, translations.
+  `project.godot` now carries `config/version="0.1.0"`; no tag is cut.
+- CI's "every expected suite ran" manifest lists all eleven suites (it had drifted to six).
+
+### Added (earlier on `main`)
+
 - `SECURITY.md` stating the trust boundary: the stage renders what the engine
   returns and does not validate it, so the endpoint is the security perimeter.
 - **Felt mixer.** Cue-id contract on `capabilities.audio`: zone stem + ambient

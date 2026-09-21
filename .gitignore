@@ -22,3 +22,10 @@ assets/dimetric/_raw/
 assets/dimetric/ground/_raw/
 assets/dimetric/_src/
 *.blend1
+site/.astro/
+site/dist/
+site/node_modules/
+.polyglot-cache.json
+
+# Local build log of the plate library (carries this machine's paths). Never tracked.
+assets/dimetric/RECEIPT.md

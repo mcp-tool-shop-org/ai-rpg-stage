@@ -2,7 +2,7 @@
 """iso_andon.py — the gate a 2:1 dimetric plate must pass BEFORE it enters res://.
 
 Implements every numbered check of the Dimetric Town Asset Library spec, section 3
-(E:/AI/readouts/dimetric-knowledge/specs/dimetric-asset-library.md). Exit 0 only when
+(the readouts KB `dimetric-knowledge`, specs/dimetric-asset-library.md). Exit 0 only when
 every gate passes; exit 1 on any FAIL; exit 2 if the file cannot be decoded. No Godot needed.
 
     python iso_andon.py <png> [--kind ground|structure|prop] [--footprint N,M] [--json <log>]
