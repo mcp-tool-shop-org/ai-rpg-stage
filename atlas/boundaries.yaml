@@ -1,0 +1,50 @@
+summary: ""
+boundaries:
+  - name: .github
+    globs:
+      - .github/**
+    role: config
+  - name: assets
+    globs:
+      - assets/**
+    role: code
+  - name: audio
+    globs:
+      - audio/**
+    role: data
+  - name: client
+    globs:
+      - client/**
+    role: code
+  - name: docs
+    globs:
+      - docs/**
+    role: data
+  - name: entities
+    globs:
+      - entities/**
+    role: code
+  - name: fixtures
+    globs:
+      - fixtures/**
+    role: data
+  - name: root
+    globs:
+      - "*"
+    role: config
+  - name: site
+    globs:
+      - site/**
+    role: site
+  - name: stage
+    globs:
+      - stage/**
+    role: code
+  - name: tests
+    globs:
+      - tests/**
+    role: test
+  - name: tools
+    globs:
+      - tools/**
+    role: code
