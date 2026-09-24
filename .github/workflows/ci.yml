@@ -15,6 +15,7 @@ on:
       - 'transitions/**'
       - 'assets/**'
       - '.github/workflows/**'
+      - 'atlas/**'
   pull_request:
     paths:
       - 'project.godot'
@@ -27,6 +28,7 @@ on:
       - 'transitions/**'
       - 'assets/**'
       - '.github/workflows/**'
+      - 'atlas/**'
   workflow_dispatch:
 
 concurrency:
@@ -108,6 +110,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+
+      # Checks the committed tree against the committed map, so it runs before
+      # "Export Salt Road" regenerates fixtures/world.tscn. Node 24 from
+      # the step above meets Atlas's Node 22 floor.
+      - name: Atlas check
+        working-directory: stage
+        run: npx --yes @dogfood-lab/atlas@1.19.0 check
 
       - name: Build the engine CLI
         working-directory: ai-rpg-engine
