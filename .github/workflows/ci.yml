@@ -116,7 +116,7 @@ jobs:
       # the step above meets Atlas's Node 22 floor.
       - name: Atlas check
         working-directory: stage
-        run: npx --yes @dogfood-lab/atlas@1.19.0 check
+        run: npx --yes @dogfood-lab/atlas@1.24.0 check
 
       - name: Build the engine CLI
         working-directory: ai-rpg-engine
