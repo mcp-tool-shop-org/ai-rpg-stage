@@ -232,8 +232,8 @@
         "path": ".github/workflows/bump-upstream-pins.yml"
       },
       {
-        "commits": 13,
-        "lines": 500,
+        "commits": 14,
+        "lines": 509,
         "path": ".github/workflows/ci.yml"
       },
       {
@@ -3057,6 +3057,31 @@
         "path": "assets/tilesets/tileset-stone.png.import"
       },
       {
+        "commits": 1,
+        "lines": 89,
+        "path": "atlas/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 50,
+        "path": "atlas/boundaries.yaml"
+      },
+      {
+        "commits": 1,
+        "lines": 393,
+        "path": "atlas/page.json"
+      },
+      {
+        "commits": 1,
+        "lines": 3720,
+        "path": "atlas/statistics.json"
+      },
+      {
+        "commits": 1,
+        "lines": 7990,
+        "path": "atlas/structure.json"
+      },
+      {
         "commits": 2,
         "lines": 66,
         "path": "audio/default_bus_layout.tres"
@@ -3670,11 +3695,11 @@
   },
   "confidence": {
     "level": "low",
-    "reason": "fewer than 20 source files reach 10 revisions in the window"
+    "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-09-24T21:54:02.581Z",
+  "generatedAt": "2026-09-30T20:06:45.416Z",
   "generatedFrom": {
-    "commit": "ef2f9cb83ad47e0b9f7e2e8b490a7a23219a928d"
+    "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34"
   },
   "pairs": [],
   "parameters": {
@@ -3687,16 +3712,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-09-23T10:55:23-07:00",
-    "inScopeFiles": 679,
+    "headDate": "2026-09-24T15:00:25-07:00",
+    "inScopeFiles": 684,
     "pinnedStart": null,
-    "priorFloor": null,
-    "qualifyingCommits": 33,
+    "priorFloor": "fallen",
+    "qualifyingCommits": 34,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-03-27T17:55:23.000Z",
+    "since": "2026-03-28T22:00:25.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
