@@ -21,6 +21,8 @@
 //   --forge <dir>       world-forge checkout (default ../world-forge)
 //   --headless          start the sim only, print the port, and wait. For attaching the
 //                       editor, or for driving it by hand.
+//   --playtest-port <n> start the stage headless with ai-playtest's engine bridge
+//                       listening on 127.0.0.1:<n>, for model players to drive.
 
 import { spawn } from 'node:child_process';
 import * as net from 'node:net';
@@ -43,6 +45,7 @@ const PORT = Number(flag('port', '47820'));
 const ENGINE = path.resolve(flag('engine', path.join(STAGE, '..', 'ai-rpg-engine')));
 const FORGE = path.resolve(flag('forge', path.join(STAGE, '..', 'world-forge')));
 const SHOCK = has('no-shock') ? null : flag('shock', 'dockward:stability:-25@2');
+const PLAYTEST_PORT = flag('playtest-port', null);
 const HOST_PACK = 'chapel-threshold';
 
 const BIN = path.join(ENGINE, 'packages', 'cli', 'dist', 'bin.js');
@@ -155,7 +158,13 @@ if (has('headless')) {
 const godot = process.env.GODOT_BIN || 'godot';
 console.log(`stage  ${godot} --path . (attaching to ${PORT})`);
 
-const view = spawn(godot, ['--path', STAGE, '--', `--attach=127.0.0.1:${PORT}`], {
+// A playtest has no one at the window, so the stage runs headless and the bridge listens.
+const viewArgs = PLAYTEST_PORT
+  ? ['--headless', '--path', STAGE, '--', `--attach=127.0.0.1:${PORT}`, `--playtest-port=${PLAYTEST_PORT}`]
+  : ['--path', STAGE, '--', `--attach=127.0.0.1:${PORT}`];
+if (PLAYTEST_PORT) console.log(`bridge ai-playtest connects to 127.0.0.1:${PLAYTEST_PORT}`);
+
+const view = spawn(godot, viewArgs, {
   stdio: 'inherit',
   cwd: STAGE,
 });

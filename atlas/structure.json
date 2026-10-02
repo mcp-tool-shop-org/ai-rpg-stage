@@ -2712,11 +2712,11 @@
           "path": ".gitattributes"
         },
         {
-          "hash": "01520268a7001a169a2cea418489ecc640997b33e123b4e03dfb36471b9036a7",
+          "hash": "959a1e1fee5e85e6372130b776042d66e5d36e2895c26fbe02fdbc87fb5d101a",
           "path": ".gitignore"
         },
         {
-          "hash": "f2e6dec3359da583160fc0a401c7f7e83bcb731e2e8b977aaac83b8ca1f3d0da",
+          "hash": "c14f00f10d43d49542c519ed810312000b3031a7eb4a86334844137385ab4743",
           "path": "CHANGELOG.md"
         },
         {
@@ -2744,7 +2744,7 @@
           "path": "README.ja.md"
         },
         {
-          "hash": "8967d026f3367be90cc20a99dedeb21de5e259a339403307e984a111b05de548",
+          "hash": "88a2fcad289fd5a834fcd907073decc88053b0d4acba137bfb06a2ebdd8e0588",
           "path": "README.md"
         },
         {
@@ -2760,7 +2760,7 @@
           "path": "SCORECARD.md"
         },
         {
-          "hash": "07ba9be181bcad1a35491a06cbfcea599415792b7bfb551d9fb3789d58b7dcb2",
+          "hash": "a803d6be22fb6b319679c15482a4190b6cce9ec0a4f887449a198b2683fb2de6",
           "path": "SECURITY.md"
         },
         {
@@ -2768,7 +2768,7 @@
           "path": "SHIP_GATE.md"
         },
         {
-          "hash": "f4d9b6951c0ee1a1a0ae9e749489affeee04f6e4c7dadaee85dee2775e52d62b",
+          "hash": "f860e0a9abf0d97ec2b876afe9126e67c9542ebf5061b4cb38e9a43f7bfd8058",
           "path": "project.godot"
         },
         {
@@ -2828,7 +2828,7 @@
           "path": "site/src/content.config.ts"
         },
         {
-          "hash": "dd70a0bed9071fddf87d240bfce5031ab53e3a77e4cecb0712973bccecd75a05",
+          "hash": "4077a319bcb67b3300894e08475de9e55faabbc84e1e5a127069279fe850b09f",
           "path": "site/src/content/docs/handbook/attach.md"
         },
         {
@@ -4287,7 +4287,7 @@
           "path": "tools/iso_make_proof_kit.py"
         },
         {
-          "hash": "585eaba54059923ddd9d97ff5005278561ba5a25ccb729f72c9602cb973b0c09",
+          "hash": "4491f0711316b0645538ffcbc5dc43dc63fe7d1c41b2c25508d0b56342f1e715",
           "path": "tools/play.mjs"
         },
         {
@@ -5189,7 +5189,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34",
+    "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
     "tracked": 679
   },
   "landings": [

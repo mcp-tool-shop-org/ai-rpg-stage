@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Model players can walk the harbour.** `tools/playtest_bridge.gd` is
+  ai-playtest's engine bridge, registered as the `PlaytestBridge` autoload. It
+  is dormant unless the stage is launched with `-- --playtest-port=N`, and then
+  listens on 127.0.0.1 only. A model player gets the keyboard and nothing more:
+  the sim's listed doors plus "wait a round", submitted through the Playable's own
+  `_walk` / `_wait_a_round`. `reset` reloads the save taken when the first client
+  looked, and a new connection starts from that save too. `play.mjs
+  --playtest-port N` runs the stage headless with the bridge on.
+  `playtest/salt-road.playtest.json` seats four local model families against C4's
+  clauses. SECURITY.md, the README trust model and the Attaching page now
+  describe the opt-in listener.
+- First runs (2026-10-02, six local models × 15 turns): the bridge held for every
+  seat, and the suite still passes 275/275 with the autoload registered. The
+  README has the findings. For the game: two models kept trying to talk to people
+  the prose introduces, and there is no verb for it. For the engine: the scenario
+  cue counts rounds per process, so a `load` does not re-arm it.
 - **Reference lists the plates and cue ids.** Floor slot names, the six
   zone anchors' meaning, character pack ids, and the grey-box felt filenames
   are on the reference page. The dimetric page points at the lever page.

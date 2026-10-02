@@ -1,0 +1,19 @@
+{
+  "name": "Salt Road: The Long Quay (ai-rpg-stage, engine bridge)",
+  "driver": { "kind": "rpc", "port": 7777, "requestTimeoutMs": 30000 },
+  "seats": [
+    { "id": "gemma", "family": "google", "model": "gemma4:31b", "provider": "ollama" },
+    { "id": "mistral", "family": "mistral", "model": "mistral-small:24b", "provider": "ollama" },
+    { "id": "qwen", "family": "qwen", "model": "qwen3:14b", "provider": "ollama" },
+    { "id": "llama", "family": "meta", "model": "llama3.1:8b", "provider": "ollama" }
+  ],
+  "turns": 15,
+  "persona": "You run a salt business from a counting house on the harbour. Your cargo is late and nobody will say why. Go out and find out what is going on: walk the harbour, notice who will not let you in and why, and pay attention to whether the place changes while you are out in it.",
+  "criteria": [
+    { "id": "moves-follow", "check": "The player's chosen moves change where they are, and the prose follows them to each new place rather than repeating one description." },
+    { "id": "person-refuses", "check": "At least one door refuses the player, and the refusal is a person in the world giving their own reason, not a system or error message." },
+    { "id": "world-moves", "check": "Something in the harbour changes without the player causing it directly: a place reads differently on a return visit or after waiting, someone arrives, or the mood of a place shifts." },
+    { "id": "worth-pursuing", "check": "The session gives the player a concrete question or goal worth pursuing further (for example a seal they lack, a late cargo, a person to find)." }
+  ],
+  "runsDir": "runs"
+}

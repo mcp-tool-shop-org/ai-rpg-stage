@@ -29,3 +29,6 @@ site/node_modules/
 
 # Local build log of the plate library (carries this machine's paths). Never tracked.
 assets/dimetric/RECEIPT.md
+
+# ai-playtest run output (transcripts, critiques, reports). Evidence, kept out of the tree.
+playtest/runs/
