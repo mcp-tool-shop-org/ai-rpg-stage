@@ -75,76 +75,36 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 1,
+      "added": 4,
+      "changed": 0,
       "moved": 0,
       "parts": 1,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "ci now also runs tests/test_diorama.gd, tests/test_felt_juice.gd, tests/test_felt_mixer.gd and 8 more.",
+        "kind": "unassigned",
+        "sentence": "playtest/.gdignore is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          ".github/workflows/ci.yml",
-          "tests/test_diorama.gd",
-          "tests/test_felt_juice.gd",
-          "tests/test_felt_mixer.gd",
-          "tests/test_felt_voice.gd",
-          "tests/test_framing.gd",
-          "tests/test_iso_math.gd",
-          "tests/test_iso_world.gd",
-          "tests/test_live_session.gd",
-          "tests/test_scene_join.gd",
-          "tests/test_tick_queue.gd",
-          "tests/test_wire_session.gd"
+          "playtest/.gdignore"
         ]
       },
       {
-        "kind": "landing",
-        "sentence": "fixtures/ is now written by .github/workflows/ci.yml.",
+        "kind": "unassigned",
+        "sentence": "playtest/salt-road.playtest.json is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "fixtures/",
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": ".github/upstream-pins.env is now read by .github/workflows/ci.yml.",
-        "subjects": [
-          ".github/upstream-pins.env",
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "assets/dimetric/ is now also read by assets/dimetric/andon/build_manifest.py.",
-        "subjects": [
-          "assets/dimetric/",
-          "assets/dimetric/andon/build_manifest.py"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "And 1 more new writer or reader of a place.",
-        "subjects": []
-      },
-      {
-        "kind": "origin",
-        "sentence": "fixtures was authored and is now generated.",
-        "subjects": [
-          "fixtures"
+          "playtest/salt-road.playtest.json"
         ]
       },
       {
         "kind": "counts",
-        "sentence": "1 file changed content, across 1 part.",
+        "sentence": "4 files added, across 1 part.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "ef2f9cb83ad47e0b9f7e2e8b490a7a23219a928d",
-      "generatedAt": "2026-09-24T21:54:02.581Z"
+      "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
+      "generatedAt": "2026-10-02T11:36:29.805Z"
     },
     "unchanged": false
   },
@@ -153,9 +113,9 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34",
+  "commit": "b9754e8e879c21877e767b7dcb524761263a5fa1",
   "defaultBranch": "main",
-  "derived": "12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
+  "derived": "12 parts, mostly GDScript (37 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
   "doors": [
     {
       "checks": [],
@@ -362,11 +322,12 @@
       ]
     }
   ],
-  "generatedAt": "2026-09-30T20:06:45.416Z",
+  "generatedAt": "2026-10-02T11:37:37.870Z",
   "limits": [
     "12 reads use paths built at run time and are not named here.",
     "5 writes and 3 reads go to a path their caller passes, not to this repository.",
     "2 commands are built at run time and not followed.",
+    "2 files belong to no part: playtest/.gdignore and playtest/salt-road.playtest.json.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",

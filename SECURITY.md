@@ -34,8 +34,19 @@ Please report privately rather than opening a public issue.
 
 **Network surface.** The stage opens exactly one **outbound** TCP connection, to
 a host and port the operator passes to `NetworkClient.attach(host, port)`. There
-is no default endpoint, no service discovery, and no inbound listener — nothing
-here accepts a connection.
+is no default endpoint and no service discovery. By default there is no inbound
+listener and nothing here accepts a connection.
+
+The one exception is opt-in: launched with `-- --playtest-port=N` (or
+`node tools/play.mjs --playtest-port N`), the `PlaytestBridge` autoload listens on
+**127.0.0.1:N only**, one client at a time, for
+[ai-playtest](https://github.com/mcp-tool-shop-org/ai-playtest)'s model players.
+That client can do exactly what the keyboard can: walk through a door the sim
+lists, wait a round, reset to the starting save, and quit. It submits through the
+same session a person uses, so the engine still decides every outcome. It is
+unauthenticated, like the sim's own socket, so run it only on a machine you
+trust. Without the flag the autoload switches itself off in `_ready` and opens
+nothing.
 
 **The trust boundary is the engine.** By design the stage holds no rules and
 advances no clock: it submits intent and draws what comes back. It therefore does

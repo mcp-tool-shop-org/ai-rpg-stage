@@ -87,7 +87,9 @@ node tools/play.mjs
 
 Options: `--seed <n>` (default 71), `--port <n>` (default 47820),
 `--shock <district:metric:delta@round>` or `--no-shock`, `--engine <dir>`,
-`--forge <dir>`, `--headless` (start the sim only and print the port).
+`--forge <dir>`, `--headless` (start the sim only and print the port),
+`--playtest-port <n>` (run the stage headless with the model-player bridge on
+`127.0.0.1:<n>`).
 
 | Key | Does |
 |---|---|
@@ -133,6 +135,36 @@ and in the log, stops trusting itself, and re-snapshots. It never patches the si
 A sidecar booted with `--content` still needs `--manifest`; the launcher passes
 `fixtures/salt-road.manifest.json`.
 
+## Playtesting with model players
+
+The harbour can be played by language models as well as by a person.
+[ai-playtest](https://github.com/mcp-tool-shop-org/ai-playtest) seats players from
+several model families, and a model from a different family judges each
+transcript against criteria the game sets. Here those criteria are C4's clauses:
+your moves move you, a person refuses you in their own words, and the quay
+changes without you.
+
+```bash
+node tools/play.mjs --playtest-port 7777      # sim + stage headless, bridge listening
+node ../ai-playtest/dist/cli.js run playtest/salt-road.playtest.json --label quay --serial
+```
+
+The `PlaytestBridge` autoload (`tools/playtest_bridge.gd`) gives a model player
+exactly the keyboard: the doors the sim lists for the zone it says you are in,
+plus waiting a round. It calls the Playable's own walk and wait, so a refused
+door refuses the model in Halle's words, the same way it refuses a person. The
+seats in `playtest/salt-road.playtest.json` are local Ollama models, so a run
+needs no API key. Runs land in `playtest/runs/`, which is not tracked.
+
+First runs, 2026-10-02 (six local models, 15 turns each, a fresh sim per seat):
+the Long Quay re-dress was reported to every seat. Larger models covered all
+five reachable zones, while `llama3.2:1b` never left the first two. Two of the
+six, `gemma4:31b` and `mistral-small:24b`, kept trying to *talk* to someone the
+prose had introduced ("talk to tally-boy", "talk to Halle", "ask who is using
+the steps"), and the stage has no verb for that. One more finding is about the testing itself: the sim's scenario cue is
+scheduled per process, so it does not re-arm when the world is reloaded. To
+judge the cue, start a fresh `play.mjs` for each seat.
+
 ## The join, and why it has a doctored fixture
 
 The simulation speaks in zone ids. The stage is a tree of nodes.
@@ -173,9 +205,11 @@ sent, by the stage or by anything it bundles. No code is downloaded or executed
 at runtime.
 
 **Permissions.** One outbound TCP connection to the host and port the operator
-passes. There is no default endpoint, no discovery, and no listener: nothing here
-accepts a connection. Whoever controls the endpoint controls what is rendered, so
-point the stage only at an engine you trust, on a network you trust.
+passes. There is no default endpoint and no discovery, and by default no
+listener. The exception is opt-in: `--playtest-port=N` opens a loopback-only
+listener for model players (see [Playtesting with model players](#playtesting-with-model-players)).
+Whoever controls the endpoint controls what is rendered, so point the stage only
+at an engine you trust, on a network you trust.
 
 **Errors.** Transport faults, refused connections, and staleness are reported as
 plain sentences on the status line and in the log (`[stale] state drift at tick

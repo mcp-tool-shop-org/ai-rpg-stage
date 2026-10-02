@@ -8,7 +8,8 @@ sidebar:
 ## One outbound socket
 
 The stage connects **out** to a sidecar the operator names. There is no default endpoint, no discovery,
-and no listener. On Godot's command line:
+and, by default, no listener. (The one opt-in exception is `--playtest-port=N`, a loopback-only socket
+for ai-playtest's model players; see the README.) On Godot's command line:
 
 ```bash
 godot --path . -- --attach=127.0.0.1:47820
