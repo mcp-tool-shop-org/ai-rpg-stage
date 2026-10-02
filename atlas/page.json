@@ -75,33 +75,47 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 7,
+      "added": 4,
+      "changed": 0,
       "moved": 0,
-      "parts": 3,
+      "parts": 1,
       "removed": 0
     },
     "items": [
       {
+        "kind": "unassigned",
+        "sentence": "playtest/.gdignore is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "playtest/.gdignore"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "playtest/salt-road.playtest.json is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "playtest/salt-road.playtest.json"
+        ]
+      },
+      {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-09-30; 7 files changed content.",
+        "sentence": "4 files added, across 1 part.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34",
-      "generatedAt": "2026-09-30T20:06:45.416Z"
+      "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
+      "generatedAt": "2026-10-02T11:36:29.805Z"
     },
-    "unchanged": true
+    "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
+  "commit": "b9754e8e879c21877e767b7dcb524761263a5fa1",
   "defaultBranch": "main",
-  "derived": "12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
+  "derived": "12 parts, mostly GDScript (37 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
   "doors": [
     {
       "checks": [],
@@ -308,11 +322,12 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-02T11:36:29.805Z",
+  "generatedAt": "2026-10-02T11:37:37.870Z",
   "limits": [
     "12 reads use paths built at run time and are not named here.",
     "5 writes and 3 reads go to a path their caller passes, not to this repository.",
     "2 commands are built at run time and not followed.",
+    "2 files belong to no part: playtest/.gdignore and playtest/salt-road.playtest.json.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",

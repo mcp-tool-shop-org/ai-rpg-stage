@@ -4210,7 +4210,9 @@
       "dynamicSpawns": 2,
       "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
-      "entryPoints": [],
+      "entryPoints": [
+        "tools/playtest_bridge.gd"
+      ],
       "externals": 0,
       "files": [
         {
@@ -4289,6 +4291,17 @@
         {
           "hash": "4491f0711316b0645538ffcbc5dc43dc63fe7d1c41b2c25508d0b56342f1e715",
           "path": "tools/play.mjs"
+        },
+        {
+          "exports": [
+            "is_ready_for_input"
+          ],
+          "hash": "a061641cb1586fd7c83d823b8f0b8aa120a769b82654b56319e88e6adc8a73d9",
+          "path": "tools/playtest_bridge.gd"
+        },
+        {
+          "hash": "7aca7cd630f0d0c3760dbd6643901d3cff5adf48437d358ac20a26266ac5b163",
+          "path": "tools/playtest_bridge.gd.uid"
         },
         {
           "hash": "f036508b96a8c6c36b4099aec8a3ddd7e6e8241c492c234be5b0f4ed3eb69821",
@@ -5189,8 +5202,8 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
-    "tracked": 679
+    "commit": "b9754e8e879c21877e767b7dcb524761263a5fa1",
+    "tracked": 683
   },
   "landings": [
     {
@@ -8538,5 +8551,14 @@
   "submodules": [],
   "symlinks": [],
   "testFiles": 22,
-  "unassigned": []
+  "unassigned": [
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "playtest/.gdignore"
+    },
+    {
+      "hash": "7af915b1aaaa1b5b39ceb3b5f9b219c5df3c51c22cb54a43ae9d34ee3db24866",
+      "path": "playtest/salt-road.playtest.json"
+    }
+  ]
 }

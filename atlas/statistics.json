@@ -209,7 +209,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "tools",
-      "qualifyingSourceCommits": 7,
+      "qualifyingSourceCommits": 8,
       "rebaseline": null
     }
   ],
@@ -242,13 +242,13 @@
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 6,
-        "lines": 39,
+        "commits": 7,
+        "lines": 42,
         "path": ".gitignore"
       },
       {
-        "commits": 19,
-        "lines": 152,
+        "commits": 20,
+        "lines": 168,
         "path": "CHANGELOG.md"
       },
       {
@@ -282,8 +282,8 @@
         "path": "README.ja.md"
       },
       {
-        "commits": 8,
-        "lines": 319,
+        "commits": 9,
+        "lines": 361,
         "path": "README.md"
       },
       {
@@ -302,8 +302,8 @@
         "path": "SCORECARD.md"
       },
       {
-        "commits": 1,
-        "lines": 57,
+        "commits": 2,
+        "lines": 72,
         "path": "SECURITY.md"
       },
       {
@@ -3057,8 +3057,8 @@
         "path": "assets/tilesets/tileset-stone.png.import"
       },
       {
-        "commits": 3,
-        "lines": 215,
+        "commits": 4,
+        "lines": 227,
         "path": "atlas/README.md"
       },
       {
@@ -3067,18 +3067,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 3,
-        "lines": 1091,
+        "commits": 4,
+        "lines": 1161,
         "path": "atlas/page.json"
       },
       {
-        "commits": 3,
-        "lines": 3810,
+        "commits": 4,
+        "lines": 3840,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 3,
-        "lines": 9274,
+        "commits": 4,
+        "lines": 9290,
         "path": "atlas/structure.json"
       },
       {
@@ -3252,8 +3252,18 @@
         "path": "harbour-stone.png.import}"
       },
       {
-        "commits": 8,
-        "lines": 90,
+        "commits": 1,
+        "lines": 0,
+        "path": "playtest/.gdignore"
+      },
+      {
+        "commits": 1,
+        "lines": 19,
+        "path": "playtest/salt-road.playtest.json"
+      },
+      {
+        "commits": 9,
+        "lines": 96,
         "path": "project.godot"
       },
       {
@@ -3302,8 +3312,8 @@
         "path": "site/src/content.config.ts"
       },
       {
-        "commits": 1,
-        "lines": 91,
+        "commits": 2,
+        "lines": 94,
         "path": "site/src/content/docs/handbook/attach.md"
       },
       {
@@ -3647,9 +3657,19 @@
         "path": "tools/iso_make_proof_kit.py"
       },
       {
-        "commits": 4,
-        "lines": 364,
+        "commits": 5,
+        "lines": 375,
         "path": "tools/play.mjs"
+      },
+      {
+        "commits": 1,
+        "lines": 269,
+        "path": "tools/playtest_bridge.gd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "tools/playtest_bridge.gd.uid"
       },
       {
         "commits": 3,
@@ -3697,9 +3717,9 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-02T11:36:29.805Z",
+  "generatedAt": "2026-10-02T11:37:37.870Z",
   "generatedFrom": {
-    "commit": "0c744e36d35ed528206f85b43205e69b75a35262"
+    "commit": "b9754e8e879c21877e767b7dcb524761263a5fa1"
   },
   "pairs": [],
   "parameters": {
@@ -3712,16 +3732,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-09-30T14:14:02-07:00",
-    "inScopeFiles": 684,
+    "headDate": "2026-10-02T07:36:42-04:00",
+    "inScopeFiles": 688,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 35,
+    "qualifyingCommits": 36,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-03T21:14:02.000Z",
+    "since": "2026-04-05T11:36:42.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

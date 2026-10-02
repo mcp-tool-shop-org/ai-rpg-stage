@@ -1,14 +1,16 @@
 # ai-rpg-stage: how it works
 
-Mapped at 2026-10-02 from commit 0c744e3 by Atlas 1.24.0.
+Mapped at 2026-10-02 from commit b9754e8 by Atlas 1.24.0.
 
 ## What this is
 
-12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.
+12 parts, mostly GDScript (37 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.
 
-## What changed since 2026-09-30 (5e9e75f)
+## What changed since 2026-10-02 (0c744e3)
 
-Nothing structural changed since 2026-09-30; 7 files changed content.
+- playtest/.gdignore is new and belongs to no part, so atlas check fails on it against the previous map.
+- playtest/salt-road.playtest.json is new and belongs to no part, so atlas check fails on it against the previous map.
+- 4 files added, across 1 part.
 
 ## What comes in
 
@@ -87,6 +89,7 @@ Read those in order to follow one push, or pull request from a fork, end to end.
 - 12 reads use paths built at run time and are not named here.
 - 5 writes and 3 reads go to a path their caller passes, not to this repository.
 - 2 commands are built at run time and not followed.
+- 2 files belong to no part: playtest/.gdignore and playtest/salt-road.playtest.json.
 - Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
