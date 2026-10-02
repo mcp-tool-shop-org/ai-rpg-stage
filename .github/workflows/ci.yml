@@ -31,13 +31,7 @@ on:
       - 'atlas/**'
   workflow_dispatch:
 
-concurrency:
-  # head_ref is empty on push, so `head_ref || ref` is refs/heads/<branch>
-  # for the push and <branch> for the pull_request. Those are different
-  # groups, and a same-repo PR runs the Godot job twice. ref_name on push
-  # is the short branch name, which matches head_ref.
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+# Concurrency is on the `headless` job, not here. See the note on the job.
 
 permissions:
   contents: read
@@ -72,6 +66,20 @@ jobs:
     # Fork PRs have no push on this repository, so they still run. Path
     # filters stay on both triggers.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    # head_ref is empty on push, so `head_ref || ref` is refs/heads/<branch>
+    # for the push and <branch> for the pull_request. Those are different
+    # groups, and a same-repo PR runs the Godot job twice. ref_name on push
+    # is the short branch name, which matches head_ref.
+    #
+    # This block sits on the job, not the workflow. Workflow-level concurrency
+    # claims the group for the whole run before `if:` above is evaluated, so the
+    # same-repo pull_request run, whose job is about to be skipped, cancelled the
+    # push run that was doing the testing (PR #15, commit 29636c5, run
+    # 37002057345). A job's concurrency only applies when the job runs, so the
+    # skipped job no longer takes the group.
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v5
         with:
