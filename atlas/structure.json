@@ -17,7 +17,7 @@
           "path": ".github/workflows/bump-upstream-pins.yml"
         },
         {
-          "hash": "95b10e98e9845e89802d7815021272b17e331162c124bf90db360e836765959e",
+          "hash": "80d82d989e39efe537b65fa13eb166a8538dec4add96c268e1310604cc91dc7c",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -5187,9 +5187,9 @@
       "to": "stage"
     }
   ],
-  "engine": "1.24.0",
+  "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34",
+    "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
     "tracked": 679
   },
   "landings": [
@@ -7622,6 +7622,17 @@
       "writers": []
     },
     {
+      "readers": [],
+      "target": "assets/dimetric/_rejected/sidecar.json",
+      "tracked": false,
+      "writers": [
+        {
+          "by": "assets/dimetric/andon/build_manifest.py",
+          "confidence": "ast"
+        }
+      ]
+    },
+    {
       "readers": [
         {
           "by": "assets/dimetric/MANIFEST.json",
@@ -7796,6 +7807,17 @@
       "writers": []
     },
     {
+      "readers": [],
+      "target": "assets/dimetric/ground/sidecar.json",
+      "tracked": false,
+      "writers": [
+        {
+          "by": "assets/dimetric/andon/build_manifest.py",
+          "confidence": "ast"
+        }
+      ]
+    },
+    {
       "readers": [
         {
           "by": "assets/dimetric/MANIFEST.json",
@@ -7859,6 +7881,17 @@
       ],
       "target": "assets/dimetric/props/*/beauty.png",
       "writers": []
+    },
+    {
+      "readers": [],
+      "target": "assets/dimetric/props/*/sidecar.json",
+      "tracked": false,
+      "writers": [
+        {
+          "by": "assets/dimetric/andon/build_manifest.py",
+          "confidence": "ast"
+        }
+      ]
     },
     {
       "readers": [
@@ -8068,6 +8101,17 @@
       ],
       "target": "assets/dimetric/structures/*/beauty.png",
       "writers": []
+    },
+    {
+      "readers": [],
+      "target": "assets/dimetric/structures/*/sidecar.json",
+      "tracked": false,
+      "writers": [
+        {
+          "by": "assets/dimetric/andon/build_manifest.py",
+          "confidence": "ast"
+        }
+      ]
     },
     {
       "readers": [
