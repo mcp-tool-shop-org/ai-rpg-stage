@@ -1,18 +1,14 @@
 # ai-rpg-stage: how it works
 
-Mapped at 2026-11-11 from commit 0c744e3 by Atlas 1.26.0.
+Mapped at 2026-11-12 from commit fda0011 by Atlas 1.26.0.
 
 ## What this is
 
 12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.
 
-## What changed since 2026-09-30 (5e9e75f)
+## What changed since 2026-11-11 (0c744e3)
 
-- assets/dimetric/_rejected/sidecar.json is now written by assets/dimetric/andon/build_manifest.py.
-- assets/dimetric/ground/sidecar.json is now written by assets/dimetric/andon/build_manifest.py.
-- assets/dimetric/props/*/sidecar.json is now written by assets/dimetric/andon/build_manifest.py.
-- And 1 more new writer or reader of a place.
-- 1 file changed content, across 1 part.
+Nothing structural changed since 2026-11-11; 1 file changed content.
 
 ## What comes in
 

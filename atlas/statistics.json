@@ -232,8 +232,8 @@
         "path": ".github/workflows/bump-upstream-pins.yml"
       },
       {
-        "commits": 16,
-        "lines": 513,
+        "commits": 17,
+        "lines": 515,
         "path": ".github/workflows/ci.yml"
       },
       {
@@ -3057,8 +3057,8 @@
         "path": "assets/tilesets/tileset-stone.png.import"
       },
       {
-        "commits": 3,
-        "lines": 215,
+        "commits": 4,
+        "lines": 228,
         "path": "atlas/README.md"
       },
       {
@@ -3067,18 +3067,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 3,
-        "lines": 1091,
+        "commits": 4,
+        "lines": 1144,
         "path": "atlas/page.json"
       },
       {
-        "commits": 3,
-        "lines": 3810,
+        "commits": 4,
+        "lines": 3840,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 3,
-        "lines": 9274,
+        "commits": 4,
+        "lines": 9324,
         "path": "atlas/structure.json"
       },
       {
@@ -3697,9 +3697,9 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-11-11T22:05:14.654Z",
+  "generatedAt": "2026-11-12T00:23:35.868Z",
   "generatedFrom": {
-    "commit": "0c744e36d35ed528206f85b43205e69b75a35262"
+    "commit": "fda00110fc6ab476263d89299c384e233acf489e"
   },
   "pairs": [],
   "parameters": {
@@ -3712,16 +3712,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-09-30T14:14:02-07:00",
+    "headDate": "2026-11-11T19:23:02-05:00",
     "inScopeFiles": 684,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 35,
+    "qualifyingCommits": 36,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-03T21:14:02.000Z",
+    "since": "2026-05-16T00:23:02.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
