@@ -141,7 +141,7 @@ metadata/collision_type = "walkable"
 metadata/time_of_day = "morning"
 metadata/entry_gate = "item:guild-seal"
 metadata/entry_gate_mode = "hard"
-metadata/entry_gate_reason = "Halle keeps her hand flat on the register. \"It's my name beside whatever leaves here, and I've a mother in Dockward. Seal, or nothing.\""
+metadata/entry_gate_reason = "Halle keeps his hand flat on the register. \"It's my name beside whatever leaves here, and I've a mother in Dockward. Seal, or nothing.\""
 
 [node name="Light" type="PointLight2D" parent="The_Bonded_Warehouse"]
 position = Vector2(504, 432)
