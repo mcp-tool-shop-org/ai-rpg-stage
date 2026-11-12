@@ -46,7 +46,7 @@ env:
   # Pinned, not floating. The stage's scene format and the studio's export lane
   # are both version-bound; "whatever is latest" is how a green suite starts
   # testing a different engine than the one the work was proven on.
-  GODOT_VERSION: '4.7-stable'
+  GODOT_VERSION: '4.7.2-stable'
   # ENGINE_REF and FORGE_REF are NOT here. They live in
   # .github/upstream-pins.env and are loaded by the first step below.
   #
