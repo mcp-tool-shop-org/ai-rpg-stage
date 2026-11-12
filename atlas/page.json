@@ -83,44 +83,26 @@
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "ci now also runs tests/test_diorama.gd, tests/test_felt_juice.gd, tests/test_felt_mixer.gd and 8 more.",
+        "kind": "landing",
+        "sentence": "assets/dimetric/_rejected/sidecar.json is now written by assets/dimetric/andon/build_manifest.py.",
         "subjects": [
-          ".github/workflows/ci.yml",
-          "tests/test_diorama.gd",
-          "tests/test_felt_juice.gd",
-          "tests/test_felt_mixer.gd",
-          "tests/test_felt_voice.gd",
-          "tests/test_framing.gd",
-          "tests/test_iso_math.gd",
-          "tests/test_iso_world.gd",
-          "tests/test_live_session.gd",
-          "tests/test_scene_join.gd",
-          "tests/test_tick_queue.gd",
-          "tests/test_wire_session.gd"
+          "assets/dimetric/_rejected/sidecar.json",
+          "assets/dimetric/andon/build_manifest.py"
         ]
       },
       {
         "kind": "landing",
-        "sentence": "fixtures/ is now written by .github/workflows/ci.yml.",
+        "sentence": "assets/dimetric/ground/sidecar.json is now written by assets/dimetric/andon/build_manifest.py.",
         "subjects": [
-          "fixtures/",
-          ".github/workflows/ci.yml"
+          "assets/dimetric/ground/sidecar.json",
+          "assets/dimetric/andon/build_manifest.py"
         ]
       },
       {
         "kind": "landing",
-        "sentence": ".github/upstream-pins.env is now read by .github/workflows/ci.yml.",
+        "sentence": "assets/dimetric/props/*/sidecar.json is now written by assets/dimetric/andon/build_manifest.py.",
         "subjects": [
-          ".github/upstream-pins.env",
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "assets/dimetric/ is now also read by assets/dimetric/andon/build_manifest.py.",
-        "subjects": [
-          "assets/dimetric/",
+          "assets/dimetric/props/*/sidecar.json",
           "assets/dimetric/andon/build_manifest.py"
         ]
       },
@@ -130,21 +112,14 @@
         "subjects": []
       },
       {
-        "kind": "origin",
-        "sentence": "fixtures was authored and is now generated.",
-        "subjects": [
-          "fixtures"
-        ]
-      },
-      {
         "kind": "counts",
         "sentence": "1 file changed content, across 1 part.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "ef2f9cb83ad47e0b9f7e2e8b490a7a23219a928d",
-      "generatedAt": "2026-09-24T21:54:02.581Z"
+      "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34",
+      "generatedAt": "2026-09-30T20:06:45.416Z"
     },
     "unchanged": false
   },
@@ -153,7 +128,7 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "5e9e75f945d6fed8b119d8709e20e12a72d11a34",
+  "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
   "defaultBranch": "main",
   "derived": "12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
   "doors": [
@@ -341,7 +316,7 @@
       "to": "stage"
     }
   ],
-  "engine": "1.24.0",
+  "engine": "1.26.0",
   "generated": [
     {
       "place": "assets/dimetric/MANIFEST.json",
@@ -362,9 +337,10 @@
       ]
     }
   ],
-  "generatedAt": "2026-09-30T20:06:45.416Z",
+  "generatedAt": "2026-11-11T22:05:14.654Z",
   "limits": [
     "12 reads use paths built at run time and are not named here.",
+    "4 writes go to places this repository does not track, so they are not listed as generated.",
     "5 writes and 3 reads go to a path their caller passes, not to this repository.",
     "2 commands are built at run time and not followed.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
@@ -413,6 +389,7 @@
     "stage": 13,
     "tools": 2
   },
+  "testedCodeParts": 4,
   "unnamedWrites": 0,
   "unread": [
     {
