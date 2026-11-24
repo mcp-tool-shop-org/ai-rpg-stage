@@ -134,6 +134,7 @@ func _process(_delta: float) -> void:
 func attach(host: String, port: int, client_name := "ai-rpg-stage", client_version := "0.1.0") -> Dictionary:
 	_last_attach_error = ""
 	_closing_reason = ""
+	_handshake = {}
 	_connected = false
 	_tick = -1
 	_hash_by_tick.clear()
@@ -407,6 +408,20 @@ func mirror_digest() -> String:
 
 func mirror_state() -> Variant:
 	return _mirror
+
+
+## Authoritative player entity id from the mirrored snapshot (preferred so a live
+## save load updates it) or from the `initialize` handshake response.
+func player_id() -> String:
+	if _mirror is Dictionary:
+		var from_mirror := String((_mirror as Dictionary).get("playerId", "")).strip_edges()
+		if not from_mirror.is_empty():
+			return from_mirror
+	return String(_handshake.get("playerId", "")).strip_edges()
+
+
+func handshake() -> Dictionary:
+	return _handshake.duplicate(true)
 
 
 ## Record the raw bytes of every message received, so a caller can compare two runs

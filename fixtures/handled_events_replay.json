@@ -1,9 +1,11 @@
 {
+  "playerId": "player",
   "events": [
     {
       "id": "fixture-entered-1",
       "tick": 1,
       "type": "world.zone.entered",
+      "actorId": "player",
       "payload": {
         "zoneId": "long-quay"
       }

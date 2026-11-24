@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Complete launcher flag list in README:** Documented every `tools/play.mjs`
+  option (adding `--godot`, `--stage-headless`, and `--quit-after-sync`) in
+  `README.md`.
+- **Player-actor gate on `world.zone.entered`:** Added `NetworkClient.player_id()`
+  and `Session.player_id()` / `Session.set_player_id()` to resolve the
+  authoritative `playerId` from the snapshot mirror (or `initialize` handshake),
+  and gated `Session._present_entered()` on matching top-level `actorId ==
+  player_id()` so follower or missing-`actorId` `world.zone.entered` events leave
+  `_player_zone`, the player scene node, room prose, and `zone_entered` unchanged.
+  Added `tests/test_actor_gate.gd`, updated `client/event_manifest.json` and
+  `fixtures/handled_events_replay.json`, and registered `actor_gate` in CI's
+  suite manifest (`all seventeen suites ran`).
 - **Pinned cross-repo Salt Road play check in CI:** Added
   `tests/test_cross_repo_play.gd`, attaching the stage headless to the freshly
   exported Salt Road pack under `--unresolved-ai-profile fail`, playing 13

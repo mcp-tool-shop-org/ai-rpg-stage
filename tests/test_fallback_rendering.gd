@@ -26,6 +26,7 @@ func run_async(t: RefCounted) -> void:
 	var session := Session.new()
 	tree.root.add_child(session)
 	session.call("setup", d, client, bus)
+	session.call("set_player_id", "player")
 
 	# 1. Unknown event type produces exactly one fallback line naming type and sorted payload keys.
 	var unknown_ev := {
@@ -54,7 +55,7 @@ func run_async(t: RefCounted) -> void:
 	# 2. Every RENDERED event type goes through its bespoke handler and emits NO fallback line.
 	var start_idx := tx_after_empty.size()
 	for ev: Dictionary in [
-		{"type": "world.zone.entered", "payload": {"zoneId": "long-quay"}},
+		{"type": "world.zone.entered", "actorId": "player", "payload": {"zoneId": "long-quay"}},
 		{"type": "world.zone.state.changed", "payload": {"zoneId": "long-quay", "zoneName": "The Long Quay", "variantTags": ["damaged"], "from": "intact", "to": "damaged", "cause": "stability"}},
 		{"type": "world.zone.gate.refused", "payload": {"reason": "Seal, or nothing."}},
 		{"type": "action.rejected", "payload": {"verb": "yodel", "reason": "No such verb."}},

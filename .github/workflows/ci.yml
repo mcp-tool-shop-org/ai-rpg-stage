@@ -294,11 +294,11 @@ jobs:
           # deleted, or moved simply stops being found and the suite passes with fewer
           # checks and no complaint. This is the manifest that makes a disappearance a
           # failure. Adding a suite here is deliberate; that is the point.
-          for suite in cross_repo_play diorama event_manifest fallback_rendering felt_juice felt_mixer felt_voice framing iso_math iso_world live_session profile_policy scene_join state_digest tick_queue wire_session; do
+          for suite in actor_gate cross_repo_play diorama event_manifest fallback_rendering felt_juice felt_mixer felt_voice framing iso_math iso_world live_session profile_policy scene_join state_digest tick_queue wire_session; do
             grep -q "^── ${suite} ──$" /tmp/suite.log \
               || { echo "::error::suite '${suite}' did not run"; exit 1; }
           done
-          echo "all sixteen suites ran"
+          echo "all seventeen suites ran"
 
       - name: Refuse resource-load, sync-cap, and profile-warning noise
         working-directory: stage

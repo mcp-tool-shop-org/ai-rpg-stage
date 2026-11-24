@@ -21,8 +21,12 @@
 //   --forge <dir>       world-forge checkout (default ../world-forge)
 //   --unresolved-ai-profile <fail|warn>  policy for unresolved entity profiles (default: fail)
 //   --release                            shorthand for --unresolved-ai-profile warn
+//   --godot <bin>                        Godot executable to launch (default GODOT_BIN or godot)
 //   --headless                           start the sim only, print the port, and wait. For attaching the
 //                                        editor, or for driving it by hand.
+//   --stage-headless                     launch Godot with --headless and closed stdin alongside the sim
+//   --quit-after-sync <path>             tell Playable to write a JSON sync summary after attach/snapshot,
+//                                        detach, and exit 0
 
 import { spawn } from 'node:child_process';
 import * as net from 'node:net';

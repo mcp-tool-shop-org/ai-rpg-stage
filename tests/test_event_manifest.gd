@@ -38,7 +38,9 @@ func run_async(t: RefCounted) -> void:
 	if not (replay_doc_v is Dictionary):
 		return
 
-	var replay_results := await _replay_handled_events(t, tree, (replay_doc_v as Dictionary).get("events", []) as Array)
+	var replay_doc := replay_doc_v as Dictionary
+	var replay_player_id := String(replay_doc.get("playerId", "player"))
+	var replay_results := await _replay_handled_events(t, tree, replay_doc.get("events", []) as Array, replay_player_id)
 	var today_iso := Time.get_date_string_from_system()
 	var live_errors := validate_manifest(engine_types, manifest, today_iso, replay_results)
 	t.equals(live_errors.size(), 0,
@@ -314,7 +316,7 @@ func _load_runtime_engine_event_types(t: RefCounted, engine_dir: String) -> Arra
 	return exported
 
 
-func _replay_handled_events(_t: RefCounted, tree: SceneTree, events: Array) -> Dictionary:
+func _replay_handled_events(_t: RefCounted, tree: SceneTree, events: Array, player_actor_id := "player") -> Dictionary:
 	var results: Dictionary = {}
 	var bus := EventBus.new()
 	var client := NetworkClient.new()
@@ -329,6 +331,7 @@ func _replay_handled_events(_t: RefCounted, tree: SceneTree, events: Array) -> D
 	var session := Session.new()
 	tree.root.add_child(session)
 	session.call("setup", d, client, bus)
+	session.call("set_player_id", player_actor_id)
 
 	var iso: Node = d.get("iso")
 	var player: Node = d.get("player")

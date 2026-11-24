@@ -41,7 +41,11 @@ Felt files are `assets/felt/<cueId>.wav`. The mixer falls back to a sine tone wh
 | `--engine <dir>` | `../ai-rpg-engine` |
 | `--forge <dir>` | `../world-forge` |
 | `--unresolved-ai-profile <fail\|warn>` | `fail` (`warn` when `--release`) |
-| `--headless` | off (start the sim only and print the port) |
+| `--release` | off (`--unresolved-ai-profile warn` shorthand) |
+| `--godot <bin>` | `GODOT_BIN` or `godot` |
+| `--headless` | off (start the sim only, print the port, and wait) |
+| `--stage-headless` | off (launch Godot with `--headless` and closed stdin) |
+| `--quit-after-sync <path>` | off (write sync summary JSON after attach/snapshot, detach, exit `0`) |
 
 Notice a release-exported Godot binary itself never starts the sidecar — it connects out over TCP via `--attach`. Release warn mode comes from running `node tools/play.mjs --release` (which starts the sidecar with `--unresolved-ai-profile warn` and hands `--sidecar-stderr=<path>` to Godot) or from `tools/sidecar_harness.gd` (`choose_unresolved_profile_mode(false)` when `OS.is_debug_build()` is false).
 
@@ -64,6 +68,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 
 | Suite | Proves |
 |---|---|
+| `actor_gate` | `Session` moves the player node, updates `_player_zone`, and logs room arrival only when `world.zone.entered` carries top-level `actorId == player_id()`, ignoring follower and missing-`actorId` events |
 | `cross_repo_play` | attaches headless to the exported Salt Road pack under `--unresolved-ai-profile fail` and plays 11 walks (10 accepted zone moves and 1 gated refusal) plus 2 round advances through `Session`, asserting per-move acceptance/refusal, expected zone, empty `mismatch_log`, canonical digest equality, zero resyncs, unhalted state, accepted move count, and final tick |
 | `diorama` | the stage stands up; a re-dress swaps dressing and moves nothing; cast carries normal maps; eight facings bucket correctly; prose reaches the stage; the stage has no way to adjudicate a gate |
 | `event_manifest` | `client/event_manifest.json` covers every `ENGINE_EVENT_TYPES` entry dynamically from the pinned engine, rejects stale todos, and replays handled events against `fixtures/handled_events_replay.json` |

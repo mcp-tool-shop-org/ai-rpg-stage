@@ -80,6 +80,7 @@ var transcript: Array[String] = []
 var diagnostics: Array[String] = []
 
 var _player_zone := ""
+var _player_id := ""
 var _halted := false
 var _halt_reason := ""
 var _seen_sidecar_warnings: Dictionary = {}
@@ -110,10 +111,26 @@ func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
 	bus.transport_failed.connect(func(detail: String) -> void: _note("transport: %s" % detail))
 
 	_player_zone = diorama.PLAYER_START_ZONE
+	_player_id = ""
 
 
 func player_zone() -> String:
 	return _player_zone
+
+
+## Authoritative player entity id resolved from `client` (snapshot mirror first, then
+## `initialize` handshake) or explicitly seeded via `set_player_id` for offline replays.
+func player_id() -> String:
+	if client != null and client.has_method("player_id"):
+		var cid := String(client.call("player_id")).strip_edges()
+		if not cid.is_empty():
+			_player_id = cid
+			return cid
+	return _player_id
+
+
+func set_player_id(actor_id: String) -> void:
+	_player_id = actor_id.strip_edges()
 
 
 func is_halted() -> bool:
@@ -189,7 +206,7 @@ func _present(event: Dictionary) -> Variant:
 
 	match type:
 		"world.zone.entered":
-			return _present_entered(payload)
+			return _present_entered(event, payload)
 		"world.zone.state.changed":
 			return _present_state_changed(payload)
 		"world.zone.gate.refused":
@@ -210,7 +227,23 @@ func _present_fallback(type: String, payload: Dictionary) -> Variant:
 	return null
 
 
-func _present_entered(payload: Dictionary) -> Variant:
+## True only when `event` carries a non-empty top-level `actorId` matching the session's
+## known `player_id()`. Events from non-player actors (followers/NPCs) or missing
+## `actorId` fail closed so only the player's own movement updates the diorama or zone.
+func _is_player_actor(event: Dictionary) -> bool:
+	var expected := player_id()
+	if expected.is_empty():
+		return false
+	var raw_actor: Variant = event.get("actorId", null)
+	if not (raw_actor is String):
+		return false
+	var actor_id := (raw_actor as String).strip_edges()
+	return not actor_id.is_empty() and actor_id == expected
+
+
+func _present_entered(event: Dictionary, payload: Dictionary) -> Variant:
+	if not _is_player_actor(event):
+		return null
 	var zone_id := String(payload.get("zoneId", payload.get("toZoneId", "")))
 	if zone_id.is_empty():
 		return null
