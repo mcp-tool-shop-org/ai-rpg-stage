@@ -97,6 +97,13 @@ faces the door and stays; it never left, so there is nothing to walk back.
 | `[stale] …` in the log | Client mirror diverged | The stage logged the pre-image offset and resynced from a full snapshot. More than 3 consecutive mismatches halt play |
 | `load error — unsupported digest_spec_version …` | Engine/stage digest spec mismatch | Point the stage at an engine speaking `digest_spec_version` 2 |
 
+## Fallback event rendering
+
+Events in `Session.RENDERED` (`world.zone.entered`, `world.zone.state.changed`, `world.zone.gate.refused`,
+`action.rejected`, `encounter.spawned`) drive bespoke scene and prose handlers. Any other simulation event
+renders one transcript line in a distinct muted `[fallback]` style naming the event `type` and its sorted
+`payload` keys (an internal research report, 2026-11-24).
+
 ## Security posture
 
 No credentials cross the wire. Nothing is downloaded or executed at runtime. The stage writes only to

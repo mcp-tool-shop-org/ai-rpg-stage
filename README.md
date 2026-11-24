@@ -71,7 +71,7 @@ grid. Nothing under `assets/iso/` is loaded; that folder is dead.
 | `assets/characters/` | Vendored Foundry HD packs (townsfolk) |
 | `fixtures/` | A generated world and its wire-side truth, committed as a pair so the join between them can be checked |
 | `tools/` | The headless test runner, the screenshot tool, the play launcher, the sidecar harness |
-| `tests/` | Thirteen proof suites, each with a control that makes it fail |
+| `tests/` | Fourteen proof suites, each with a control that makes it fail |
 
 ## Running it
 

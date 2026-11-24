@@ -63,6 +63,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 | Suite | Proves |
 |---|---|
 | `diorama` | the stage stands up; a re-dress swaps dressing and moves nothing; cast carries normal maps; eight facings bucket correctly; prose reaches the stage; the stage has no way to adjudicate a gate |
+| `fallback_rendering` | unrecognised event types emit one fallback transcript line with type and sorted payload keys; `RENDERED` types emit none |
 | `felt_juice` | `uiEffects` become killable camera offsets that never move a hashed node |
 | `felt_mixer` | cue ids route to buses; overlay stings do not kill the zone stem |
 | `felt_voice` | the spoken line is spoken once, dialogue only |

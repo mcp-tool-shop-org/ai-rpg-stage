@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Fallback rendering for unrendered simulation events:** `Session._present`
+  now renders any event type outside `Session.RENDERED` as one transcript line
+  in the distinct `[fallback]` style (`stage/session.gd`) naming the event type
+  and its sorted payload keys, while `RENDERED` keeps the five bespoke
+  handlers. Tests live in `tests/test_fallback_rendering.gd`.
+
 - **Unresolved behaviour profile policy (`fail` in debug/CI, `warn` in release):**
   `tools/play.mjs`, `tools/sidecar_harness.gd`, and `.github/workflows/ci.yml`
   pass `--unresolved-ai-profile fail` explicitly in debug builds, CI, and

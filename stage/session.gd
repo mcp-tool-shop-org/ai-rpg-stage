@@ -28,14 +28,14 @@ const FeltMixer := preload("res://stage/felt_mixer.gd")
 const FeltJuice := preload("res://stage/felt_juice.gd")
 const FeltVoice := preload("res://stage/felt_voice.gd")
 
-## Events this session knows how to show. Anything else is IGNORED, not an error —
-## tolerant out (RFC 9413): the sim may learn to say things this stage does not render
-## yet, and a client that failed on an unknown event type would make adding one breaking.
+## Events with bespoke scene/transcript handlers. Any event type outside `RENDERED`
+## renders one deterministic fallback transcript line in `FALLBACK_COLOR` naming
+## its `type` and sorted `payload` keys (tolerant out, RFC 9413: unknown types are
+## made visible without failing the session).
 ## ⚠ MEASURED NAMES, not guessed ones. The first draft listed `gate.refused` and read
 ## `entityIds` off the spawn payload; the engine emits `world.zone.gate.refused` and
-## `spawnedEntityIds`. Both assumptions failed silently in the useful direction — the
-## events simply were not rendered — which is why the test asserts the SENTENCE reaches
-## the transcript rather than that a handler was called.
+## `spawnedEntityIds`. Both assumptions failed quietly until asserted against the real
+## event stream — which is why tests assert that sentences reach `transcript`.
 const RENDERED := [
 	"world.zone.entered",
 	"world.zone.state.changed",
@@ -182,10 +182,10 @@ func advance() -> Dictionary:
 ## sim should have been clearer about.
 func _present(event: Dictionary) -> Variant:
 	var type := String(event.get("type", ""))
+	var raw_payload: Variant = event.get("payload", {})
+	var payload: Dictionary = raw_payload as Dictionary if raw_payload is Dictionary else {}
 	if not RENDERED.has(type):
-		return null
-
-	var payload: Dictionary = event.get("payload", {}) as Dictionary
+		return _present_fallback(type, payload)
 
 	match type:
 		"world.zone.entered":
@@ -198,6 +198,15 @@ func _present(event: Dictionary) -> Variant:
 			return _present_rejected(payload)
 		"encounter.spawned":
 			return _present_spawned(payload)
+	return null
+
+
+func _present_fallback(type: String, payload: Dictionary) -> Variant:
+	var keys: Array[String] = []
+	for k: Variant in payload.keys():
+		keys.append(String(k))
+	keys.sort()
+	_log(format_fallback_line(type, ", ".join(keys)))
 	return null
 
 
