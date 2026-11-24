@@ -72,6 +72,20 @@ jobs:
     # required check as passing, so making `headless` required would also need
     # the same-repo pull_request skip below rethought (for example, a separate
     # always-running gate job), not only dropping the pull_request paths filter.
+    #
+    # Note on push vs pull_request path evaluation: `on.push.paths` inspects only
+    # the pushed range (`before..after`), whereas `on.pull_request.paths` inspects
+    # the full PR diff (`base...head`). Combined with skipping same-repo
+    # `pull_request` jobs below, two commit shapes on a same-repo PR that already
+    # contains watched edits leave the PR tip without a `headless` run on that tip
+    # SHA: (1) a follow-up commit touching only unwatched files (`README.md`,
+    # `CHANGELOG.md`, `SECURITY.md`, `LICENSE`, `site/**`, docs), or (2) a
+    # commit-message-only or unwatched-only `--amend` force-push. We keep this
+    # trade-off intentionally rather than removing `on.push.paths` (which would run
+    # Godot on docs-only `main` commits), dropping the same-repo `pull_request`
+    # skip (double runs on watched pushes), or adding a second VM job to diff on
+    # every PR event: earlier watched commits ran on push, merging to `main`
+    # evaluates `main^..main`, and `workflow_dispatch` can run on demand.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     # This block sits on the job, not the workflow. Workflow-level concurrency
     # claims the group for the whole run before `if:` above is evaluated, so the
@@ -80,11 +94,15 @@ jobs:
     # 37002057345). A job's concurrency only applies when the job runs, so the
     # skipped job no longer takes the group.
     #
-    # Keyed on `github.ref` (`refs/heads/<branch>` on push/dispatch and
+    # Keyed on `github.ref` (`refs/heads/<branch>` on branch push/dispatch,
+    # `refs/tags/<tag>` on tag push or tag-targeted workflow_dispatch, and
     # `refs/pull/<n>/merge` on pull_request) so each fork PR gets its own group
     # instead of colliding with `main` or another fork's same-named branch.
-    # `main` pushes never cancel an in-progress `main` run so two quick merges
-    # both get tested, while branch and PR runs replace their own older runs.
+    # On `main`, `cancel-in-progress: false` keeps one active run plus at most
+    # one pending run in the group: two quick merges both run, while a third
+    # merge pushed before the first completes supersedes the pending second run
+    # (whose state remains covered in the third merge commit); branch and PR runs
+    # cancel their own older runs.
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}

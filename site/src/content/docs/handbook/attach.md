@@ -19,10 +19,11 @@ Godot must attach over **TCP**: upstream stdio pipes are unreliable in the engin
 sidecar is started with `--listen`.
 
 A sidecar booted with `--content` still needs `--manifest`; without it the engine refuses to load
-(`SIDECAR_MANIFEST_REQUIRED`). The launcher passes `fixtures/salt-road.manifest.json`. It also passes
-`--unresolved-ai-profile fail` in debug builds, `play.mjs`, and CI (so unresolved profiles abort boot), and
-`--unresolved-ai-profile warn` in release exports (surfacing every stderr warning line both in the log and on
-screen in the transcript's fallback style).
+(`SIDECAR_MANIFEST_REQUIRED`). The launcher passes `fixtures/salt-road.manifest.json`. Mode selection
+comes from the spawner:
+- A release-exported Godot binary never spawns a sidecar itself — it attaches out over TCP via `--attach=host:port`.
+- `tools/play.mjs` starts the sidecar with `--unresolved-ai-profile fail` by default (aborting boot on unresolved profiles) and `--unresolved-ai-profile warn` when invoked with `--release`, passing `--sidecar-stderr=<path>` so `stage/playable.gd` drains appended stderr lines into the HUD log and `Session.transcript` in fallback style.
+- `tools/sidecar_harness.gd` (`choose_unresolved_profile_mode`) defaults to `fail` in debug builds (`OS.is_debug_build()`) and `warn` in non-debug builds unless overridden, while CI explicitly passes `--unresolved-ai-profile fail`.
 
 ## The handshake
 

@@ -7,14 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-- **Pinned cross-repo 12-move Salt Road play check in CI:** Added
+- **Pinned cross-repo Salt Road play check in CI:** Added
   `tests/test_cross_repo_play.gd`, attaching the stage headless to the freshly
-  exported Salt Road pack under `--unresolved-ai-profile fail`, playing 12 moves
-  (10 zone moves plus 2 round advances) through `Session`, and asserting
-  per-move canonical state digest parity, zero resyncs, unhalted state, move
-  count, and final tick against a closing authoritative snapshot (with planted
-  mid-run corruption controls). Added `cross_repo_play` to CI's suite manifest
-  (`all sixteen suites ran`).
+  exported Salt Road pack under `--unresolved-ai-profile fail`, playing 13
+  scripted steps — 11 walks (10 accepted zone transitions plus 1 gated refusal)
+  and 2 round advances (12 accepted moves total) — through `Session`, and
+  asserting per-move acceptance/refusal, expected zone, empty `mismatch_log`,
+  canonical state digest parity, zero resyncs, unhalted state, accepted/refused
+  move counts, and final tick against a closing authoritative snapshot (with
+  planted mid-run corruption and refused-walk controls). Added `cross_repo_play`
+  to CI's suite manifest (`all sixteen suites ran`).
+- **Headless digest, profile policy, and test concurrency hardening:** Added
+  coverage for failed resync snapshot halts, float `digest_spec_version` and
+  refused `canonicalHashes` rejection, `verify_position` canonical errors,
+  post-halt `Playable` input blocking, direct `_on_tick` non-idempotent
+  duplicate-delta dedup, and `play.mjs --release` stderr hand-off. Extracted
+  explicit `Harness.choose_unresolved_profile_mode` (`fail` in debug/CI,
+  `warn` in release exports which attach to a running sim rather than
+  spawning a sidecar), removed duplicate `--unresolved-ai-profile` checking in
+  `tools/play.mjs`, switched `Playable._drain_sidecar_stderr` to incremental
+  byte-offset reading, and moved `SidecarHarness` to OS-assigned ephemeral
+  ports (`--listen 0`) with PID-scoped stderr logs so concurrent headless
+  suites do not collide on a fixed port.
+- **CI workflow and trigger docs clarification:** Clarified `main` concurrency
+  queue semantics (`1 running + 1 pending`), noted `refs/tags/<tag>` on
+  tag-targeted `workflow_dispatch`, and documented the `on.push.paths` vs
+  `on.pull_request.paths` commit shapes that leave same-repo PR tips without a
+  `headless` run in both `.github/workflows/ci.yml` and `README.md`.
 
 - **Engine event vocabulary manifest gate:** Added `client/event_manifest.json`
   covering every event type in the pinned engine's exported

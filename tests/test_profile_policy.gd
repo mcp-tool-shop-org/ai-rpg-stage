@@ -27,12 +27,23 @@ func run_async(t: RefCounted) -> void:
 
 	await _test_fail_mode_refuses_unknown_profile(t, tree, doctored_pack)
 	await _test_warn_mode_surfaces_warning_to_transcript(t, tree, doctored_pack)
+	_test_incremental_stderr_drain(t)
+	_test_play_mjs_release_handoff(t, doctored_pack)
 
 	if FileAccess.file_exists(doctored_pack):
 		DirAccess.remove_absolute(doctored_pack)
 
 
 func _test_debug_default_and_salt_road_clean(t: RefCounted, tree: SceneTree) -> void:
+	t.equals(Harness.choose_unresolved_profile_mode(true, ""), "fail",
+		"mode chooser selects fail when OS.is_debug_build() is true")
+	t.equals(Harness.choose_unresolved_profile_mode(false, ""), "warn",
+		"mode chooser selects warn when OS.is_debug_build() is false")
+	t.equals(Harness.choose_unresolved_profile_mode(true, "warn"), "warn",
+		"mode chooser respects explicit warn override in debug build")
+	t.equals(Harness.choose_unresolved_profile_mode(false, "fail"), "fail",
+		"mode chooser respects explicit fail override in release build")
+
 	var harness: RefCounted = Harness.new()
 	if OS.is_debug_build():
 		t.equals(String(harness.call("effective_unresolved_profile_mode")), "fail",
@@ -202,7 +213,7 @@ func _test_warn_mode_surfaces_warning_to_transcript(t: RefCounted, tree: SceneTr
 	hs.call("setup", d_hud, hc, hb)
 	hs.narrated.connect(Callable(hud, "_say"))
 	hud.set("session", hs)
-	var warn_file := OS.get_user_data_dir().path_join("hud_warn_%d.log" % Time.get_ticks_usec())
+	var warn_file := OS.get_user_data_dir().path_join("hud_warn_%d_%d.log" % [OS.get_process_id(), Time.get_ticks_usec()])
 	var wf := FileAccess.open(warn_file, FileAccess.WRITE)
 	wf.store_string("[sidecar] warning [UNRESOLVED_AI_PROFILE] entities[0].aiProfile: %s\n" % UNKNOWN_PROFILE)
 	wf.close()
@@ -246,10 +257,169 @@ func _write_unknown_profile_pack() -> String:
 		"zoneId": "counting-house",
 	})
 	pack["placements"] = placements
-	var out_path := OS.get_user_data_dir().path_join("doctored_unknown_profile_%d.json" % Time.get_ticks_usec())
+	var out_path := OS.get_user_data_dir().path_join("doctored_unknown_profile_%d_%d.json" % [OS.get_process_id(), Time.get_ticks_usec()])
 	var f := FileAccess.open(out_path, FileAccess.WRITE)
 	if f == null:
 		return ""
 	f.store_string(JSON.stringify(pack))
 	f.close()
 	return out_path
+
+
+func _test_incremental_stderr_drain(t: RefCounted) -> void:
+	var Playable := preload("res://stage/playable.gd")
+	var tree := Engine.get_main_loop() as SceneTree
+	var d := Diorama.new()
+	tree.root.add_child(d)
+	var hud := Playable.new()
+	d.add_child(hud)
+	var b := EventBus.new()
+	var c := NetworkClient.new()
+	c.bus = b
+	var s := Session.new()
+	d.add_child(b)
+	d.add_child(c)
+	d.add_child(s)
+	s.call("setup", d, c, b)
+	hud.set("session", s)
+
+	var log_path := OS.get_user_data_dir().path_join("inc_stderr_%d_%d.log" % [OS.get_process_id(), Time.get_ticks_usec()])
+	var line1 := "[sidecar] warning [UNRESOLVED_AI_PROFILE] entities[0].aiProfile: first_prof_probe\n"
+	var w1 := FileAccess.open(log_path, FileAccess.WRITE)
+	w1.store_string(line1)
+	w1.close()
+	var n1 := line1.to_utf8_buffer().size()
+
+	hud.set("_sidecar_stderr_path", log_path)
+	hud.call("_drain_sidecar_stderr")
+	t.equals(int(hud.call("sidecar_stderr_offset")), n1, "first incremental drain advances byte offset to %d" % n1)
+	t.equals((s.get("diagnostics") as Array).size(), 1, "first incremental drain ingests first warning")
+
+	# Overwrite bytes 0..n1 with an equal-length distinct probe line (file size unchanged):
+	# incremental seek must NOT re-read bytes 0..n1.
+	var probe_same_len := "[sidecar] warning [UNRESOLVED_AI_PROFILE] entities[0].aiProfile: stale_re_read!!!\n"
+	t.equals(probe_same_len.to_utf8_buffer().size(), n1, "probe line matches first-chunk byte length cleanly")
+	var rw := FileAccess.open(log_path, FileAccess.READ_WRITE)
+	rw.seek(0)
+	rw.store_string(probe_same_len)
+	rw.close()
+	hud.call("_drain_sidecar_stderr")
+	t.equals((s.get("diagnostics") as Array).size(), 1, "unchanged length after overwrite skips already-read bytes")
+
+	# Append a second warning line past offset n1: only bytes n1..n1+n2 are read and ingested.
+	var line2 := "[sidecar] warning [UNRESOLVED_AI_PROFILE] entities[1].aiProfile: second_prof_probe\n"
+	var n2 := line2.to_utf8_buffer().size()
+	var rw2 := FileAccess.open(log_path, FileAccess.READ_WRITE)
+	rw2.seek(n1)
+	rw2.store_string(line2)
+	rw2.close()
+	hud.call("_drain_sidecar_stderr")
+	t.equals(int(hud.call("sidecar_stderr_offset")), n1 + n2, "second incremental drain advances byte offset cleanly")
+	t.equals((s.get("diagnostics") as Array).size(), 2, "incremental drain ingests appended second warning only")
+	var diag_all := "\n".join(PackedStringArray(s.get("diagnostics") as Array))
+	t.is_false(diag_all.contains("stale_re_read!!!"), "incremental drain never re-reads earlier bytes before offset")
+	t.contains(diag_all, "second_prof_probe", "incremental drain ingests appended warning past offset")
+
+	if FileAccess.file_exists(log_path):
+		DirAccess.remove_absolute(log_path)
+	hud.queue_free()
+	d.queue_free()
+
+
+func _test_play_mjs_release_handoff(t: RefCounted, doctored_pack: String) -> void:
+	var project_dir := ProjectSettings.globalize_path("res://").rstrip("/")
+	var engine_dir := Harness.find_engine_dir()
+	if not FileAccess.file_exists(Harness.bin_path(engine_dir)):
+		t.check(false, "engine CLI built for play.mjs hand-off test", Harness.bin_path(engine_dir))
+		return
+
+	var pid := OS.get_process_id()
+	var stamp := Time.get_ticks_usec()
+	var base_tmp := OS.get_user_data_dir().path_join("play_handoff_%d_%d" % [pid, stamp]).replace("\\", "/")
+	var fake_forge := base_tmp + "/forge"
+	var forge_pack_dir := fake_forge + "/dogfood/output/salt-road"
+	DirAccess.make_dir_recursive_absolute(forge_pack_dir)
+	var pack_bytes := FileAccess.get_file_as_bytes(doctored_pack)
+	var pf := FileAccess.open(forge_pack_dir + "/pack.json", FileAccess.WRITE)
+	pf.store_buffer(pack_bytes)
+	pf.close()
+
+	var invalid_res_path := base_tmp + "/invalid_mode.json"
+	var fail_res_path := base_tmp + "/default_fail.json"
+	var rel_res_path := base_tmp + "/release_warn.json"
+	var sync_dump_path := base_tmp + "/stage_summary.json"
+	var godot_bin := OS.get_executable_path()
+	var play_js := project_dir + "/tools/play.mjs"
+
+	var node_runner := (
+		"import { spawnSync } from 'node:child_process';"
+		+ "import fs from 'node:fs';"
+		+ "const [, mode, playJs, outJson, ...extra] = process.argv;"
+		+ "const r = spawnSync(process.execPath, [playJs, ...extra], { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 25000 });"
+		+ "fs.writeFileSync(outJson, JSON.stringify({ mode, status: r.status, stdout: r.stdout || '', stderr: r.stderr || '', error: r.error ? r.error.message : '' }));"
+	)
+
+	# 1. Invalid mode rejected (single validation block in play.mjs).
+	var o1: Array = []
+	var ec1 := OS.execute("node", [
+		"--input-type=module", "-e", node_runner, "invalid", play_js, invalid_res_path,
+		"--engine", engine_dir, "--forge", fake_forge, "--unresolved-ai-profile", "invalid",
+	], o1, true)
+	t.equals(ec1, 0, "invalid-mode runner finished")
+	var inv_raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(invalid_res_path)) if FileAccess.file_exists(invalid_res_path) else null
+	t.is_true(inv_raw is Dictionary, "invalid-mode result JSON parsed")
+	var inv_doc: Dictionary = inv_raw if inv_raw is Dictionary else {}
+	t.equals(int(inv_doc.get("status", -1)), 1, "play.mjs rejects invalid --unresolved-ai-profile value with exit 1")
+	t.contains(String(inv_doc.get("stderr", "")), "invalid --unresolved-ai-profile", "play.mjs invalid mode names flag")
+
+	# 2. Default mode (fail) refuses unknown-profile pack before opening Godot.
+	var o2: Array = []
+	var ec2 := OS.execute("node", [
+		"--input-type=module", "-e", node_runner, "default_fail", play_js, fail_res_path,
+		"--port", "0", "--engine", engine_dir, "--forge", fake_forge, "--godot", godot_bin, "--stage-headless", "--quit-after-sync", sync_dump_path,
+	], o2, true)
+	t.equals(ec2, 0, "default-fail runner finished")
+	var fail_raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(fail_res_path)) if FileAccess.file_exists(fail_res_path) else null
+	t.is_true(fail_raw is Dictionary, "default-fail result JSON parsed")
+	var fail_doc: Dictionary = fail_raw if fail_raw is Dictionary else {}
+	t.equals(int(fail_doc.get("status", -1)), 1, "play.mjs default (fail) exits 1 when unknown profile pack fails load gate")
+	t.contains(String(fail_doc.get("stderr", "")), UNKNOWN_PROFILE, "play.mjs fail refusal names offending profile")
+
+	# 3. `--release` selects warn, spawns sidecar + headless stage, hands off --sidecar-stderr,
+	#    and surfaces the warning to HUD log, session.transcript, and session.diagnostics.
+	var o3: Array = []
+	var ec3 := OS.execute("node", [
+		"--input-type=module", "-e", node_runner, "release_warn", play_js, rel_res_path,
+		"--release", "--port", "0", "--engine", engine_dir, "--forge", fake_forge, "--godot", godot_bin, "--stage-headless", "--quit-after-sync", sync_dump_path,
+	], o3, true)
+	t.equals(ec3, 0, "release-handoff runner finished")
+	var rel_raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(rel_res_path)) if FileAccess.file_exists(rel_res_path) else null
+	t.is_true(rel_raw is Dictionary, "release-handoff result JSON parsed")
+	var rel_doc: Dictionary = rel_raw if rel_raw is Dictionary else {}
+	t.equals(int(rel_doc.get("status", -1)), 0, "play.mjs --release exits 0 after synced stage exits")
+	var rel_stdout := String(rel_doc.get("stdout", ""))
+	t.contains(rel_stdout, "warn", "play.mjs --release forwards warn mode CLI args")
+	t.contains(rel_stdout, UNKNOWN_PROFILE, "play.mjs --release forwards unresolved profile warning to launcher output")
+
+	t.is_true(FileAccess.file_exists(sync_dump_path), "headless Playable wrote quit-after-sync summary")
+	if FileAccess.file_exists(sync_dump_path):
+		var sync_raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(sync_dump_path))
+		t.is_true(sync_raw is Dictionary, "quit-after-sync summary JSON parsed")
+		var sync_doc: Dictionary = sync_raw if sync_raw is Dictionary else {}
+		t.contains(String(sync_doc.get("status", "")), "attached", "Playable attached cleanly under play.mjs --release")
+		t.contains(String(sync_doc.get("log", "")), "[fallback]", "HUD log received fallback-styled warning from play.mjs --sidecar-stderr")
+		t.contains(String(sync_doc.get("log", "")), UNKNOWN_PROFILE, "HUD log shows unresolved profile name from play.mjs --release")
+		var tx_joined := "\n".join(PackedStringArray(sync_doc.get("transcript", []) as Array))
+		var diag_joined := "\n".join(PackedStringArray(sync_doc.get("diagnostics", []) as Array))
+		t.is_true(bool(sync_doc.get("has_sidecar_stderr_path", false)), "Playable received --sidecar-stderr path from play.mjs")
+		t.check(int(sync_doc.get("sidecar_stderr_offset", 0)) > 0, "Playable drained non-empty sidecar stderr log from play.mjs", "offset=%s" % str(sync_doc.get("sidecar_stderr_offset", 0)))
+		t.contains(tx_joined, UNKNOWN_PROFILE, "session.transcript contains handed-off profile warning")
+		t.contains(diag_joined, "[warning]", "session.diagnostics records handed-off warning")
+
+	# Clean up temp artifacts under user://.
+	for tmp_file: String in [forge_pack_dir + "/pack.json", invalid_res_path, fail_res_path, rel_res_path, sync_dump_path]:
+		if FileAccess.file_exists(tmp_file):
+			DirAccess.remove_absolute(tmp_file)
+	for tmp_dir: String in [forge_pack_dir, fake_forge + "/dogfood/output", fake_forge + "/dogfood", fake_forge, base_tmp]:
+		if DirAccess.dir_exists_absolute(tmp_dir):
+			DirAccess.remove_absolute(tmp_dir)

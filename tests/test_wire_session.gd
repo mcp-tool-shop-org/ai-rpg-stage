@@ -149,6 +149,69 @@ func run_async(t: RefCounted) -> void:
 	var tampered := (digest_1 + "x").sha256_text()
 	t.not_equals(tampered, digest_1, "RED: the digest comparison can fail")
 
+	# ── Concurrent ephemeral-port sidecars in one process ───
+	await _test_concurrent_ephemeral_sidecars(t, tree)
+
+
+func _test_concurrent_ephemeral_sidecars(t: RefCounted, tree: SceneTree) -> void:
+	var h1: RefCounted = Harness.new()
+	var h2: RefCounted = Harness.new()
+	var s1: bool = await h1.call("start", PACK_ID, SEED)
+	var s2: bool = await h2.call("start", PACK_ID, SEED + 1)
+	t.is_true(s1, "concurrent sidecar 1 started on ephemeral port")
+	t.is_true(s2, "concurrent sidecar 2 started on ephemeral port alongside sidecar 1")
+	if not s1 or not s2:
+		h1.call("stop")
+		h2.call("stop")
+		return
+
+	var p1 := int(h1.get("port"))
+	var p2 := int(h2.get("port"))
+	t.check(p1 > 0 and p2 > 0, "both concurrent sidecars bound non-zero ports", "p1=%d p2=%d" % [p1, p2])
+	t.not_equals(p1, p2, "concurrent sidecars received distinct ephemeral ports")
+
+	var b1 := EventBus.new()
+	var b2 := EventBus.new()
+	var c1 := NetworkClient.new()
+	var c2 := NetworkClient.new()
+	c1.bus = b1
+	c2.bus = b2
+	var errs: Array[String] = []
+	b1.transport_failed.connect(func(d: String) -> void: errs.append("b1:" + d))
+	b2.transport_failed.connect(func(d: String) -> void: errs.append("b2:" + d))
+	b1.disconnected.connect(func(d: String) -> void: errs.append("d1:" + d))
+	b2.disconnected.connect(func(d: String) -> void: errs.append("d2:" + d))
+	tree.root.add_child(b1)
+	tree.root.add_child(b2)
+	tree.root.add_child(c1)
+	tree.root.add_child(c2)
+
+	var hs1: Dictionary = await c1.call("attach", Harness.HOST, p1, "stage/concurrent-1", "0.1.0")
+	var hs2: Dictionary = await c2.call("attach", Harness.HOST, p2, "stage/concurrent-2", "0.1.0")
+	t.is_false(hs1.is_empty(), "concurrent client 1 attached without collision")
+	t.is_false(hs2.is_empty(), "concurrent client 2 attached without collision")
+
+	var snap1: Dictionary = await c1.call("snapshot")
+	var snap2: Dictionary = await c2.call("snapshot")
+	t.is_false(bool(snap1.get("__error__", false)), "concurrent client 1 snapshot succeeded")
+	t.is_false(bool(snap2.get("__error__", false)), "concurrent client 2 snapshot succeeded")
+
+	var act1: Dictionary = await c1.call("submit_action", "look")
+	var act2: Dictionary = await c2.call("submit_action", "look")
+	t.is_false(bool(act1.get("__error__", false)), "concurrent client 1 action succeeded")
+	t.is_false(bool(act2.get("__error__", false)), "concurrent client 2 action succeeded")
+	t.equals(errs.size(), 0, "concurrent sidecars caused zero transport or connection-closed errors")
+
+	c1.call("detach")
+	c2.call("detach")
+	c1.queue_free()
+	c2.queue_free()
+	b1.queue_free()
+	b2.queue_free()
+	h1.call("stop")
+	h2.call("stop")
+	await tree.create_timer(0.3).timeout
+
 
 ## One full attached session running SCRIPT. Returns a bag, `ok` false on failure.
 func _session(t: RefCounted, tree: SceneTree, label: String) -> Dictionary:

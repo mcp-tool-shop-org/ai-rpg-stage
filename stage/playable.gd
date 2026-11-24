@@ -36,7 +36,8 @@ var _syncing := false
 var _halted := false
 var _toast_left := 0.0
 var _sidecar_stderr_path := ""
-var _sidecar_stderr_len := -1
+var _sidecar_stderr_offset := 0
+var _sidecar_stderr_carry := ""
 
 
 func _ready() -> void:
@@ -132,6 +133,25 @@ func _attach(target: String) -> void:
 	var zone := String(session.call("player_zone"))
 	_say(String(diorama.call("description_of", zone)))
 	_refresh_doors()
+	_drain_sidecar_stderr(true)
+
+	var quit_after_sync := _user_arg("quit-after-sync")
+	if not quit_after_sync.is_empty():
+		var summary := {
+			"status": _status.text,
+			"log": _log.text if _log else "",
+			"transcript": session.get("transcript"),
+			"diagnostics": session.get("diagnostics"),
+			"has_sidecar_stderr_path": not _sidecar_stderr_path.is_empty(),
+			"sidecar_stderr_offset": _sidecar_stderr_offset,
+		}
+		var out_f := FileAccess.open(quit_after_sync, FileAccess.WRITE)
+		if out_f != null:
+			out_f.store_string(JSON.stringify(summary))
+			out_f.close()
+		if client != null:
+			client.call("detach")
+		get_tree().quit(0)
 
 
 func is_syncing() -> bool:
@@ -257,16 +277,39 @@ func _say(line: String) -> void:
 		_toast_left = 4.0
 
 
-func _drain_sidecar_stderr() -> void:
+func sidecar_stderr_offset() -> int:
+	return _sidecar_stderr_offset
+
+
+func _drain_sidecar_stderr(flush_tail := false) -> void:
 	if session == null or _sidecar_stderr_path.is_empty():
 		return
 	if not FileAccess.file_exists(_sidecar_stderr_path):
 		return
-	var text := FileAccess.get_file_as_string(_sidecar_stderr_path)
-	if text.length() == _sidecar_stderr_len:
+	var f := FileAccess.open(_sidecar_stderr_path, FileAccess.READ)
+	if f == null:
 		return
-	_sidecar_stderr_len = text.length()
-	session.call("ingest_sidecar_stderr", text)
+	var total_len := f.get_length()
+	if total_len < _sidecar_stderr_offset:
+		_sidecar_stderr_offset = 0
+		_sidecar_stderr_carry = ""
+	if total_len > _sidecar_stderr_offset:
+		f.seek(_sidecar_stderr_offset)
+		var chunk_bytes := f.get_buffer(total_len - _sidecar_stderr_offset)
+		_sidecar_stderr_offset = total_len
+		if not chunk_bytes.is_empty():
+			var chunk := _sidecar_stderr_carry + chunk_bytes.get_string_from_utf8()
+			var last_nl := chunk.rfind("\n")
+			if last_nl >= 0:
+				_sidecar_stderr_carry = chunk.substr(last_nl + 1)
+				session.call("ingest_sidecar_stderr", chunk.substr(0, last_nl + 1))
+			else:
+				_sidecar_stderr_carry = chunk
+	f.close()
+	if flush_tail and not _sidecar_stderr_carry.strip_edges().is_empty():
+		var tail := _sidecar_stderr_carry
+		_sidecar_stderr_carry = ""
+		session.call("ingest_sidecar_stderr", tail)
 
 
 func _process(delta: float) -> void:

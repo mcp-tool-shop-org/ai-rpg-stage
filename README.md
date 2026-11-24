@@ -85,10 +85,14 @@ port, opens the stage, shuts the sim down when the window closes):
 node tools/play.mjs
 ```
 
-Options: `--seed <n>` (default 71), `--port <n>` (default 47820),
+Options: `--seed <n>` (default 71), `--port <n>` (default 47820, or `0` for ephemeral),
 `--shock <district:metric:delta@round>` or `--no-shock`, `--engine <dir>`,
-`--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (default `fail`, or
-`warn` via `--release`), `--headless` (start the sim only and print the port).
+`--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (default `fail`;
+`--release` selects `warn` and forwards `--sidecar-stderr=<log>` to Godot),
+`--headless` (start the sim only and print the port). Notice a release-exported
+Godot stage never spawns the sim directly (it only attaches via `--attach`):
+`fail` vs `warn` comes from `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
+(`OS.is_debug_build()`), or CI's explicit `--unresolved-ai-profile fail`.
 
 | Key | Does |
 |---|---|
@@ -121,6 +125,22 @@ The runner prints `PASS:` / `FAIL:` lines and a `verdict=` line and exits
 non-zero on any failure, on a test that asserted nothing, and on a `--only=`
 filter that matched nothing. A filter is **one** suite name; a comma list matches
 nothing, and an empty run is a failure here, not a pass.
+
+**CI triggers and path filters.** GitHub Actions gates runs on watched project
+paths (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`,
+`fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`,
+`.github/upstream-pins.env`, `atlas/**`) and skips `pull_request` jobs from
+same-repository branches because the matching `push` run tests that commit.
+Because `on.push.paths` inspects only the pushed range (`before..after`) while
+`on.pull_request.paths` inspects the whole PR diff (`base...head`), a same-repo
+PR with earlier watched commits leaves its tip SHA without a `headless` run
+after either (1) an unwatched-only follow-up commit (`README.md`,
+`CHANGELOG.md`, `site/**`, docs) or (2) a commit-message-only or unwatched-only
+`--amend` force-push — the watched edits already ran on push, run again on
+merge to `main` (`main^..main`), or can be run via `workflow_dispatch`. On
+`main`, job concurrency keeps one running job plus at most one pending job
+(`cancel-in-progress: false`), so two quick merges both run while a third merge
+before the first finishes supersedes the queued second whose tree it includes.
 
 ## Attaching
 
