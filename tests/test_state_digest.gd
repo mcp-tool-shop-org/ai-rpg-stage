@@ -25,6 +25,7 @@ func run_async(t: RefCounted) -> void:
 	await _test_handshake_version_gate(t, tree)
 	await _test_live_verify_resync_and_cap(t, tree)
 	await _test_pre_baseline_syncing_gate(t, tree)
+	await _test_a2_edge_paths_and_tick_dedup(t, tree)
 
 
 func _test_shared_vectors_and_patches(t: RefCounted) -> void:
@@ -101,9 +102,22 @@ func _test_shared_vectors_and_patches(t: RefCounted) -> void:
 
 
 func _test_handshake_version_gate(t: RefCounted, tree: SceneTree) -> void:
+	# Whole float 2.0 with capabilities.canonicalHashes is accepted cleanly.
+	var probe_client := NetworkClient.new()
+	var accept_float := String(probe_client.call("_validate_handshake_digest_version", {
+		"serverName": "mock",
+		"engineVersion": "0.0.0",
+		"digest_spec_version": 2.0,
+		"capabilities": {"hashes": true, "canonicalHashes": true},
+	}))
+	t.equals(accept_float, "", "whole-float digest_spec_version 2.0 with canonicalHashes is accepted")
+	probe_client.free()
+
 	for case_spec: Dictionary in [
 		{"label": "unsupported v1", "result": {"serverName": "mock", "engineVersion": "0.0.0", "digest_spec_version": 1, "capabilities": {"hashes": true, "canonicalHashes": true}}, "expect": "unsupported digest_spec_version"},
+		{"label": "fractional float version", "result": {"serverName": "mock", "engineVersion": "0.0.0", "digest_spec_version": 2.5, "capabilities": {"hashes": true, "canonicalHashes": true}}, "expect": "unsupported digest_spec_version"},
 		{"label": "missing version", "result": {"serverName": "mock", "engineVersion": "0.0.0", "capabilities": {"hashes": true, "canonicalHashes": true}}, "expect": "unsupported digest_spec_version"},
+		{"label": "refused canonicalHashes", "result": {"serverName": "mock", "engineVersion": "0.0.0", "digest_spec_version": 2, "capabilities": {"hashes": true, "canonicalHashes": false}}, "expect": "server refused capabilities.canonicalHashes"},
 	]:
 		var server := TCPServer.new()
 		var listen_err := server.listen(0, "127.0.0.1")
@@ -660,3 +674,362 @@ func _test_pre_baseline_syncing_gate(t: RefCounted, tree: SceneTree) -> void:
 	lbus.queue_free()
 	harness.call("stop")
 	await tree.create_timer(0.3).timeout
+
+
+func _test_a2_edge_paths_and_tick_dedup(t: RefCounted, tree: SceneTree) -> void:
+	var srv := TCPServer.new()
+	if srv.listen(0, "127.0.0.1") != OK:
+		t.check(false, "mock server listening for edge-path tests", "TCPServer.listen failed")
+		return
+	var port := srv.get_local_port()
+
+	# Helper closure state driven per test scenario on sequential client connections.
+	var snap0 := {"items": []}
+	var snap0_canon := StateDigest.canonical_state_hash(snap0)
+	var tick1 := {"items": ["seal"]}
+	var tick1_canon := StateDigest.canonical_state_hash(tick1)
+	var tick2 := {"items": ["seal", "lantern"]}
+	var tick2_canon := StateDigest.canonical_state_hash(tick2)
+
+	# ── 1. Direct _on_tick non-idempotent append-patch dedup + halt guard in Playable._input ──
+	var d := Diorama.new()
+	tree.root.add_child(d)
+	await tree.process_frame
+	d.call("build")
+
+	var hud := Playable.new()
+	d.add_child(hud)
+	await tree.process_frame
+
+	var attach_state := {"done": false}
+	var run_attach := func() -> void:
+		await hud.call("_attach", "127.0.0.1:%d" % port)
+		attach_state["done"] = true
+	run_attach.call()
+
+	var peer: StreamPeerTCP = null
+	var buf := PackedByteArray()
+	var framing := Framing.new()
+	var rpc_methods_seen: Array[String] = []
+	for _i in range(240):
+		if srv.is_connection_available() and peer == null:
+			peer = srv.take_connection()
+			peer.set_no_delay(true)
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								var m := msg as Dictionary
+								var meth := String(m.get("method", ""))
+								if meth == "initialize":
+									peer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": m.get("id", 1),
+										"result": {
+											"serverName": "mock",
+											"engineVersion": "0.0.0",
+											"digest_spec_version": 2,
+											"capabilities": {"hashes": true, "canonicalHashes": true, "audio": true},
+											"tick": 0,
+										},
+									}))
+								elif meth == "snapshot":
+									peer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": m.get("id", 2),
+										"result": {
+											"tick": 0,
+											"hash": "h0",
+											"canonicalHash": snap0_canon,
+											"snapshotSeq": 1,
+											"delta": [{"op": "add", "path": [], "value": {"items": []}}],
+										},
+									}))
+		if bool(attach_state["done"]):
+			break
+		await tree.process_frame
+
+	t.is_true(bool(attach_state["done"]), "edge-path HUD attached and baselined")
+	var client: Node = hud.get("client")
+	var bus: Node = hud.get("bus")
+
+	# Non-idempotent append patch via submitAction response, followed by matching sim/tick notification.
+	var append_delta := [{"op": "set", "path": ["items", "-"], "value": "seal"}]
+	var sub_state := {"done": false, "res": {}}
+	var run_sub := func() -> void:
+		sub_state["res"] = await client.call("submit_action", "look")
+		sub_state["done"] = true
+	run_sub.call()
+
+	for _f in range(180):
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								var m := msg as Dictionary
+								if String(m.get("method", "")) == "submitAction":
+									peer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": m.get("id", 3),
+										"result": {
+											"tick": 1,
+											"hash": "h1",
+											"canonicalHash": tick1_canon,
+											"snapshotSeq": 1,
+											"delta": append_delta,
+											"events": [],
+										},
+									}))
+		if bool(sub_state["done"]):
+			break
+		await tree.process_frame
+
+	t.is_false(bool((sub_state["res"] as Dictionary).get("__error__", false)), "append submitAction succeeded")
+	# Deliver the matching sim/tick notification for tick 1 after submitAction already applied via RPC.
+	if peer != null:
+		peer.put_data(Framing.encode({
+			"jsonrpc": "2.0",
+			"method": "sim/tick",
+			"params": {
+				"tick": 1,
+				"hash": "h1",
+				"canonicalHash": tick1_canon,
+				"snapshotSeq": 1,
+				"delta": append_delta,
+				"events": [],
+			},
+		}))
+	for _p in range(6):
+		await tree.process_frame
+
+	var items_after_dedup: Array = ((client.call("mirror_state") as Dictionary).get("items", []) as Array)
+	t.equals(items_after_dedup.size(), 1, "_on_tick skips duplicate append patch already applied via submitAction RPC")
+	t.equals(items_after_dedup, ["seal"], "mirror preserves single 'seal' item rather than double-appending")
+	t.equals(String(client.call("mirror_digest")), tick1_canon, "canonical digest agrees after duplicate sim/tick")
+
+	# A genuinely new sim/tick (tick 2, appending 'lantern') IS applied by _on_tick.
+	if peer != null:
+		peer.put_data(Framing.encode({
+			"jsonrpc": "2.0",
+			"method": "sim/tick",
+			"params": {
+				"tick": 2,
+				"hash": "h2",
+				"canonicalHash": tick2_canon,
+				"snapshotSeq": 1,
+				"delta": [{"op": "set", "path": ["items", "-"], "value": "lantern"}],
+				"events": [],
+			},
+		}))
+	for _p2 in range(6):
+		await tree.process_frame
+	var items_after_new_tick: Array = ((client.call("mirror_state") as Dictionary).get("items", []) as Array)
+	t.equals(items_after_new_tick, ["seal", "lantern"], "_on_tick applies genuinely new tick delta")
+	t.equals(String(client.call("mirror_digest")), tick2_canon, "canonical digest updates on genuinely new sim/tick")
+
+	# ── 2. Canonical serialization error branch inside verify_position() ──
+	# Inject a non-ASCII key locally while tick=2 and JS hash="h2" still agree so drift_reason
+	# only trips via StateDigest.try_canonical_json(_mirror) inside verify_position().
+	var mdict := client.call("mirror_state") as Dictionary
+	mdict["café"] = 1
+	var verify_err_state := {"done": false, "agreed": true}
+	var run_ver := func() -> void:
+		verify_err_state["agreed"] = await client.call("verify_position")
+		verify_err_state["done"] = true
+	run_ver.call()
+
+	for _v in range(180):
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								var vm := msg as Dictionary
+								if String(vm.get("method", "")) == "snapshot":
+									peer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": vm.get("id", 4),
+										"result": {
+											"tick": 2,
+											"hash": "h2",
+											"canonicalHash": tick2_canon,
+											"snapshotSeq": 2,
+											"delta": [{"op": "add", "path": [], "value": {"items": ["seal", "lantern"]}}],
+										},
+									}))
+		if bool(verify_err_state["done"]):
+			break
+		await tree.process_frame
+
+	t.is_true(bool(verify_err_state["done"]), "verify_position with canonical error completed")
+	t.is_false(bool(verify_err_state["agreed"]), "verify_position returns false when mirror canonical serialization fails")
+	var ver_logs: Array[String] = client.call("mismatch_log")
+	t.check(ver_logs.size() >= 1 and ver_logs[0].contains("canonical serialization error"),
+		"verify_position logs canonical serialization error into mismatch_log",
+		str(ver_logs))
+	t.equals(String(client.call("mirror_digest")), tick2_canon, "verify_position resyncs clean mirror after canonical error")
+
+	# ── 3. Halt guard in Playable._input (KEY_1 + KEY_SPACE refused once halted) ──
+	var log_before := (hud.get("_log") as RichTextLabel).text
+	bus.session_halted.emit("cap exceeded")
+	await tree.process_frame
+	var key1 := InputEventKey.new()
+	key1.keycode = KEY_1
+	key1.pressed = true
+	var key_space := InputEventKey.new()
+	key_space.keycode = KEY_SPACE
+	key_space.pressed = true
+	hud.call("_input", key1)
+	hud.call("_input", key_space)
+
+	for _f3 in range(6):
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								rpc_methods_seen.append(String((msg as Dictionary).get("method", "")))
+		await tree.process_frame
+
+	t.equals(rpc_methods_seen.size(), 0, "Playable._input transmits 0 RPCs for KEY_1/KEY_SPACE once halted")
+	t.is_false(bool(hud.get("_busy")), "Playable._busy remains false after halted input")
+	t.contains((hud.get("_status") as Label).text, "sync halted — cap exceeded", "Playable status shows halt reason")
+	t.is_false((hud.get("_log") as RichTextLabel).text.substr(log_before.length()).contains("You wait."),
+		"Playable._input skips _wait_a_round once halted")
+
+	if peer != null:
+		peer.disconnect_from_host()
+	hud.queue_free()
+	d.queue_free()
+	await tree.process_frame
+
+	# ── 4. Failed resync snapshot request inside _verify_mirror_after_submit ──
+	var fbus := EventBus.new()
+	var fclient := NetworkClient.new()
+	fclient.bus = fbus
+	fclient.set("suppress_ci_halt_marker", true)
+	tree.root.add_child(fbus)
+	tree.root.add_child(fclient)
+	var fhalts: Array[String] = []
+	fbus.session_halted.connect(func(r: String) -> void: fhalts.append(r))
+
+	var frun_state := {"done": false}
+	var run_fail_snap := func() -> void:
+		await fclient.call("attach", "127.0.0.1", port, "stage/test-failed-resync-snap")
+		await fclient.call("snapshot")
+		await fclient.call("submit_action", "look")
+		frun_state["done"] = true
+	run_fail_snap.call()
+
+	var fpeer: StreamPeerTCP = null
+	var fbuf := PackedByteArray()
+	var fframing := Framing.new()
+	var snap_req_count := 0
+	for _k in range(240):
+		if srv.is_connection_available() and fpeer == null:
+			fpeer = srv.take_connection()
+			fpeer.set_no_delay(true)
+		if fpeer != null:
+			fpeer.poll()
+			if fpeer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := fpeer.get_available_bytes()
+				if av > 0:
+					var g := fpeer.get_partial_data(av)
+					if int(g[0]) == OK:
+						fbuf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in fframing.push(fbuf):
+							fbuf.clear()
+							if msg is Dictionary:
+								var fm := msg as Dictionary
+								var fmeth := String(fm.get("method", ""))
+								if fmeth == "initialize":
+									fpeer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": fm.get("id", 1),
+										"result": {
+											"serverName": "mock",
+											"engineVersion": "0.0.0",
+											"digest_spec_version": 2,
+											"capabilities": {"hashes": true, "canonicalHashes": true},
+											"tick": 0,
+										},
+									}))
+								elif fmeth == "snapshot":
+									snap_req_count += 1
+									if snap_req_count == 1:
+										fpeer.put_data(Framing.encode({
+											"jsonrpc": "2.0",
+											"id": fm.get("id", 2),
+											"result": {
+												"tick": 0,
+												"hash": "h0",
+												"canonicalHash": snap0_canon,
+												"snapshotSeq": 1,
+												"delta": [{"op": "add", "path": [], "value": {"items": []}}],
+											},
+										}))
+									else:
+										fpeer.put_data(Framing.encode({
+											"jsonrpc": "2.0",
+											"id": fm.get("id", 4),
+											"error": {"code": -32000, "message": "snapshot store unavailable"},
+										}))
+								elif fmeth == "submitAction":
+									# Return mismatched canonicalHash so client attempts a resync snapshot.
+									fpeer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": fm.get("id", 3),
+										"result": {
+											"tick": 1,
+											"hash": "h1",
+											"canonicalHash": "deadbeefdeadbeefdeadbeefdeadbeef",
+											"snapshotSeq": 1,
+											"delta": [],
+										},
+									}))
+		if bool(frun_state["done"]):
+			break
+		await tree.process_frame
+
+	t.is_true(bool(frun_state["done"]), "failed resync snapshot test completed")
+	t.is_true(bool(fclient.call("is_halted")), "failed resync snapshot halts client")
+	t.is_true(bool(fclient.call("is_stale")), "failed resync snapshot marks client stale")
+	t.contains(String(fclient.call("halt_reason")), "resync snapshot failed: snapshot store unavailable",
+		"halt_reason records failed resync snapshot error")
+	t.equals(fhalts.size(), 1, "session_halted emits once on resync snapshot failure")
+	var fmismatches: Array[String] = fclient.call("mismatch_log")
+	t.check(fmismatches.size() == 1 and fmismatches[0].contains("resync snapshot failed: snapshot store unavailable"),
+		"mismatch_log records failed resync snapshot", str(fmismatches))
+
+	if fpeer != null:
+		fpeer.disconnect_from_host()
+	srv.stop()
+	fclient.queue_free()
+	fbus.queue_free()
+	await tree.process_frame

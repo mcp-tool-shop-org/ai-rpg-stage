@@ -53,6 +53,9 @@ const ENGINE = path.resolve(flag('engine', path.join(STAGE, '..', 'ai-rpg-engine
 const FORGE = path.resolve(flag('forge', path.join(STAGE, '..', 'world-forge')));
 const SHOCK = has('no-shock') ? null : flag('shock', 'dockward:stability:-25@2');
 const PROFILE_MODE = flag('unresolved-ai-profile', has('release') ? 'warn' : 'fail');
+const GODOT_EXEC = flag('godot', process.env.GODOT_BIN || 'godot');
+const STAGE_HEADLESS = has('stage-headless');
+const QUIT_AFTER_SYNC = flag('quit-after-sync', '');
 const HOST_PACK = 'chapel-threshold';
 
 const BIN = path.join(ENGINE, 'packages', 'cli', 'dist', 'bin.js');
@@ -88,12 +91,6 @@ if (!fs.existsSync(PACK)) {
       + `--out="${path.join(STAGE, 'fixtures')}" --doctor   (or pass --forge <dir>)`,
   );
 }
-if (PROFILE_MODE !== 'fail' && PROFILE_MODE !== 'warn') {
-  die(
-    `invalid --unresolved-ai-profile "${PROFILE_MODE}"`,
-    'Expected fail or warn.',
-  );
-}
 if (!fs.existsSync(MANIFEST)) {
   die(
     `Salt Road manifest missing at ${MANIFEST}`,
@@ -126,10 +123,15 @@ console.log(`sim    node ${simArgs.slice(1).join(' ')}`);
 const sim = spawn(process.execPath, simArgs, { stdio: ['ignore', 'ignore', 'pipe'] });
 
 let simLog = '';
+let detectedPort = PORT > 0 ? PORT : 0;
 sim.stderr.on('data', (chunk) => {
   const text = chunk.toString('utf-8');
   simLog += text;
   fs.appendFileSync(STDERR_LOG, text, 'utf-8');
+  const m = text.match(/listening\s+(?:on\s+)?[^\s:]+:(\d+)/);
+  if (m && PORT === 0) {
+    detectedPort = Number(m[1]);
+  }
   // The sim's own diagnostics, forwarded. `dropped` and `warning` lines especially:
   // what the load gate did NOT carry or warned about must surface cleanly.
   for (const line of text.split('\n')) {
@@ -144,37 +146,43 @@ sim.on('exit', (code) => {
   }
 });
 
-/** Wait until the port genuinely accepts a connection, not merely until the child spawned. */
-async function waitForPort(port, timeoutMs = 30000) {
+/** Wait until the port is listening (from stderr when `--port 0`, or TCP probe otherwise). */
+async function waitForPort(timeoutMs = 30000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    if (PORT === 0) {
+      if (detectedPort > 0) return detectedPort;
+      await new Promise((r) => setTimeout(r, 50));
+      continue;
+    }
     const ok = await new Promise((resolve) => {
-      const s = net.createConnection({ port, host: '127.0.0.1' }, () => {
+      const s = net.createConnection({ port: PORT, host: '127.0.0.1' }, () => {
         s.destroy();
         resolve(true);
       });
       s.on('error', () => resolve(false));
     });
-    if (ok) return true;
+    if (ok) return PORT;
     await new Promise((r) => setTimeout(r, 150));
   }
-  return false;
+  return 0;
 }
 
-const up = await waitForPort(PORT);
-if (!up) {
+const activePort = await waitForPort();
+if (!activePort) {
   sim.kill();
   cleanupStderrLog();
   die(`the sim never accepted a connection on 127.0.0.1:${PORT}`, simLog.trim() || undefined);
 }
-console.log(`sim    ready on 127.0.0.1:${PORT}`);
+console.log(`sim    ready on 127.0.0.1:${activePort}`);
 
-// Give the sidecar a moment to release the slot the probe above just used — it serves ONE
-// client at a time, deliberately, and the probe was that client.
-await new Promise((r) => setTimeout(r, 250));
+// When a TCP probe touched the single-client listener (`--port > 0`), give it a moment to close.
+if (PORT > 0) {
+  await new Promise((r) => setTimeout(r, 250));
+}
 
 if (has('headless')) {
-  console.log('\nsim is up. Attach a client to 127.0.0.1:%d — ctrl-c to stop.', PORT);
+  console.log('\nsim is up. Attach a client to 127.0.0.1:%d — ctrl-c to stop.', activePort);
   process.on('SIGINT', () => {
     sim.kill();
     cleanupStderrLog();
@@ -185,14 +193,21 @@ if (has('headless')) {
 
 // --- The stage --------------------------------------------------------------
 
-const godot = process.env.GODOT_BIN || 'godot';
-console.log(`stage  ${godot} --path . (attaching to ${PORT})`);
+console.log(`stage  ${GODOT_EXEC} --path . (attaching to ${activePort})`);
 
+const viewArgs = [
+  ...(STAGE_HEADLESS ? ['--headless'] : []),
+  '--path', STAGE,
+  '--',
+  `--attach=127.0.0.1:${activePort}`,
+  `--sidecar-stderr=${STDERR_LOG}`,
+  ...(QUIT_AFTER_SYNC ? [`--quit-after-sync=${path.resolve(QUIT_AFTER_SYNC)}`] : []),
+];
 const view = spawn(
-  godot,
-  ['--path', STAGE, '--', `--attach=127.0.0.1:${PORT}`, `--sidecar-stderr=${STDERR_LOG}`],
+  GODOT_EXEC,
+  viewArgs,
   {
-    stdio: 'inherit',
+    stdio: STAGE_HEADLESS ? ['ignore', 'inherit', 'inherit'] : 'inherit',
     cwd: STAGE,
   },
 );

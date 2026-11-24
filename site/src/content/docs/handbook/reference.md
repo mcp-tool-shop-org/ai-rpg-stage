@@ -43,6 +43,8 @@ Felt files are `assets/felt/<cueId>.wav`. The mixer falls back to a sine tone wh
 | `--unresolved-ai-profile <fail\|warn>` | `fail` (`warn` when `--release`) |
 | `--headless` | off (start the sim only and print the port) |
 
+Notice a release-exported Godot binary itself never starts the sidecar — it connects out over TCP via `--attach`. Release warn mode comes from running `node tools/play.mjs --release` (which starts the sidecar with `--unresolved-ai-profile warn` and hands `--sidecar-stderr=<path>` to Godot) or from `tools/sidecar_harness.gd` (`choose_unresolved_profile_mode(false)` when `OS.is_debug_build()` is false).
+
 Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 when the window closes.
 
 ## Godot command lines

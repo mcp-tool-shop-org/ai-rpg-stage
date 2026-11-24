@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   move counts, and final tick against a closing authoritative snapshot (with
   planted mid-run corruption and refused-walk controls). Added `cross_repo_play`
   to CI's suite manifest (`all sixteen suites ran`).
+- **Headless digest, profile policy, and test concurrency hardening:** Added
+  coverage for failed resync snapshot halts, float `digest_spec_version` and
+  refused `canonicalHashes` rejection, `verify_position` canonical errors,
+  post-halt `Playable` input blocking, direct `_on_tick` non-idempotent
+  duplicate-delta dedup, and `play.mjs --release` stderr hand-off. Extracted
+  explicit `Harness.choose_unresolved_profile_mode` (`fail` in debug/CI,
+  `warn` in release exports which attach to a running sim rather than
+  spawning a sidecar), removed duplicate `--unresolved-ai-profile` checking in
+  `tools/play.mjs`, switched `Playable._drain_sidecar_stderr` to incremental
+  byte-offset reading, and moved `SidecarHarness` to OS-assigned ephemeral
+  ports (`--listen 0`) with PID-scoped stderr logs so concurrent headless
+  suites do not collide on a fixed port.
 
 - **Engine event vocabulary manifest gate:** Added `client/event_manifest.json`
   covering every event type in the pinned engine's exported

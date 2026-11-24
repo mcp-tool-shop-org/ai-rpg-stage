@@ -85,10 +85,14 @@ port, opens the stage, shuts the sim down when the window closes):
 node tools/play.mjs
 ```
 
-Options: `--seed <n>` (default 71), `--port <n>` (default 47820),
+Options: `--seed <n>` (default 71), `--port <n>` (default 47820, or `0` for ephemeral),
 `--shock <district:metric:delta@round>` or `--no-shock`, `--engine <dir>`,
-`--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (default `fail`, or
-`warn` via `--release`), `--headless` (start the sim only and print the port).
+`--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (default `fail`;
+`--release` selects `warn` and forwards `--sidecar-stderr=<log>` to Godot),
+`--headless` (start the sim only and print the port). Notice a release-exported
+Godot stage never spawns the sim directly (it only attaches via `--attach`):
+`fail` vs `warn` comes from `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
+(`OS.is_debug_build()`), or CI's explicit `--unresolved-ai-profile fail`.
 
 | Key | Does |
 |---|---|

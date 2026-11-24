@@ -293,7 +293,7 @@ func _load_runtime_engine_event_types(t: RefCounted, engine_dir: String) -> Arra
 		"pinned compiled engine event vocabulary exists (%s)" % js_path)
 	if not FileAccess.file_exists(js_path):
 		return []
-	var tmp_path := ProjectSettings.globalize_path("user://engine_event_types_check.json").replace("\\", "/")
+	var tmp_path := ProjectSettings.globalize_path("user://engine_event_types_check_%d.json" % OS.get_process_id()).replace("\\", "/")
 	var js_url_arg := js_path.replace("\\", "/")
 	var node_code := "import { pathToFileURL } from 'node:url'; import fs from 'node:fs'; const m = await import(pathToFileURL(process.argv[1]).href); fs.writeFileSync(process.argv[2], JSON.stringify(m.ENGINE_EVENT_TYPES));"
 	var out_buf: Array = []
