@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Engine event vocabulary manifest gate:** Added `client/event_manifest.json`
+  covering every event type in the pinned engine's exported
+  `ENGINE_EVENT_TYPES` (seeding the five `Session.RENDERED` types as `handled`
+  and the rest as `todo` expiring `2027-01-15`) plus
+  `fixtures/handled_events_replay.json`. `tests/test_event_manifest.gd` parses
+  `ENGINE_EVENT_TYPES` dynamically from the engine checkout (single- and
+  double-quoted entries, failing on unparsed rows), asserts exact count and
+  element equality against the pinned engine's compiled `ENGINE_EVENT_TYPES`
+  export, replays handled fixtures against `Session` and `Diorama`, and fails
+  on missing engine types, unknown manifest entries, expired `todo`s, or silent
+  `handled` handlers.
+
+- **Fallback rendering for unrendered simulation events:** `Session._present`
+  now renders any event type outside `Session.RENDERED` as one transcript line
+  in the distinct `[fallback]` style (`stage/session.gd`) naming the event type
+  and its sorted payload keys, while `RENDERED` keeps the five bespoke
+  handlers. Tests live in `tests/test_fallback_rendering.gd`.
+
+- **Unresolved behaviour profile policy (`fail` in debug/CI, `warn` in release):**
+  `tools/play.mjs`, `tools/sidecar_harness.gd`, and `.github/workflows/ci.yml`
+  pass `--unresolved-ai-profile fail` explicitly in debug builds, CI, and
+  dev launches, and `warn` in release exports (`--release`). Under `warn`,
+  sidecar stderr warnings are captured via `tools/sidecar_spawn.mjs` / launcher
+  logs and surfaced both in `Session.diagnostics` and on screen as fallback-styled
+  transcript lines. `tools/check_ci_log.sh` fails CI on any unresolved-profile
+  warning, refusal, or `dropped ... aiProfile` line. Tests live in
+  `tests/test_profile_policy.gd`.
+
+- **Per-move canonical digest verification and bounded snapshot resync:**
+  `client/state_digest.gd` implements spec-v2 canonical state hashing (`1e6`
+  half-away-from-zero scaling, sorted ASCII keys, retained `null` keys) and
+  patch application. `NetworkClient.attach` now requests
+  `capabilities.canonicalHashes` and rejects missing or unsupported
+  `digest_spec_version` with a visible load error. Until the initial baseline
+  snapshot lands, `NetworkClient`, `Session`, and `Playable` show an on-screen
+  `syncing` state and refuse play input (`ERR_NOT_SYNCED`). After every play submit
+  (`submitAction` and `advance`), the stage recomputes the canonical digest on
+  its mirror; on mismatch it logs the first differing pre-image byte offset,
+  replaces its mirror from an authoritative snapshot, immediately verifies the
+  snapshot digest, resets the consecutive streak on clean moves, and halts play
+  with a visible error past 3 consecutive resyncs. Tests live in
+  `tests/test_state_digest.gd`.
+
 - **Upstream pins bumped; pin edits trigger CI.** `ENGINE_REF` now points to
   `77a9a091` (canonical state digest v2, exported event vocabulary, built-in
   `passive` profile, and CLI `--unresolved-ai-profile fail|warn`), `FORGE_REF`

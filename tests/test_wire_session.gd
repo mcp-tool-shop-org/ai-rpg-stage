@@ -80,6 +80,11 @@ func run_async(t: RefCounted) -> void:
 	t.check(stale_reports.size() > 0, "RED: and reports it on the bus")
 	if stale_reports.size() > 0:
 		t.contains(stale_reports[0], "state drift", "RED: naming what drifted")
+		t.contains(stale_reports[0], "first differing pre-image offset",
+			"RED: logging first differing canonical pre-image offset")
+	var agreed_resynced: bool = await client.call("verify_position")
+	t.is_true(agreed_resynced, "snapshot resync restores mirror agreement")
+	t.is_false(client.call("is_stale"), "resync clears stale flag once position matches")
 
 	# ── Strict-in, through THIS client ───────────────────────
 	# Re-proven on the client side because a stage that silently dropped a field

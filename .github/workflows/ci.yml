@@ -168,6 +168,39 @@ jobs:
           test -f dogfood/output/salt-road/pack.json || { echo "::error::engine-lane pack not written"; exit 1; }
           test -f ../stage/fixtures/world.tscn || { echo "::error::scene not written"; exit 1; }
 
+      - name: Verify Salt Road loads clean under unresolved-ai-profile fail
+        run: |
+          set -euo pipefail
+          node ai-rpg-engine/packages/cli/dist/bin.js sidecar chapel-threshold \
+            --seed 71 \
+            --content world-forge/dogfood/output/salt-road/pack.json \
+            --manifest stage/fixtures/salt-road.manifest.json \
+            --start counting-house \
+            --unresolved-ai-profile fail \
+            --listen 47829 > /dev/null 2> /tmp/salt-road-fail-check.log &
+          SIDECAR_PID=$!
+          READY=0
+          for _i in $(seq 1 40); do
+            if grep -q '\[sidecar\] listening ' /tmp/salt-road-fail-check.log 2>/dev/null; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$SIDECAR_PID" 2>/dev/null; then
+              break
+            fi
+            sleep 0.25
+          done
+          if kill -0 "$SIDECAR_PID" 2>/dev/null; then
+            kill "$SIDECAR_PID" || true
+            wait "$SIDECAR_PID" || true
+          fi
+          cat /tmp/salt-road-fail-check.log
+          if [ "$READY" -ne 1 ]; then
+            echo "::error::Salt Road sidecar failed under --unresolved-ai-profile fail"
+            exit 1
+          fi
+          bash stage/tools/check_ci_log.sh /tmp/salt-road-fail-check.log
+
       - name: Cache Godot
         id: godot-cache
         uses: actions/cache@v4
@@ -229,23 +262,15 @@ jobs:
           # deleted, or moved simply stops being found and the suite passes with fewer
           # checks and no complaint. This is the manifest that makes a disappearance a
           # failure. Adding a suite here is deliberate; that is the point.
-          for suite in diorama felt_juice felt_mixer felt_voice framing iso_math iso_world live_session scene_join tick_queue wire_session; do
+          for suite in diorama event_manifest fallback_rendering felt_juice felt_mixer felt_voice framing iso_math iso_world live_session profile_policy scene_join state_digest tick_queue wire_session; do
             grep -q "^── ${suite} ──$" /tmp/suite.log \
               || { echo "::error::suite '${suite}' did not run"; exit 1; }
           done
-          echo "all eleven suites ran"
+          echo "all fifteen suites ran"
 
-      - name: Refuse resource-load noise
-        run: |
-          set -euo pipefail
-          # A scene that half-loads still instantiates, and a join test will
-          # happily reconcile the surviving half. Godot reports the damage on
-          # stderr rather than through an exit code, so it is asserted here.
-          if grep -Eq 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true' /tmp/suite.log; then
-            echo "::error::engine reported load errors during the suite"
-            grep -En 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true' /tmp/suite.log
-            exit 1
-          fi
+      - name: Refuse resource-load, sync-cap, and profile-warning noise
+        working-directory: stage
+        run: bash tools/check_ci_log.sh /tmp/suite.log
 
       - name: Upload suite log
         if: always()
