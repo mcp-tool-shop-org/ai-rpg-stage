@@ -4812,9 +4812,9 @@
     },
     {
       "dynamicReads": 1,
-      "dynamicSpawns": 3,
+      "dynamicSpawns": 2,
       "dynamicSpawnsInTests": 0,
-      "dynamicWrites": 3,
+      "dynamicWrites": 2,
       "entryPoints": [],
       "externals": 0,
       "files": [
@@ -4938,7 +4938,7 @@
           "path": "tools/sidecar_harness.gd.uid"
         },
         {
-          "hash": "c260c32d71693eaa651e1d5c3a44764d588a66e907e078338f3cfdf3b47f8bfa",
+          "hash": "a271e17a128f8ae377c4d4b55680c2f84d14f7b03cf648391ed7c2df35968c4d",
           "path": "tools/sidecar_spawn.mjs"
         },
         {
@@ -4986,7 +4986,14 @@
       "outsideWrites": 2,
       "role": "code",
       "testedBy": 4,
-      "unresolvedSites": 0
+      "unresolvedNamed": [
+        {
+          "path": "tools/sidecar_spawn.mjs",
+          "specifier": null,
+          "why": "dynamic"
+        }
+      ],
+      "unresolvedSites": 1
     }
   ],
   "doors": [
@@ -5883,7 +5890,7 @@
   ],
   "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "1d9ac5be49f30b9b91f32241ab8d61d7096fe927",
+    "commit": "35725b35de7bee282b7e5f1882ca62e236a5b352",
     "tracked": 687
   },
   "landings": [

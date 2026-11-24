@@ -75,56 +75,31 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 6,
-      "changed": 9,
+      "added": 0,
+      "changed": 1,
       "moved": 0,
-      "parts": 7,
+      "parts": 1,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "ci now also runs tests/test_profile_policy.gd and tools/check_ci_log.sh.",
-        "subjects": [
-          ".github/workflows/ci.yml",
-          "tests/test_profile_policy.gd",
-          "tools/check_ci_log.sh"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "stage/ is now read by stage/playable.gd.",
-        "subjects": [
-          "stage/",
-          "stage/playable.gd"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "tools/ is now read by tools/sidecar_harness.gd.",
-        "subjects": [
-          "tools/",
-          "tools/sidecar_harness.gd"
-        ]
-      },
-      {
         "kind": "counts",
-        "sentence": "6 files added and 9 changed content, across 7 parts.",
+        "sentence": "Nothing structural changed since 2026-11-24; 1 file changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "1e691c0799178f382d6eb322e19689fbf0f87240",
-      "generatedAt": "2026-11-24T15:50:08.690Z"
+      "commit": "1d9ac5be49f30b9b91f32241ab8d61d7096fe927",
+      "generatedAt": "2026-11-24T15:57:46.919Z"
     },
-    "unchanged": false
+    "unchanged": true
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "1d9ac5be49f30b9b91f32241ab8d61d7096fe927",
+  "commit": "35725b35de7bee282b7e5f1882ca62e236a5b352",
   "defaultBranch": "main",
   "derived": "12 parts, mostly GDScript (39 files), Python (8), JavaScript (3), CSS (2), TypeScript (2), shell (2) and Astro (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
   "doors": [
@@ -334,13 +309,14 @@
       ]
     }
   ],
-  "generatedAt": "2026-11-24T15:57:46.919Z",
+  "generatedAt": "2026-11-24T16:03:31.699Z",
   "limits": [
-    "3 writes and 12 reads use paths built at run time and are not named here.",
+    "1 import could not be resolved: `tools/sidecar_spawn.mjs` imports a path built at run time.",
+    "2 writes and 12 reads use paths built at run time and are not named here.",
     "4 writes go to places this repository does not track, so they are not listed as generated.",
     "5 writes and 3 reads go to a path their caller passes, not to this repository.",
     "2 writes go to a temporary directory, not to this repository.",
-    "3 commands are built at run time and not followed.",
+    "2 commands are built at run time and not followed.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",
@@ -388,7 +364,7 @@
     "tools": 4
   },
   "testedCodeParts": 4,
-  "unnamedWrites": 3,
+  "unnamedWrites": 2,
   "unread": [
     {
       "place": "assets/dimetric/MANIFEST.json",

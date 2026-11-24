@@ -1,17 +1,14 @@
 # ai-rpg-stage: how it works
 
-Mapped at 2026-11-24 from commit 1d9ac5b by Atlas 1.26.0.
+Mapped at 2026-11-24 from commit 35725b3 by Atlas 1.26.0.
 
 ## What this is
 
 12 parts, mostly GDScript (39 files), Python (8), JavaScript (3), CSS (2), TypeScript (2), shell (2) and Astro (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.
 
-## What changed since 2026-11-24 (1e691c0)
+## What changed since 2026-11-24 (1d9ac5b)
 
-- ci now also runs tests/test_profile_policy.gd and tools/check_ci_log.sh.
-- stage/ is now read by stage/playable.gd.
-- tools/ is now read by tools/sidecar_harness.gd.
-- 6 files added and 9 changed content, across 7 parts.
+Nothing structural changed since 2026-11-24; 1 file changed content.
 
 ## What comes in
 
@@ -75,7 +72,7 @@ No two parts export a helper that looks alike.
 
 ## Hand-authored
 
-People write audio/, docs/, the repository root and site/; 3 writes with paths built at run time may land here.
+People write audio/, docs/, the repository root and site/; 2 writes with paths built at run time may land here.
 
 - **.github/upstream-pins.env** is written by .github/workflows/bump-upstream-pins.yml, and by people: 7 of its 7 commits in the window are theirs.
 
@@ -87,11 +84,12 @@ Read those in order to follow one push, or pull request from a fork, end to end.
 
 ## What this map cannot see
 
-- 3 writes and 12 reads use paths built at run time and are not named here.
+- 1 import could not be resolved: `tools/sidecar_spawn.mjs` imports a path built at run time.
+- 2 writes and 12 reads use paths built at run time and are not named here.
 - 4 writes go to places this repository does not track, so they are not listed as generated.
 - 5 writes and 3 reads go to a path their caller passes, not to this repository.
 - 2 writes go to a temporary directory, not to this repository.
-- 3 commands are built at run time and not followed.
+- 2 commands are built at run time and not followed.
 - Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
