@@ -29,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   byte-offset reading, and moved `SidecarHarness` to OS-assigned ephemeral
   ports (`--listen 0`) with PID-scoped stderr logs so concurrent headless
   suites do not collide on a fixed port.
+- **CI workflow and trigger docs clarification:** Clarified `main` concurrency
+  queue semantics (`1 running + 1 pending`), noted `refs/tags/<tag>` on
+  tag-targeted `workflow_dispatch`, and documented the `on.push.paths` vs
+  `on.pull_request.paths` commit shapes that leave same-repo PR tips without a
+  `headless` run in both `.github/workflows/ci.yml` and `README.md`.
 
 - **Engine event vocabulary manifest gate:** Added `client/event_manifest.json`
   covering every event type in the pinned engine's exported

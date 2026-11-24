@@ -126,6 +126,22 @@ non-zero on any failure, on a test that asserted nothing, and on a `--only=`
 filter that matched nothing. A filter is **one** suite name; a comma list matches
 nothing, and an empty run is a failure here, not a pass.
 
+**CI triggers and path filters.** GitHub Actions gates runs on watched project
+paths (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`,
+`fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`,
+`.github/upstream-pins.env`, `atlas/**`) and skips `pull_request` jobs from
+same-repository branches because the matching `push` run tests that commit.
+Because `on.push.paths` inspects only the pushed range (`before..after`) while
+`on.pull_request.paths` inspects the whole PR diff (`base...head`), a same-repo
+PR with earlier watched commits leaves its tip SHA without a `headless` run
+after either (1) an unwatched-only follow-up commit (`README.md`,
+`CHANGELOG.md`, `site/**`, docs) or (2) a commit-message-only or unwatched-only
+`--amend` force-push — the watched edits already ran on push, run again on
+merge to `main` (`main^..main`), or can be run via `workflow_dispatch`. On
+`main`, job concurrency keeps one running job plus at most one pending job
+(`cancel-in-progress: false`), so two quick merges both run while a third merge
+before the first finishes supersedes the queued second whose tree it includes.
+
 ## Attaching
 
 The stage connects **outbound** over TCP to a sidecar the operator names
