@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Pinned cross-repo 12-move Salt Road play check in CI:** Added
+  `tests/test_cross_repo_play.gd`, attaching the stage headless to the freshly
+  exported Salt Road pack under `--unresolved-ai-profile fail`, playing 12 moves
+  (10 zone moves plus 2 round advances) through `Session`, and asserting
+  per-move canonical state digest parity, zero resyncs, unhalted state, move
+  count, and final tick against a closing authoritative snapshot (with planted
+  mid-run corruption controls). Added `cross_repo_play` to CI's suite manifest
+  (`all sixteen suites ran`).
+
 - **Engine event vocabulary manifest gate:** Added `client/event_manifest.json`
   covering every event type in the pinned engine's exported
   `ENGINE_EVENT_TYPES` (seeding the five `Session.RENDERED` types as `handled`

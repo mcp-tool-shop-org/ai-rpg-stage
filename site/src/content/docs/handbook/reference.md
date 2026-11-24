@@ -62,6 +62,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 
 | Suite | Proves |
 |---|---|
+| `cross_repo_play` | attaches headless to the exported Salt Road pack under `--unresolved-ai-profile fail` and plays 12 moves through `Session`, asserting per-move canonical digest equality, zero resyncs, unhalted state, move count, and final tick |
 | `diorama` | the stage stands up; a re-dress swaps dressing and moves nothing; cast carries normal maps; eight facings bucket correctly; prose reaches the stage; the stage has no way to adjudicate a gate |
 | `event_manifest` | `client/event_manifest.json` covers every `ENGINE_EVENT_TYPES` entry dynamically from the pinned engine, rejects stale todos, and replays handled events against `fixtures/handled_events_replay.json` |
 | `fallback_rendering` | unrecognised event types emit one fallback transcript line with type and sorted payload keys; `RENDERED` types emit none |
