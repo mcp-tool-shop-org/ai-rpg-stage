@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Per-move canonical digest verification and bounded snapshot resync:**
+  `client/state_digest.gd` implements spec-v2 canonical state hashing (`1e6`
+  half-away-from-zero scaling, sorted ASCII keys, retained `null` keys) and
+  patch application. `NetworkClient.attach` now requests
+  `capabilities.canonicalHashes` and rejects missing or unsupported
+  `digest_spec_version` with a visible load error. After every play submit
+  (`submitAction` and `advance`), the stage recomputes the canonical digest on
+  its mirror; on mismatch it logs the first differing pre-image byte offset,
+  replaces its mirror from an authoritative snapshot, immediately verifies the
+  snapshot digest, and halts play with a visible error past 3 consecutive
+  resyncs. Tests live in `tests/test_state_digest.gd`.
+
 - **Upstream pins bumped; pin edits trigger CI.** `ENGINE_REF` now points to
   `77a9a091` (canonical state digest v2, exported event vocabulary, built-in
   `passive` profile, and CLI `--unresolved-ai-profile fail|warn`), `FORGE_REF`

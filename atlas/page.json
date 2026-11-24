@@ -7,8 +7,8 @@
   ],
   "authoredWritten": [
     {
-      "byPeople": 5,
-      "commits": 5,
+      "byPeople": 7,
+      "commits": 7,
       "place": ".github/upstream-pins.env",
       "writers": [
         ".github/workflows/bump-upstream-pins.yml"
@@ -75,33 +75,55 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 1,
+      "added": 2,
+      "changed": 11,
       "moved": 0,
-      "parts": 1,
+      "parts": 6,
       "removed": 0
     },
     "items": [
       {
+        "kind": "door",
+        "sentence": "ci's pull request trigger now also names `.github/upstream-pins.env`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "ci's push trigger now also names `.github/upstream-pins.env`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "ci now also runs tests/test_state_digest.gd.",
+        "subjects": [
+          ".github/workflows/ci.yml",
+          "tests/test_state_digest.gd"
+        ]
+      },
+      {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-11-11; 1 file changed content.",
+        "sentence": "2 files added and 11 changed content, across 6 parts.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
-      "generatedAt": "2026-11-11T22:05:14.654Z"
+      "commit": "fda00110fc6ab476263d89299c384e233acf489e",
+      "generatedAt": "2026-11-12T00:23:35.868Z"
     },
-    "unchanged": true
+    "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "fda00110fc6ab476263d89299c384e233acf489e",
+  "commit": "1e691c0799178f382d6eb322e19689fbf0f87240",
   "defaultBranch": "main",
-  "derived": "12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
+  "derived": "12 parts, mostly GDScript (38 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
   "doors": [
     {
       "checks": [],
@@ -111,7 +133,7 @@
       "found": [
         {
           "by": "tools/headless.gd",
-          "what": "the 11 test suites under tests/"
+          "what": "the 12 test suites under tests/"
         }
       ],
       "held": [
@@ -136,7 +158,7 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 11
+          "files": 12
         },
         {
           "boundary": "tools",
@@ -146,12 +168,12 @@
         {
           "boundary": "client",
           "depth": 1,
-          "files": 5
+          "files": 6
         },
         {
           "boundary": "stage",
           "depth": 1,
-          "files": 14
+          "files": 15
         },
         {
           "boundary": "fixtures",
@@ -165,8 +187,8 @@
       "sends": [],
       "stages": [],
       "triggers": [
-        "on a pull request touching 11 paths",
-        "on a push touching 11 paths",
+        "on a pull request touching 12 paths",
+        "on a push touching 12 paths",
         "or by hand"
       ]
     },
@@ -249,7 +271,7 @@
         {
           "boundary": "client",
           "depth": 2,
-          "files": 5
+          "files": 6
         },
         {
           "boundary": "fixtures",
@@ -308,7 +330,7 @@
       ]
     }
   ],
-  "generatedAt": "2026-11-12T00:23:35.868Z",
+  "generatedAt": "2026-11-24T15:50:08.690Z",
   "limits": [
     "12 reads use paths built at run time and are not named here.",
     "4 writes go to places this repository does not track, so they are not listed as generated.",
@@ -353,12 +375,12 @@
   ],
   "summary": null,
   "summaryFrom": null,
-  "testFiles": 22,
+  "testFiles": 23,
   "testedBy": {
     "assets": 0,
-    "client": 10,
-    "stage": 13,
-    "tools": 2
+    "client": 11,
+    "stage": 14,
+    "tools": 3
   },
   "testedCodeParts": 4,
   "unnamedWrites": 0,

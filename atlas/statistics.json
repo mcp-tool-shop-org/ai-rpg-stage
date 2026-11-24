@@ -3,8 +3,8 @@
     "parts": [],
     "places": [
       {
-        "byPeople": 5,
-        "commits": 5,
+        "byPeople": 7,
+        "commits": 7,
         "target": ".github/upstream-pins.env"
       }
     ]
@@ -222,8 +222,8 @@
         "path": ".gitattributes"
       },
       {
-        "commits": 7,
-        "lines": 74,
+        "commits": 9,
+        "lines": 90,
         "path": ".github/upstream-pins.env"
       },
       {
@@ -232,8 +232,8 @@
         "path": ".github/workflows/bump-upstream-pins.yml"
       },
       {
-        "commits": 17,
-        "lines": 515,
+        "commits": 19,
+        "lines": 519,
         "path": ".github/workflows/ci.yml"
       },
       {
@@ -247,8 +247,8 @@
         "path": ".gitignore"
       },
       {
-        "commits": 19,
-        "lines": 152,
+        "commits": 20,
+        "lines": 159,
         "path": "CHANGELOG.md"
       },
       {
@@ -3057,8 +3057,8 @@
         "path": "assets/tilesets/tileset-stone.png.import"
       },
       {
-        "commits": 4,
-        "lines": 228,
+        "commits": 5,
+        "lines": 238,
         "path": "atlas/README.md"
       },
       {
@@ -3067,18 +3067,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 4,
-        "lines": 1144,
+        "commits": 5,
+        "lines": 1185,
         "path": "atlas/page.json"
       },
       {
-        "commits": 4,
-        "lines": 3840,
+        "commits": 5,
+        "lines": 3870,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 4,
-        "lines": 9324,
+        "commits": 5,
+        "lines": 9328,
         "path": "atlas/structure.json"
       },
       {
@@ -3697,9 +3697,9 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-11-12T00:23:35.868Z",
+  "generatedAt": "2026-11-24T15:50:08.690Z",
   "generatedFrom": {
-    "commit": "fda00110fc6ab476263d89299c384e233acf489e"
+    "commit": "1e691c0799178f382d6eb322e19689fbf0f87240"
   },
   "pairs": [],
   "parameters": {
@@ -3712,16 +3712,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-11-11T19:23:02-05:00",
-    "inScopeFiles": 684,
+    "headDate": "2026-11-24T10:36:56-05:00",
+    "inScopeFiles": 686,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 36,
+    "qualifyingCommits": 39,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-05-16T00:23:02.000Z",
+    "since": "2026-05-28T15:36:56.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

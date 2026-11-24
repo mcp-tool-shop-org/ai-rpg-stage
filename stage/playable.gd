@@ -32,6 +32,7 @@ var _status: Label
 var _toast: RichTextLabel
 var _lines: Array[String] = []
 var _busy := false
+var _halted := false
 var _toast_left := 0.0
 
 
@@ -79,6 +80,7 @@ func _attach(target: String) -> void:
 	add_child(session)
 	session.call("setup", diorama, client, bus)
 	session.narrated.connect(_say)
+	bus.session_halted.connect(_on_session_halted)
 
 	# The session already routes these to `diagnostics` and emits them on `narrated`, so
 	# subscribing here as well would show each one twice. The UI shows what the session
@@ -87,13 +89,20 @@ func _attach(target: String) -> void:
 	_status.text = "attaching to %s…" % target
 	var handshake: Dictionary = await client.call("attach", parts[0], int(parts[1]), "ai-rpg-stage")
 	if handshake.is_empty():
-		_status.text = "could not attach to %s" % target
-		_say("[color=#c66]Could not attach. Is the sim running?[/color]")
+		var err_detail := String(client.call("last_attach_error"))
+		if err_detail.is_empty():
+			_status.text = "could not attach to %s" % target
+			_say("[color=#c66]Could not attach. Is the sim running?[/color]")
+		else:
+			_status.text = "load error — %s" % err_detail
+			_say("[color=#c66]Load error: %s[/color]" % err_detail)
 		return
 
 	_status.text = "attached — %s" % String(handshake.get("engineVersion", "?"))
 	_wire_iso()
 	await client.call("snapshot")
+	if _halted:
+		return
 
 	# Open on the zone the sim says the player is in, with its prose, so the first thing on
 	# screen is the writing rather than a UI.
@@ -111,9 +120,9 @@ func _input(event: InputEvent) -> void:
 	var key := (event as InputEventKey).keycode
 
 	# Number keys walk. `advance` waits a round — which is how a shock reaches you.
-	if session != null and key >= KEY_1 and key <= KEY_9:
+	if not _halted and session != null and key >= KEY_1 and key <= KEY_9:
 		_walk(key - KEY_1)
-	elif session != null and key == KEY_SPACE:
+	elif not _halted and session != null and key == KEY_SPACE:
 		_wait_a_round()
 	elif key == KEY_J:
 		if session != null and session.get("juice") != null:
@@ -218,8 +227,14 @@ func _wire_iso() -> void:
 		iso.move_requested.connect(_on_iso_move)
 
 
+func _on_session_halted(reason: String) -> void:
+	_halted = true
+	if _status:
+		_status.text = "sync halted — %s" % reason
+
+
 func _on_iso_move(zone_id: String) -> void:
-	if _busy:
+	if _busy or _halted:
 		return
 	if session != null:
 		_busy = true

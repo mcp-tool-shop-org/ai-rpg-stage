@@ -24,14 +24,16 @@ A sidecar booted with `--content` still needs `--manifest`; without it the engin
 ## The handshake
 
 `NetworkClient.attach(host, port)` sends `initialize` with the client's name and version and asks for
-three additive capabilities:
+four additive capabilities:
 
 | Capability | What the stage gets | What the stage does with it |
 |---|---|---|
 | `notifications` | Server-pushed `sim/tick` events | Applies them in order through the tick queue |
-| `hashes` | A state hash per tick | Records it; compares on every snapshot; reports drift |
+| `hashes` | A JS state hash per tick | Records it for snapshot position checks |
+| `canonicalHashes` | Canonical state hash per tick (`digest_spec_version` 2) | Recomputes over the patched mirror after every play submit; verifies and resyncs on drift |
 | `audio` | The `felt` payload on submit, advance, and matching ticks | Plays cues; shakes the camera; speaks the line |
 
+If `digest_spec_version` is missing or unsupported (`!= 2`), `attach` fails immediately with a visible load error.
 The server's `initialize` result is kept as the handshake; `capabilities()` returns what was actually
 granted, and the status line shows the engine version.
 
@@ -47,21 +49,25 @@ When `audio` is granted, responses carry a `felt` object that the engine **never
 
 `felt` is omitted entirely when `audio` was not requested, so exact-match clients stay byte-stable.
 
-## Ticks and staleness
+## Ticks, mirror verification, and bounded resync
 
-The stage keeps the tick number it believes the sim is at and the hash it recorded for it. A snapshot is
-authoritative about both. When they disagree the client marks itself **stale** and the session logs one of:
+The stage maintains its mirror from the initial authoritative snapshot and every incremental delta, using
+the shared spec-v2 integer-scaled pre-image format (an internal research report, 2026-11-24). After every
+play submit (`submitAction` and `advance`), the stage recomputes the canonical digest on its mirror and
+compares it with the engine's `canonicalHash` for that tick.
+
+When they disagree, the stage marks itself **stale**, requests a full snapshot, computes the first differing
+UTF-8 byte offset between pre-images, replaces its mirror from the snapshot, and immediately recomputes and
+verifies the snapshot's canonical digest:
 
 ```
-[stale] tick drift: sim is at 14, stage believes 12
-[stale] no recorded hash for tick 14 — the stage never saw it
-[stale] state drift at tick 14: sim reports 9f3c…, stage recorded 7a10…
-[stale] could not snapshot: <message>
+[stale] state drift at tick 14: expected 9f3c…, mirror 7a10…, first differing pre-image offset 42 (resync 1/3)
+[halt] resync cap exceeded (4 consecutive mismatches, max 3): …
 ```
 
-Reported, never corrected. A stage that "fixed" a mismatch would be a second source of truth. What happens
-next is a fresh snapshot and a redraw from it; the sim is never patched, and nothing the stage drew is sent
-back.
+Resyncing from the engine's own snapshot is not the stage inventing a world — the simulation stays right and
+is never patched. Consecutive resyncs are capped at **3**: if a 4th mismatch occurs in a row (or a fresh
+snapshot itself fails verification), play stops with a visible error on screen and in the log.
 
 ## What is submitted
 
@@ -82,7 +88,8 @@ faces the door and stays; it never left, so there is nothing to walk back.
 | `could not attach to …` | Nothing listening, or wrong port | `node tools/play.mjs --headless` prints the port it opened |
 | launcher: `✗ engine CLI not built` | `packages/cli/dist/bin.js` missing | `cd ../ai-rpg-engine && npm ci && npm run build` |
 | launcher: `✗ this engine ref has no --listen transport` | Old engine checkout | Update the engine to a ref that ships the TCP sidecar |
-| `[stale] …` in the log | Client and sim disagree | Nothing to fix in the stage: it re-snapshots. If it repeats every tick, the engine build and the stage's expectations have drifted; check both versions |
+| `[stale] …` in the log | Client mirror diverged | The stage logged the pre-image offset and resynced from a full snapshot. More than 3 consecutive mismatches halt play |
+| `load error — unsupported digest_spec_version …` | Engine/stage digest spec mismatch | Point the stage at an engine speaking `digest_spec_version` 2 |
 
 ## Security posture
 

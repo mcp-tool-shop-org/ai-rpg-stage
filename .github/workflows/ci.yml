@@ -229,11 +229,11 @@ jobs:
           # deleted, or moved simply stops being found and the suite passes with fewer
           # checks and no complaint. This is the manifest that makes a disappearance a
           # failure. Adding a suite here is deliberate; that is the point.
-          for suite in diorama felt_juice felt_mixer felt_voice framing iso_math iso_world live_session scene_join tick_queue wire_session; do
+          for suite in diorama felt_juice felt_mixer felt_voice framing iso_math iso_world live_session scene_join state_digest tick_queue wire_session; do
             grep -q "^── ${suite} ──$" /tmp/suite.log \
               || { echo "::error::suite '${suite}' did not run"; exit 1; }
           done
-          echo "all eleven suites ran"
+          echo "all twelve suites ran"
 
       - name: Refuse resource-load noise
         run: |
@@ -241,9 +241,9 @@ jobs:
           # A scene that half-loads still instantiates, and a join test will
           # happily reconcile the surviving half. Godot reports the damage on
           # stderr rather than through an exit code, so it is asserted here.
-          if grep -Eq 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true' /tmp/suite.log; then
-            echo "::error::engine reported load errors during the suite"
-            grep -En 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true' /tmp/suite.log
+          if grep -Eq 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true|FAIL_SYNC_CAP:' /tmp/suite.log; then
+            echo "::error::engine reported load or sync-cap errors during the suite"
+            grep -En 'SCRIPT ERROR|Failed loading resource|Cannot open file|Condition ".*" is true|FAIL_SYNC_CAP:' /tmp/suite.log
             exit 1
           fi
 

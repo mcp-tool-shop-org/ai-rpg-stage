@@ -38,8 +38,12 @@ signal tick_received(tick: int, hash: String, events: Array, delta: Array)
 ## care about without every listener filtering the whole tick.
 signal sim_event(event: Dictionary)
 
-## The client's position no longer agrees with the sim's. It does NOT correct
-## anything — the charter is explicit (§3.3): clients detect staleness and never
-## correct the sim. This signal is a report, and the honest response to it is to
-## re-snapshot or to tell the player the stage is behind.
+## The client's mirror digest or position diverged from the simulation. The stage
+## never patches the simulation; instead it logs the first differing pre-image
+## offset, replaces its mirror from a fresh snapshot, verifies the new digest, and
+## halts play if consecutive resyncs exceed the cap.
 signal staleness_detected(detail: String)
+
+## Consecutive resyncs exceeded the cap (or a fresh snapshot still diverged).
+## Play stops with a visible error so the client cannot continue on a broken view.
+signal session_halted(reason: String)

@@ -13,7 +13,8 @@
 ##
 ##   * it never decides a move is illegal — it submits and renders the answer
 ##   * it never advances a tick
-##   * it never corrects the sim; on a hash mismatch it says so and stops trusting itself
+##   * it never patches the sim; on a digest mismatch it logs the offset, resyncs its mirror
+##     from an authoritative snapshot (capped at 3 in a row), and halts play if the cap trips
 ##
 ## The `move` path is the clearest case. A gated door is right there in the scene
 ## metadata and the stage could read it and grey out the entrance. It does not. It walks
@@ -75,6 +76,8 @@ var transcript: Array[String] = []
 var diagnostics: Array[String] = []
 
 var _player_zone := ""
+var _halted := false
+var _halt_reason := ""
 
 
 func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
@@ -97,6 +100,7 @@ func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
 
 	bus.tick_received.connect(_on_tick)
 	bus.staleness_detected.connect(_on_staleness)
+	bus.session_halted.connect(_on_session_halted)
 	bus.refused.connect(func(reason: String) -> void: _note("sim refused the connection: %s" % reason))
 	bus.transport_failed.connect(func(detail: String) -> void: _note("transport: %s" % detail))
 
@@ -107,11 +111,21 @@ func player_zone() -> String:
 	return _player_zone
 
 
+func is_halted() -> bool:
+	return _halted
+
+
+func halt_reason() -> String:
+	return _halt_reason
+
+
 ## Walk the player toward a zone, and render whatever comes back.
 ##
 ## Deliberately does NOT check whether the move is allowed. That check exists — the gate
 ## is compiled into engine rules and its reason is authored — and it belongs to the sim.
 func walk_to(zone_id: String) -> Dictionary:
+	if _halted:
+		return {"__error__": true, "code": -32099, "message": _halt_reason}
 	_face_toward(zone_id)
 	var result: Dictionary = await client.call("submit_action", "move", {"targetIds": [zone_id]})
 	if result.get("__error__", false):
@@ -128,7 +142,9 @@ func walk_to(zone_id: String) -> Dictionary:
 ## Advance the world a round without acting — the path a state shock arrives on, since
 ## `runZoneStateStep` runs from the world tick rather than from a verb.
 func advance() -> Dictionary:
-	var result: Dictionary = await client.call("request", "advance", {"rounds": 1})
+	if _halted:
+		return {"__error__": true, "code": -32099, "message": _halt_reason}
+	var result: Dictionary = await client.call("advance", 1)
 	if result.get("__error__", false):
 		_log("wire error on advance: %s" % result.get("message", ""))
 		return result
@@ -285,10 +301,17 @@ func _on_tick(_tick: int, _hash: String, events: Array, _delta: Array) -> void:
 
 
 func _on_staleness(detail: String) -> void:
-	# Reported, never corrected (charter §3.3). A stage that "fixed" a mismatch would be
-	# inventing a world. Recorded as a DIAGNOSTIC rather than in the transcript: it is not
-	# something the player saw, and its arrival is frame-timed.
+	# Mirror or position diverged: logged with pre-image offset and resynced from the
+	# engine's authoritative snapshot rather than patching the sim. Recorded as a
+	# DIAGNOSTIC so frame timing never perturbs replay-transcript ordering.
 	_note("[stale] %s" % detail)
+
+
+func _on_session_halted(reason: String) -> void:
+	_halted = true
+	_halt_reason = reason
+	_note("[halt] %s" % reason)
+	_log("[color=#c66]Sync halted: %s[/color]" % reason)
 
 
 func _log(line: String) -> void:

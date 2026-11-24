@@ -1,26 +1,29 @@
 # ai-rpg-stage: how it works
 
-Mapped at 2026-11-12 from commit fda0011 by Atlas 1.26.0.
+Mapped at 2026-11-24 from commit 1e691c0 by Atlas 1.26.0.
 
 ## What this is
 
-12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.
+12 parts, mostly GDScript (38 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.
 
-## What changed since 2026-11-11 (0c744e3)
+## What changed since 2026-11-12 (fda0011)
 
-Nothing structural changed since 2026-11-11; 1 file changed content.
+- ci's pull request trigger now also names `.github/upstream-pins.env`.
+- ci's push trigger now also names `.github/upstream-pins.env`.
+- ci now also runs tests/test_state_digest.gd.
+- 2 files added and 11 changed content, across 6 parts.
 
 ## What comes in
 
-1. **ci.** On a pull request touching 11 paths; on a push touching 11 paths; or by hand. On a push, or a pull request from a fork, it runs tools/headless.gd, which runs the 11 test suites under tests/ it finds at run time.
+1. **ci.** On a pull request touching 12 paths; on a push touching 12 paths; or by hand. On a push, or a pull request from a fork, it runs tools/headless.gd, which runs the 12 test suites under tests/ it finds at run time.
 2. **Deploy site to GitHub Pages.** On a push to main touching 2 paths; or by hand. Runs site/astro.config.mjs and site/src/.
 3. **Bump upstream pins.** On a schedule (`0 7 * * 1`), Monday at 07:00 UTC; or by hand. Runs no file this map can see.
 4. **the game** (what Godot runs). Starts stage/diorama.tscn.
 
 ## What happens through ci
 
-1. On a push, or a pull request from a fork, it runs tools/headless.gd, which runs the 11 test suites under tests/ it finds at run time.
-2. That reaches client (5 files) and stage (14 files).
+1. On a push, or a pull request from a fork, it runs tools/headless.gd, which runs the 12 test suites under tests/ it finds at run time.
+2. That reaches client (6 files) and stage (15 files).
 3. That reaches fixtures (1 file).
 4. It writes to fixtures/.
 
@@ -74,7 +77,7 @@ No two parts export a helper that looks alike.
 
 People write audio/, docs/, the repository root and site/. Nothing in this repository writes to them.
 
-- **.github/upstream-pins.env** is written by .github/workflows/bump-upstream-pins.yml, and by people: 5 of its 5 commits in the window are theirs.
+- **.github/upstream-pins.env** is written by .github/workflows/bump-upstream-pins.yml, and by people: 7 of its 7 commits in the window are theirs.
 
 ## Where to start
 

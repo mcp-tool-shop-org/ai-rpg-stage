@@ -9,7 +9,7 @@
       "externals": 0,
       "files": [
         {
-          "hash": "c2d1d975248806a5acf3ed2bf324dea5a4d8e29c1c6d18e24485a6b43e197a8d",
+          "hash": "c1b51ffed8218c9b349b5468e4ef145a17d6958c9a20880d3bce0971a105045b",
           "path": ".github/upstream-pins.env"
         },
         {
@@ -17,7 +17,7 @@
           "path": ".github/workflows/bump-upstream-pins.yml"
         },
         {
-          "hash": "7c2c21ce0b5ab4e10f0a030930705da34db1c1eb5fff42fb965331ec9599a158",
+          "hash": "abdc3de5d7548f479d2025dea85c103c9b211df31a50577c1f3b22b1bdfac507",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -2352,7 +2352,7 @@
       "externals": 0,
       "files": [
         {
-          "hash": "515a885a90617bc62d516a09a36e544c213c5aa8ada940e4cb9efdff716154b5",
+          "hash": "2e0bb1b3e5098ab5342087f0f24cc37d7917baf8b5c2c474e6e4aa87665f6272",
           "path": "client/event_bus.gd"
         },
         {
@@ -2388,34 +2388,63 @@
           "path": "client/framing.gd.uid"
         },
         {
-          "entry": "_ready",
+          "entry": "_process",
           "entryRule": 1,
           "exports": [
+            "advance",
             "attach",
+            "canonical_hash_for_tick",
             "capabilities",
+            "consecutive_resyncs",
             "current_tick",
             "detach",
+            "halt_reason",
             "hash_for_tick",
             "is_attached",
+            "is_halted",
             "is_stale",
+            "last_attach_error",
+            "mirror_digest",
+            "mirror_state",
+            "mismatch_log",
             "received_byte_count",
             "received_digest",
             "record_received_bytes",
             "request",
             "snapshot",
             "submit_action",
+            "total_resyncs",
             "verify_position"
           ],
-          "hash": "115a060f117cf0c51a03fdeea34b76de135edf793bc4e459bf30b24ef10ec1bb",
+          "hash": "2b51c4fe828b8b135628ab47f1ca760cfe0922cc85c30df2f71883b05887788f",
           "importsFiles": [
-            "client/framing.gd"
+            "client/framing.gd",
+            "client/state_digest.gd"
           ],
           "path": "client/network_client.gd",
           "sequences": [
             {
               "calls": [
                 {
-                  "line": 315,
+                  "branch": "msg.has(\"method\")",
+                  "line": 628,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_on_tick"
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": true,
+              "isDefaultExport": false,
+              "name": "_process"
+            },
+            {
+              "calls": [
+                {
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
@@ -2432,7 +2461,7 @@
             {
               "calls": [
                 {
-                  "line": 315,
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
@@ -2449,7 +2478,7 @@
             {
               "calls": [
                 {
-                  "line": 315,
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
@@ -2466,13 +2495,76 @@
             {
               "calls": [
                 {
-                  "line": 315,
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
                     "file": "client/framing.gd"
                   },
                   "via": "_write"
+                },
+                {
+                  "line": 317,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_apply_commit_result"
+                },
+                {
+                  "line": 460,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_mirror_after_submit"
+                },
+                {
+                  "line": 462,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_mirror_after_submit"
+                },
+                {
+                  "line": 497,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 498,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 500,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 515,
+                  "name": "try_canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
                 }
               ],
               "exported": true,
@@ -2483,13 +2575,130 @@
             {
               "calls": [
                 {
-                  "line": 315,
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
                     "file": "client/framing.gd"
                   },
                   "via": "_write"
+                },
+                {
+                  "line": 317,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_apply_commit_result"
+                },
+                {
+                  "line": 460,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_mirror_after_submit"
+                },
+                {
+                  "line": 462,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_mirror_after_submit"
+                },
+                {
+                  "line": 497,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 498,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 500,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 515,
+                  "name": "try_canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "advance"
+            },
+            {
+              "calls": [
+                {
+                  "line": 588,
+                  "name": "encode",
+                  "receiver": "Framing",
+                  "target": {
+                    "file": "client/framing.gd"
+                  },
+                  "via": "_write"
+                },
+                {
+                  "line": 322,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_replace_mirror_from_snapshot"
+                },
+                {
+                  "line": 540,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_snapshot_digest"
+                },
+                {
+                  "line": 541,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_snapshot_digest"
+                },
+                {
+                  "branch": "not bool(fresh_json.get(\"ok\", false)) or snap_expected.is_e…",
+                  "line": 545,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_snapshot_digest"
                 }
               ],
               "exported": true,
@@ -2500,13 +2709,153 @@
             {
               "calls": [
                 {
-                  "line": 315,
+                  "line": 317,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_apply_commit_result"
+            },
+            {
+              "calls": [
+                {
+                  "line": 322,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_replace_mirror_from_snapshot"
+            },
+            {
+              "calls": [
+                {
+                  "line": 381,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "mirror_digest"
+            },
+            {
+              "calls": [
+                {
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
                     "file": "client/framing.gd"
                   },
                   "via": "_write"
+                },
+                {
+                  "line": 432,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 435,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "branch": "drift_reason.is_empty()",
+                  "line": 322,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_replace_mirror_from_snapshot"
+                },
+                {
+                  "branch": "drift_reason.is_empty()",
+                  "line": 540,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_snapshot_digest"
+                },
+                {
+                  "branch": "drift_reason.is_empty()",
+                  "line": 541,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_snapshot_digest"
+                },
+                {
+                  "branch": "drift_reason.is_empty()",
+                  "line": 545,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_verify_snapshot_digest"
+                },
+                {
+                  "line": 497,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 498,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 500,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 515,
+                  "name": "try_canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
                 }
               ],
               "exported": true,
@@ -2517,7 +2866,149 @@
             {
               "calls": [
                 {
-                  "line": 315,
+                  "line": 460,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 462,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 588,
+                  "name": "encode",
+                  "receiver": "Framing",
+                  "target": {
+                    "file": "client/framing.gd"
+                  },
+                  "via": "_write"
+                },
+                {
+                  "line": 497,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 498,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 500,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                },
+                {
+                  "line": 515,
+                  "name": "try_canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_handle_mismatch_with_snapshot"
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_verify_mirror_after_submit"
+            },
+            {
+              "calls": [
+                {
+                  "line": 497,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 498,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 500,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 515,
+                  "name": "try_canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_handle_mismatch_with_snapshot"
+            },
+            {
+              "calls": [
+                {
+                  "line": 540,
+                  "name": "try_canonical_json",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "line": 541,
+                  "name": "canonical_state_hash",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                },
+                {
+                  "branch": "not bool(fresh_json.get(\"ok\", false)) or snap_expected.is_e…",
+                  "line": 545,
+                  "name": "first_diff_offset",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_verify_snapshot_digest"
+            },
+            {
+              "calls": [
+                {
+                  "line": 588,
                   "name": "encode",
                   "receiver": "Framing",
                   "target": {
@@ -2529,6 +3020,40 @@
               "invokedAtTopLevel": false,
               "isDefaultExport": false,
               "name": "_write"
+            },
+            {
+              "calls": [
+                {
+                  "branch": "msg.has(\"method\")",
+                  "line": 628,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  },
+                  "via": "_on_tick"
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_dispatch"
+            },
+            {
+              "calls": [
+                {
+                  "line": 628,
+                  "name": "apply_patches",
+                  "receiver": "StateDigest",
+                  "target": {
+                    "file": "client/state_digest.gd"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_on_tick"
             }
           ]
         },
@@ -2550,6 +3075,18 @@
         {
           "hash": "5760c67aa6547d14e4f1016fcc4a014a4e186549ec8584c6a9066e2ecc7bb202",
           "path": "client/scene_join.gd.uid"
+        },
+        {
+          "exports": [
+            "apply_patches",
+            "canonical_json",
+            "canonical_state_hash",
+            "first_diff_offset",
+            "try_canonical_json",
+            "try_canonical_state_hash"
+          ],
+          "hash": "6b0ab57e644e7bde5911341060ba998341e24e8cb0f8ea97bfaeb101f577a740",
+          "path": "client/state_digest.gd"
         },
         {
           "exports": [
@@ -2575,7 +3112,7 @@
       "name": "client",
       "origin": "authored",
       "role": "code",
-      "testedBy": 10,
+      "testedBy": 11,
       "unresolvedSites": 0
     },
     {
@@ -2696,7 +3233,7 @@
       "name": "fixtures",
       "origin": "generated",
       "role": "data",
-      "testedBy": 2,
+      "testedBy": 3,
       "unresolvedSites": 0
     },
     {
@@ -2716,7 +3253,7 @@
           "path": ".gitignore"
         },
         {
-          "hash": "f2e6dec3359da583160fc0a401c7f7e83bcb731e2e8b977aaac83b8ca1f3d0da",
+          "hash": "ba21dc08a54091b6d8896d39aad581908a96108b95373ccd0c7f4defbec933a2",
           "path": "CHANGELOG.md"
         },
         {
@@ -2744,7 +3281,7 @@
           "path": "README.ja.md"
         },
         {
-          "hash": "8967d026f3367be90cc20a99dedeb21de5e259a339403307e984a111b05de548",
+          "hash": "912f5d953ec9e6ff0c4e80b943249ea1b8d7346e48756ddde51e42024a7a9746",
           "path": "README.md"
         },
         {
@@ -2828,7 +3365,7 @@
           "path": "site/src/content.config.ts"
         },
         {
-          "hash": "dd70a0bed9071fddf87d240bfce5031ab53e3a77e4cecb0712973bccecd75a05",
+          "hash": "49602180c07f729677190eeb70cb295c82dacc17dc0289ad731b4cebf0c57d2a",
           "path": "site/src/content/docs/handbook/attach.md"
         },
         {
@@ -2848,7 +3385,7 @@
           "path": "site/src/content/docs/handbook/levers.md"
         },
         {
-          "hash": "688aa9736e4ac54e31b8d9a8ac9245d9ffb9417bc636eaa7ce805443e72e1ea3",
+          "hash": "a30b31b636bc82fe1b0c41a9406f5bcaa7c6bdb5c7ec9e3a8ed882cc6a74859d",
           "path": "site/src/content/docs/handbook/reference.md"
         },
         {
@@ -3751,7 +4288,7 @@
         {
           "entry": "_ready",
           "entryRule": 1,
-          "hash": "ddb54a5a4a3c16b054c25c2b488101afe54f5afe20993f40b6c93f7e0ec0da36",
+          "hash": "2f12cf8803cde9d9470d3061095efba9b20f16ddbda7b67acbe5acc9580b342c",
           "importsFiles": [
             "client/event_bus.gd",
             "client/network_client.gd",
@@ -3762,7 +4299,7 @@
             {
               "calls": [
                 {
-                  "line": 68,
+                  "line": 69,
                   "name": "new",
                   "receiver": "EventBus",
                   "target": {
@@ -3771,7 +4308,7 @@
                   "via": "_attach"
                 },
                 {
-                  "line": 72,
+                  "line": 73,
                   "name": "new",
                   "receiver": "NetworkClient",
                   "target": {
@@ -3780,7 +4317,7 @@
                   "via": "_attach"
                 },
                 {
-                  "line": 77,
+                  "line": 78,
                   "name": "new",
                   "receiver": "Session",
                   "target": {
@@ -3797,7 +4334,7 @@
             {
               "calls": [
                 {
-                  "line": 68,
+                  "line": 69,
                   "name": "new",
                   "receiver": "EventBus",
                   "target": {
@@ -3805,7 +4342,7 @@
                   }
                 },
                 {
-                  "line": 72,
+                  "line": 73,
                   "name": "new",
                   "receiver": "NetworkClient",
                   "target": {
@@ -3813,7 +4350,7 @@
                   }
                 },
                 {
-                  "line": 77,
+                  "line": 78,
                   "name": "new",
                   "receiver": "Session",
                   "target": {
@@ -3837,11 +4374,13 @@
           "entryRule": 4,
           "exports": [
             "advance",
+            "halt_reason",
+            "is_halted",
             "player_zone",
             "setup",
             "walk_to"
           ],
-          "hash": "69e5f065e202eef8347f1854c14366d20ecf0b614f3723d20f19627a646c393f",
+          "hash": "6023b43139ce8dca8fef0c8a6638b4fc2ad337d420d33ae594af926002aaf28c",
           "importsFiles": [
             "client/tick_queue.gd",
             "stage/felt_juice.gd",
@@ -3854,7 +4393,7 @@
             {
               "calls": [
                 {
-                  "line": 85,
+                  "line": 88,
                   "name": "new",
                   "receiver": "TickQueue",
                   "target": {
@@ -3862,7 +4401,7 @@
                   }
                 },
                 {
-                  "line": 88,
+                  "line": 91,
                   "name": "new",
                   "receiver": "FeltMixer",
                   "target": {
@@ -3870,7 +4409,7 @@
                   }
                 },
                 {
-                  "line": 91,
+                  "line": 94,
                   "name": "new",
                   "receiver": "FeltJuice",
                   "target": {
@@ -3878,7 +4417,7 @@
                   }
                 },
                 {
-                  "line": 94,
+                  "line": 97,
                   "name": "new",
                   "receiver": "FeltVoice",
                   "target": {
@@ -3894,7 +4433,7 @@
             {
               "calls": [
                 {
-                  "line": 320,
+                  "line": 343,
                   "name": "face",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -3911,7 +4450,7 @@
             {
               "calls": [
                 {
-                  "line": 254,
+                  "line": 270,
                   "name": "attach",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -3928,7 +4467,7 @@
             {
               "calls": [
                 {
-                  "line": 254,
+                  "line": 270,
                   "name": "attach",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -3944,7 +4483,7 @@
             {
               "calls": [
                 {
-                  "line": 320,
+                  "line": 343,
                   "name": "face",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -3988,7 +4527,7 @@
       "name": "stage",
       "origin": "authored",
       "role": "code",
-      "testedBy": 13,
+      "testedBy": 14,
       "unresolvedSites": 0
     },
     {
@@ -4163,6 +4702,33 @@
           "exports": [
             "run_async"
           ],
+          "hash": "3d0101df91461428c89dd39ad89245074eac1594bbe9383c06b22119db69d866",
+          "importOrder": [
+            "tools/sidecar_harness.gd",
+            "client/state_digest.gd",
+            "client/framing.gd",
+            "client/network_client.gd",
+            "client/event_bus.gd",
+            "stage/diorama.gd",
+            "stage/session.gd",
+            "stage/playable.gd"
+          ],
+          "importsFiles": [
+            "client/event_bus.gd",
+            "client/framing.gd",
+            "client/network_client.gd",
+            "client/state_digest.gd",
+            "stage/diorama.gd",
+            "stage/playable.gd",
+            "stage/session.gd",
+            "tools/sidecar_harness.gd"
+          ],
+          "path": "tests/test_state_digest.gd"
+        },
+        {
+          "exports": [
+            "run_async"
+          ],
           "hash": "348bf43842582b234b2d43cfc374ba8bd36c9c868ba2112aeeb6b9647ea5e5f3",
           "importsFiles": [
             "client/tick_queue.gd"
@@ -4177,7 +4743,7 @@
           "exports": [
             "run_async"
           ],
-          "hash": "d68485c959a13555068ce1f5e44834af14952d2960fd57814906be58d2230e4c",
+          "hash": "020e4c816c05f8d70857054bf0b436bc1a5449f6b87a245976f3a6de5e98fa02",
           "importOrder": [
             "tools/sidecar_harness.gd",
             "client/network_client.gd",
@@ -4353,7 +4919,7 @@
       ],
       "outsideReads": 2,
       "role": "code",
-      "testedBy": 2,
+      "testedBy": 3,
       "unresolvedSites": 0
     }
   ],
@@ -4612,7 +5178,7 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 11
+          "files": 12
         },
         {
           "boundary": "tools",
@@ -4626,7 +5192,7 @@
             "file": "client/framing.gd",
             "from": "tests/test_framing.gd"
           },
-          "files": 5
+          "files": 6
         },
         {
           "boundary": "stage",
@@ -4635,7 +5201,7 @@
             "file": "stage/diorama.gd",
             "from": "tests/test_diorama.gd"
           },
-          "files": 14
+          "files": 15
         },
         {
           "boundary": "fixtures",
@@ -4825,6 +5391,20 @@
           "foundBy": "tools/headless.gd",
           "job": "headless",
           "matched": true,
+          "path": "tests/test_state_digest.gd",
+          "runKind": "executes",
+          "via": "tools/headless.gd",
+          "when": {
+            "also": [
+              "push"
+            ],
+            "fork": true
+          }
+        },
+        {
+          "foundBy": "tools/headless.gd",
+          "job": "headless",
+          "matched": true,
           "path": "tests/test_tick_queue.gd",
           "runKind": "executes",
           "via": "tools/headless.gd",
@@ -4861,7 +5441,7 @@
           }
         }
       ],
-      "runsCount": 12,
+      "runsCount": 13,
       "secrets": [],
       "sends": {
         "deploysPages": false,
@@ -4887,6 +5467,7 @@
             "tests/test_iso_world.gd",
             "tests/test_live_session.gd",
             "tests/test_scene_join.gd",
+            "tests/test_state_digest.gd",
             "tests/test_tick_queue.gd",
             "tests/test_wire_session.gd",
             "tools/headless.gd"
@@ -4899,6 +5480,7 @@
         {
           "event": "pull_request",
           "paths": [
+            ".github/upstream-pins.env",
             ".github/workflows/**",
             "assets/**",
             "atlas/**",
@@ -4915,6 +5497,7 @@
         {
           "event": "push",
           "paths": [
+            ".github/upstream-pins.env",
             ".github/workflows/**",
             "assets/**",
             "atlas/**",
@@ -5115,7 +5698,7 @@
             "file": "client/scene_join.gd",
             "from": "stage/diorama.gd"
           },
-          "files": 5
+          "files": 6
         },
         {
           "boundary": "fixtures",
@@ -5189,8 +5772,8 @@
   ],
   "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "fda00110fc6ab476263d89299c384e233acf489e",
-    "tracked": 679
+    "commit": "1e691c0799178f382d6eb322e19689fbf0f87240",
+    "tracked": 681
   },
   "landings": [
     {
@@ -8581,6 +9164,6 @@
   "overlaps": [],
   "submodules": [],
   "symlinks": [],
-  "testFiles": 22,
+  "testFiles": 23,
   "unassigned": []
 }

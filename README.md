@@ -71,7 +71,7 @@ grid. Nothing under `assets/iso/` is loaded; that folder is dead.
 | `assets/characters/` | Vendored Foundry HD packs (townsfolk) |
 | `fixtures/` | A generated world and its wire-side truth, committed as a pair so the join between them can be checked |
 | `tools/` | The headless test runner, the screenshot tool, the play launcher, the sidecar harness |
-| `tests/` | Eleven proof suites, each with a control that makes it fail |
+| `tests/` | Twelve proof suites, each with a control that makes it fail |
 
 ## Running it
 
@@ -125,10 +125,16 @@ nothing, and an empty run is a failure here, not a pass.
 
 The stage connects **outbound** over TCP to a sidecar the operator names
 (`--attach=host:port` on Godot's command line; `play.mjs` passes it). The
-handshake asks for `capabilities.hashes` (per-tick staleness) and
-`capabilities.audio` (the `felt` payload: zone stems, overlay stings, the spoken
-line, camera trauma). On a hash mismatch the stage reports it on the status line
-and in the log, stops trusting itself, and re-snapshots. It never patches the sim.
+handshake asks for `capabilities.hashes` (per-tick hashes),
+`capabilities.canonicalHashes` (digest spec v2 cross-language mirror verification),
+and `capabilities.audio` (the `felt` payload: zone stems, overlay stings, the
+spoken line, camera trauma). Unsupported or missing `digest_spec_version` fails
+the attach with a visible load error. After every play submit, the stage
+recomputes the canonical state digest over its patched mirror and compares it
+with the engine's `canonicalHash`. On a mismatch it logs the first differing
+pre-image byte offset, requests a full authoritative snapshot, replaces its mirror,
+and verifies the snapshot's digest immediately; consecutive resyncs are capped at
+3 before play stops with a visible error. It never patches the sim.
 
 A sidecar booted with `--content` still needs `--manifest`; the launcher passes
 `fixtures/salt-road.manifest.json`.
@@ -177,11 +183,12 @@ passes. There is no default endpoint, no discovery, and no listener: nothing her
 accepts a connection. Whoever controls the endpoint controls what is rendered, so
 point the stage only at an engine you trust, on a network you trust.
 
-**Errors.** Transport faults, refused connections, and staleness are reported as
-plain sentences on the status line and in the log (`[stale] state drift at tick
-N: sim reports X, stage recorded Y`), never as raw exceptions in the UI. Godot's
-own `--verbose` flag turns on engine-level logging; nothing the stage logs
-contains a secret because it never holds one.
+**Errors.** Transport faults, refused connections, handshake version mismatches,
+staleness, and halted sync caps are reported as plain sentences on the status
+line and in the log (`[stale] state drift at tick N: expected X, mirror Y, first
+differing pre-image offset K (resync 1/3)`), never as raw exceptions in the UI.
+Godot's own `--verbose` flag turns on engine-level logging; nothing the stage
+logs contains a secret because it never holds one.
 
 Full policy and reporting contact: [SECURITY.md](SECURITY.md).
 
