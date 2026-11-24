@@ -29,6 +29,7 @@ func run_async(t: RefCounted) -> void:
 	await _test_warn_mode_surfaces_warning_to_transcript(t, tree, doctored_pack)
 	_test_incremental_stderr_drain(t)
 	_test_play_mjs_release_handoff(t, doctored_pack)
+	_test_play_mjs_flags_documented_in_readme(t)
 
 	if FileAccess.file_exists(doctored_pack):
 		DirAccess.remove_absolute(doctored_pack)
@@ -423,3 +424,36 @@ func _test_play_mjs_release_handoff(t: RefCounted, doctored_pack: String) -> voi
 	for tmp_dir: String in [forge_pack_dir, fake_forge + "/dogfood/output", fake_forge + "/dogfood", fake_forge, base_tmp]:
 		if DirAccess.dir_exists_absolute(tmp_dir):
 			DirAccess.remove_absolute(tmp_dir)
+
+
+func _test_play_mjs_flags_documented_in_readme(t: RefCounted) -> void:
+	var play_src := FileAccess.get_file_as_string("res://tools/play.mjs")
+	var readme_src := FileAccess.get_file_as_string("res://README.md")
+	t.is_false(play_src.is_empty(), "tools/play.mjs readable for flag check")
+	t.is_false(readme_src.is_empty(), "README.md readable for flag check")
+
+	var opts_start := readme_src.find("Options:")
+	var opts_end := readme_src.find("Notice a release-exported", opts_start)
+	t.check(opts_start >= 0 and opts_end > opts_start, "README.md contains tools/play.mjs Options paragraph")
+	var opts_section := readme_src.substr(opts_start, opts_end - opts_start) if (opts_start >= 0 and opts_end > opts_start) else ""
+
+	var rx := RegEx.new()
+	rx.compile("\\b(?:flag|has)\\('([a-z0-9-]+)'")
+	var found: Dictionary = {}
+	for m: RegExMatch in rx.search_all(play_src):
+		found[m.get_string(1)] = true
+	var actual_flags: Array[String] = []
+	for k: Variant in found.keys():
+		actual_flags.append(String(k))
+	actual_flags.sort()
+
+	var expected_flags: Array[String] = [
+		"engine", "forge", "godot", "headless", "no-shock", "port",
+		"quit-after-sync", "release", "seed", "shock", "stage-headless",
+		"unresolved-ai-profile",
+	]
+	t.equals(actual_flags, expected_flags, "tools/play.mjs parser accepts exact expected set of 12 flags")
+
+	for fname: String in actual_flags:
+		var token := "--" + fname
+		t.is_true(opts_section.contains(token), "README.md Options paragraph documents %s" % token)

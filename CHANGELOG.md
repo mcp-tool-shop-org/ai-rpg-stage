@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Complete launcher flag list in README:** Documented every `tools/play.mjs`
+  option (adding `--godot`, `--stage-headless`, and `--quit-after-sync`) in
+  `README.md`.
 - **Player-actor gate on `world.zone.entered`:** Added `NetworkClient.player_id()`
   and `Session.player_id()` / `Session.set_player_id()` to resolve the
   authoritative `playerId` from the snapshot mirror (or `initialize` handshake),

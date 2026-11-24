@@ -71,7 +71,7 @@ grid. Nothing under `assets/iso/` is loaded; that folder is dead.
 | `assets/characters/` | Vendored Foundry HD packs (townsfolk) |
 | `fixtures/` | A generated world and its wire-side truth, committed as a pair so the join between them can be checked |
 | `tools/` | The headless test runner, the screenshot tool, the play launcher, the sidecar harness |
-| `tests/` | Sixteen proof suites, each with a control that makes it fail |
+| `tests/` | Seventeen proof suites, each with a control that makes it fail |
 
 ## Running it
 
@@ -89,8 +89,12 @@ Options: `--seed <n>` (default 71), `--port <n>` (default 47820, or `0` for ephe
 `--shock <district:metric:delta@round>` or `--no-shock`, `--engine <dir>`,
 `--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (default `fail`;
 `--release` selects `warn` and forwards `--sidecar-stderr=<log>` to Godot),
-`--headless` (start the sim only and print the port). Notice a release-exported
-Godot stage never spawns the sim directly (it only attaches via `--attach`):
+`--godot <bin>` (Godot executable path, default `GODOT_BIN` or `godot`),
+`--headless` (start the sim only, print the port, and wait),
+`--stage-headless` (launch Godot with `--headless` and closed stdin alongside
+the sim), and `--quit-after-sync <path>` (pass `--quit-after-sync=<path>` to
+Godot so `Playable` writes a JSON sync summary after attach and baseline
+snapshot, detaches, and exits `0`). Notice a release-exported Godot stage never spawns the sim directly (it only attaches via `--attach`):
 `fail` vs `warn` comes from `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
 (`OS.is_debug_build()`), or CI's explicit `--unresolved-ai-profile fail`.
 
