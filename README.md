@@ -129,7 +129,9 @@ handshake asks for `capabilities.hashes` (per-tick hashes),
 `capabilities.canonicalHashes` (digest spec v2 cross-language mirror verification),
 and `capabilities.audio` (the `felt` payload: zone stems, overlay stings, the
 spoken line, camera trauma). Unsupported or missing `digest_spec_version` fails
-the attach with a visible load error. After every play submit, the stage
+the attach with a visible load error. Until the initial authoritative `snapshot`
+lands, the HUD displays a `syncing` state and refuses play input (`submitAction`,
+`advance`, and HUD navigation controls). After every play submit, the stage
 recomputes the canonical state digest over its patched mirror and compares it
 with the engine's `canonicalHash`. On a mismatch it logs the first differing
 pre-image byte offset, requests a full authoritative snapshot, replaces its mirror,

@@ -51,10 +51,12 @@ When `audio` is granted, responses carry a `felt` object that the engine **never
 
 ## Ticks, mirror verification, and bounded resync
 
-The stage maintains its mirror from the initial authoritative snapshot and every incremental delta, using
-the shared spec-v2 integer-scaled pre-image format (an internal research report, 2026-11-24). After every
-play submit (`submitAction` and `advance`), the stage recomputes the canonical digest on its mirror and
-compares it with the engine's `canonicalHash` for that tick.
+Until the baseline `snapshot` lands after `initialize`, the HUD shows a `syncing` state and refuses
+play input (`submitAction`, `advance`, door keys, and isometric movement clicks) so no unverified
+action runs against an empty mirror. Once the baseline snapshot is applied, the stage maintains its
+mirror from every incremental delta using the shared spec-v2 integer-scaled pre-image format. After
+every play submit (`submitAction` and `advance`), the stage recomputes the canonical digest on its
+mirror and compares it with the engine's `canonicalHash` for that tick.
 
 When they disagree, the stage marks itself **stale**, requests a full snapshot, computes the first differing
 UTF-8 byte offset between pre-images, replaces its mirror from the snapshot, and immediately recomputes and
@@ -84,6 +86,7 @@ faces the door and stays; it never left, so there is nothing to walk back.
 | Status line | Cause | Fix |
 |---|---|---|
 | `not attached — run: node tools/play.mjs` | Godot was started without `--attach` | Use the launcher, or pass `--attach=host:port` |
+| `syncing — …` | Handshake done; waiting for baseline `snapshot` | Wait for the initial snapshot; play input unlocks automatically once synced |
 | `bad --attach target: …` | Not `host:port` | `--attach=127.0.0.1:47820` |
 | `could not attach to …` | Nothing listening, or wrong port | `node tools/play.mjs --headless` prints the port it opened |
 | launcher: `✗ engine CLI not built` | `packages/cli/dist/bin.js` missing | `cd ../ai-rpg-engine && npm ci && npm run build` |

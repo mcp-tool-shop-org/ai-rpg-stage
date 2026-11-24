@@ -31,6 +31,7 @@ const StateDigest := preload("res://client/state_digest.gd")
 const SUPPORTED_DIGEST_SPEC_VERSION := StateDigest.DIGEST_SPEC_VERSION
 const MAX_CONSECUTIVE_RESYNCS := 3
 const ERR_SESSION_HALTED := -32099
+const ERR_NOT_SYNCED := -32098
 
 # ── Protocol constants, mirrored from the engine's protocol.ts ──
 const METHOD_INITIALIZE := "initialize"
@@ -132,6 +133,20 @@ func _process(_delta: float) -> void:
 ## an empty Dictionary on failure (with the reason already on the bus).
 func attach(host: String, port: int, client_name := "ai-rpg-stage", client_version := "0.1.0") -> Dictionary:
 	_last_attach_error = ""
+	_closing_reason = ""
+	_connected = false
+	_tick = -1
+	_hash_by_tick.clear()
+	_canonical_by_tick.clear()
+	_mirror = {}
+	_has_baseline = false
+	_applied_snapshot_seq = 0
+	_tick_deltas_applied = 0
+	_applied_via_rpc_queue.clear()
+	_stale = false
+	_consecutive_resyncs = 0
+	_halted = false
+	_halt_reason = ""
 	var err := _peer.connect_to_host(host, port)
 	if err != OK:
 		_last_attach_error = "connect_to_host(%s:%d) failed: %d" % [host, port, err]
@@ -231,6 +246,7 @@ func detach() -> void:
 		_write({"jsonrpc": "2.0", "id": _alloc_id(), "method": METHOD_SHUTDOWN, "params": {}})
 	_peer.disconnect_from_host()
 	_connected = false
+	_has_baseline = false
 
 
 # ── Requests ──────────────────────────────────────────────────
@@ -273,6 +289,8 @@ func request(method: String, params: Dictionary = {}) -> Dictionary:
 func submit_action(verb: String, extras: Dictionary = {}) -> Dictionary:
 	if _halted:
 		return _error(ERR_SESSION_HALTED, _halt_reason)
+	if not _has_baseline:
+		return _error(ERR_NOT_SYNCED, "syncing: waiting for baseline snapshot before play input")
 	var params := {"verb": verb}
 	for k: String in extras:
 		params[k] = extras[k]
@@ -288,6 +306,8 @@ func submit_action(verb: String, extras: Dictionary = {}) -> Dictionary:
 func advance(rounds: int = 1) -> Dictionary:
 	if _halted:
 		return _error(ERR_SESSION_HALTED, _halt_reason)
+	if not _has_baseline:
+		return _error(ERR_NOT_SYNCED, "syncing: waiting for baseline snapshot before play input")
 	var seq_before := _applied_snapshot_seq
 	var ticks_before := _tick_deltas_applied
 	var result := await request(METHOD_ADVANCE, {"rounds": rounds})
@@ -351,6 +371,10 @@ func canonical_hash_for_tick(tick: int) -> String:
 
 func is_stale() -> bool:
 	return _stale
+
+
+func has_baseline() -> bool:
+	return _has_baseline
 
 
 func is_halted() -> bool:
@@ -453,7 +477,10 @@ func verify_position() -> bool:
 
 
 func _verify_mirror_after_submit(result: Dictionary) -> bool:
-	if not _has_baseline or _halted:
+	if _halted:
+		return false
+	if not _has_baseline:
+		_mark_stale("syncing: cannot verify commit at tick %d before baseline snapshot has landed" % int(result.get("tick", _tick)))
 		return false
 	var tick := int(result.get("tick", _tick))
 	var expected := String(result.get("canonicalHash", ""))

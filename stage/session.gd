@@ -115,6 +115,14 @@ func is_halted() -> bool:
 	return _halted
 
 
+func is_syncing() -> bool:
+	return client != null and not _halted and not bool(client.call("has_baseline"))
+
+
+func is_synced() -> bool:
+	return client != null and bool(client.call("has_baseline"))
+
+
 func halt_reason() -> String:
 	return _halt_reason
 
@@ -126,6 +134,9 @@ func halt_reason() -> String:
 func walk_to(zone_id: String) -> Dictionary:
 	if _halted:
 		return {"__error__": true, "code": -32099, "message": _halt_reason}
+	if is_syncing():
+		_note("syncing: waiting for baseline snapshot before play input")
+		return {"__error__": true, "code": -32098, "message": "syncing: waiting for baseline snapshot before play input"}
 	_face_toward(zone_id)
 	var result: Dictionary = await client.call("submit_action", "move", {"targetIds": [zone_id]})
 	if result.get("__error__", false):
@@ -144,6 +155,9 @@ func walk_to(zone_id: String) -> Dictionary:
 func advance() -> Dictionary:
 	if _halted:
 		return {"__error__": true, "code": -32099, "message": _halt_reason}
+	if is_syncing():
+		_note("syncing: waiting for baseline snapshot before play input")
+		return {"__error__": true, "code": -32098, "message": "syncing: waiting for baseline snapshot before play input"}
 	var result: Dictionary = await client.call("advance", 1)
 	if result.get("__error__", false):
 		_log("wire error on advance: %s" % result.get("message", ""))

@@ -24,6 +24,7 @@ func run_async(t: RefCounted) -> void:
 	_test_shared_vectors_and_patches(t)
 	await _test_handshake_version_gate(t, tree)
 	await _test_live_verify_resync_and_cap(t, tree)
+	await _test_pre_baseline_syncing_gate(t, tree)
 
 
 func _test_shared_vectors_and_patches(t: RefCounted) -> void:
@@ -249,16 +250,34 @@ func _test_live_verify_resync_and_cap(t: RefCounted, tree: SceneTree) -> void:
 	t.equals(String(client.call("mirror_digest")), String(client.call("canonical_hash_for_tick", int(client.call("current_tick")))),
 		"fresh snapshot mirror canonical digest matches engine digest immediately")
 
-	var verified_now: bool = await client.call("verify_position")
-	t.is_true(verified_now, "subsequent verify_position() agrees after snapshot resync")
-	t.equals(int(client.call("consecutive_resyncs")), 0, "clean verify resets consecutive resync streak")
-
-	# Another clean play move confirms consecutive resync counter stays 0.
+	# Play-path reset: a clean session.walk_to WITHOUT any verify_position() call in between
+	# must reset consecutive_resyncs to 0 and clear stale state.
 	await session.call("walk_to", "customs-shed")
-	t.equals(int(client.call("consecutive_resyncs")), 0, "consecutive resync counter remains 0 on clean submit")
-	t.is_false(bool(client.call("is_stale")), "clean submit clears stale state")
+	t.equals(int(client.call("consecutive_resyncs")), 0, "clean play walk_to resets consecutive resync streak without verify_position()")
+	t.is_false(bool(client.call("is_stale")), "clean play walk_to clears stale state")
 
-	# 2. Four consecutive forced mismatches trip the 3-resync cap and halt play with visible error.
+	# Separated mismatches: 4 additional mismatches each followed by a clean walk_to move
+	# (with no verify_position() between them) exceed 3 total resyncs without tripping the consecutive cap.
+	var return_zones: Array[String] = ["long-quay", "customs-shed", "long-quay", "customs-shed"]
+	for cycle_idx in range(return_zones.size()):
+		client.call("_debug_corrupt_recorded_hash", int(client.call("current_tick")))
+		await session.call("advance")
+		t.is_false(bool(client.call("is_halted")),
+			"separated mismatch %d does not halt before clean recovery move" % (cycle_idx + 1))
+		await session.call("walk_to", return_zones[cycle_idx])
+		t.equals(int(client.call("consecutive_resyncs")), 0,
+			"clean walk_to after separated mismatch %d resets consecutive streak to 0" % (cycle_idx + 1))
+		t.is_false(bool(client.call("is_stale")),
+			"clean walk_to after separated mismatch %d clears stale state" % (cycle_idx + 1))
+		t.is_false(bool(client.call("is_halted")),
+			"separated mismatch %d stays unhalted across 3+ non-consecutive resyncs" % (cycle_idx + 1))
+	t.equals(int(client.call("total_resyncs")), 5, "all 5 non-consecutive mismatches resynced cleanly without halting")
+
+	var verified_now: bool = await client.call("verify_position")
+	t.is_true(verified_now, "subsequent verify_position() still agrees after separated resync cycles")
+	t.equals(int(client.call("consecutive_resyncs")), 0, "consecutive resync counter remains 0 after verify_position()")
+
+	# 2. Four consecutive forced mismatches (no clean move between them) cap at 3 and halt on the 4th.
 	var halted_events: Array[String] = []
 	bus.session_halted.connect(func(reason: String) -> void: halted_events.append(reason))
 	client.suppress_ci_halt_marker = true
@@ -268,7 +287,9 @@ func _test_live_verify_resync_and_cap(t: RefCounted, tree: SceneTree) -> void:
 		await session.call("advance")
 		if attempt <= 3:
 			t.is_false(bool(client.call("is_halted")),
-				"resync %d/3 remains within the consecutive cap" % attempt)
+				"consecutive resync %d/3 remains within the consecutive cap" % attempt)
+			t.equals(int(client.call("consecutive_resyncs")), attempt,
+				"consecutive resync streak tracks %d/3" % attempt)
 		else:
 			t.is_true(bool(client.call("is_halted")),
 				"4th consecutive mismatch exceeds cap of 3 and halts client")
@@ -359,3 +380,283 @@ func _test_live_verify_resync_and_cap(t: RefCounted, tree: SceneTree) -> void:
 		sclient.queue_free()
 		sbus.queue_free()
 		await tree.process_frame
+
+
+func _test_pre_baseline_syncing_gate(t: RefCounted, tree: SceneTree) -> void:
+	# 1. Calling post-submit mirror verification without a baseline refuses loudly rather than silently skipping.
+	var unbaselined_bus := EventBus.new()
+	var unbaselined_client := NetworkClient.new()
+	unbaselined_client.bus = unbaselined_bus
+	tree.root.add_child(unbaselined_bus)
+	tree.root.add_child(unbaselined_client)
+	var pre_stale: Array[String] = []
+	unbaselined_bus.staleness_detected.connect(func(detail: String) -> void: pre_stale.append(detail))
+	var verify_no_base: bool = await unbaselined_client.call("_verify_mirror_after_submit", {"tick": 0, "canonicalHash": "abc"})
+	t.is_false(verify_no_base, "post-submit verification returns false without baseline")
+	t.is_true(pre_stale.size() > 0, "_verify_mirror_after_submit without baseline reports staleness rather than skipping silently")
+	t.is_true(bool(unbaselined_client.call("is_stale")), "_verify_mirror_after_submit without baseline marks client stale")
+	unbaselined_client.queue_free()
+	unbaselined_bus.queue_free()
+	await tree.process_frame
+
+	# 2. Playable HUD holds snapshot in flight: shows on-screen 'syncing', refuses key/iso/session/client input,
+	#    then accepts and verifies play input once the baseline snapshot lands.
+	var srv := TCPServer.new()
+	if srv.listen(0, "127.0.0.1") != OK:
+		t.check(false, "mock server listening for pre-baseline HUD test", "TCPServer.listen failed")
+		return
+	var port := srv.get_local_port()
+
+	var d := Diorama.new()
+	d.name = "SyncGateDiorama"
+	tree.root.add_child(d)
+	await tree.process_frame
+	d.call("build")
+
+	var hud := Playable.new()
+	hud.name = "SyncGateHud"
+	d.add_child(hud)
+	await tree.process_frame
+
+	var attach_state := {"done": false}
+	var run_attach := func() -> void:
+		await hud.call("_attach", "127.0.0.1:%d" % port)
+		attach_state["done"] = true
+	run_attach.call()
+
+	var peer: StreamPeerTCP = null
+	var buf := PackedByteArray()
+	var framing := Framing.new()
+	var held_snap_id: Variant = null
+	var pre_baseline_methods: Array[String] = []
+	var post_baseline_actions := 0
+	var snap0 := {"tick": 0}
+	var snap0_canon := StateDigest.canonical_state_hash(snap0)
+	var tick1 := {"tick": 1}
+	var tick1_canon := StateDigest.canonical_state_hash(tick1)
+
+	# Pump until snapshot RPC arrives, holding the snapshot response open.
+	for _i in range(240):
+		if srv.is_connection_available() and peer == null:
+			peer = srv.take_connection()
+			peer.set_no_delay(true)
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								var m := msg as Dictionary
+								var meth := String(m.get("method", ""))
+								if meth == "initialize":
+									peer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": m.get("id", 1),
+										"result": {
+											"serverName": "mock",
+											"engineVersion": "0.0.0",
+											"digest_spec_version": 2,
+											"capabilities": {"hashes": true, "canonicalHashes": true, "audio": true},
+											"tick": 0,
+										},
+									}))
+								elif meth == "snapshot":
+									held_snap_id = m.get("id", 2)
+								else:
+									pre_baseline_methods.append(meth)
+		if held_snap_id != null:
+			break
+		await tree.process_frame
+
+	t.check(held_snap_id != null, "Playable sent initial snapshot request and is waiting for baseline")
+	var client_node: Node = hud.get("client")
+	var session_node: Node = hud.get("session")
+	var status_lbl: Label = hud.get("_status")
+	t.is_true(client_node.has_method("has_baseline"), "NetworkClient exposes has_baseline()")
+	t.is_false(bool(client_node.call("has_baseline")) if client_node.has_method("has_baseline") else false,
+		"has_baseline() is false before snapshot returns")
+	t.is_true(session_node.has_method("is_syncing"), "Session exposes is_syncing()")
+	t.is_true(bool(session_node.call("is_syncing")) if session_node.has_method("is_syncing") else false,
+		"session.is_syncing() is true before snapshot returns")
+	t.contains(status_lbl.text.to_lower(), "syncing", "HUD status visibly displays syncing while baseline is in flight")
+
+	# Exercise play input paths while snapshot is still held: key press, iso move, session.walk_to, client.submit_action.
+	var key_walk := InputEventKey.new()
+	key_walk.keycode = KEY_1
+	key_walk.pressed = true
+	hud.call("_input", key_walk)
+	hud.call("_on_iso_move", "weighing-floor")
+
+	var pre_req := {"walk_done": false, "walk_res": {}, "sub_done": false, "sub_res": {}}
+	var run_pre_calls := func() -> void:
+		pre_req["walk_res"] = await session_node.call("walk_to", "weighing-floor")
+		pre_req["walk_done"] = true
+		pre_req["sub_res"] = await client_node.call("submit_action", "look")
+		pre_req["sub_done"] = true
+	run_pre_calls.call()
+
+	for _f in range(30):
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								var pm := msg as Dictionary
+								var pmeth := String(pm.get("method", ""))
+								pre_baseline_methods.append(pmeth)
+								# Answer unexpected pre-baseline RPCs so RED fails fast without hitting a 20s timeout.
+								peer.put_data(Framing.encode({
+									"jsonrpc": "2.0",
+									"id": pm.get("id", 99),
+									"result": {"tick": 0, "events": []},
+								}))
+		if bool(pre_req["walk_done"]) and bool(pre_req["sub_done"]):
+			break
+		await tree.process_frame
+
+	var pre_walk_res: Dictionary = pre_req["walk_res"] as Dictionary
+	var pre_submit_res: Dictionary = pre_req["sub_res"] as Dictionary
+	t.is_true(bool(pre_walk_res.get("__error__", false)), "session.walk_to refused before baseline snapshot")
+	t.is_true(bool(pre_submit_res.get("__error__", false)), "client.submit_action refused before baseline snapshot")
+	t.equals(pre_baseline_methods.size(), 0, "no play RPC frames transmitted before baseline snapshot lands")
+	t.contains(status_lbl.text.to_lower(), "syncing", "HUD status remains in syncing state after refused pre-baseline input")
+
+	# Release the baseline snapshot response.
+	if peer != null and held_snap_id != null:
+		peer.put_data(Framing.encode({
+			"jsonrpc": "2.0",
+			"id": held_snap_id,
+			"result": {
+				"tick": 0,
+				"hash": "snap0",
+				"canonicalHash": snap0_canon,
+				"snapshotSeq": 1,
+				"delta": [{"op": "set", "path": ["tick"], "value": 0}],
+			},
+		}))
+
+	for _w in range(180):
+		if bool(attach_state["done"]):
+			break
+		await tree.process_frame
+
+	t.is_true(bool(attach_state["done"]), "Playable._attach finishes once baseline snapshot lands")
+	t.is_true(client_node.has_method("has_baseline") and bool(client_node.call("has_baseline")), "has_baseline() becomes true after snapshot lands")
+	t.is_false(bool(session_node.call("is_syncing")) if session_node.has_method("is_syncing") else true, "session.is_syncing() clears after snapshot lands")
+	t.contains(status_lbl.text.to_lower(), "attached", "HUD status clears syncing and shows attached once ready")
+
+	# Now press KEY_1 on the HUD: accepted, sent as submitAction, and digest-verified.
+	hud.call("_input", key_walk)
+	for _p in range(180):
+		if peer != null:
+			peer.poll()
+			if peer.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				var av := peer.get_available_bytes()
+				if av > 0:
+					var g := peer.get_partial_data(av)
+					if int(g[0]) == OK:
+						buf.append_array(g[1] as PackedByteArray)
+						for msg: Variant in framing.push(buf):
+							buf.clear()
+							if msg is Dictionary:
+								var m := msg as Dictionary
+								if String(m.get("method", "")) == "submitAction":
+									post_baseline_actions += 1
+									peer.put_data(Framing.encode({
+										"jsonrpc": "2.0",
+										"id": m.get("id", 3),
+										"result": {
+											"tick": 1,
+											"hash": "tick1",
+											"canonicalHash": tick1_canon,
+											"snapshotSeq": 1,
+											"delta": [{"op": "set", "path": ["tick"], "value": 1}],
+											"events": [],
+										},
+									}))
+		if post_baseline_actions >= 1 and not bool(hud.get("_busy")):
+			break
+		await tree.process_frame
+
+	t.equals(post_baseline_actions, 1, "play input after baseline snapshot is accepted and sent")
+	t.equals(String(client_node.call("mirror_digest")), tick1_canon, "post-baseline play submit is canonical-digest verified")
+	t.is_false(bool(client_node.call("is_halted")), "post-baseline accepted input verifies cleanly without halting")
+	t.is_false(bool(client_node.call("is_stale")), "post-baseline accepted input stays non-stale")
+
+	if peer != null:
+		peer.disconnect_from_host()
+	srv.stop()
+	hud.queue_free()
+	d.queue_free()
+	await tree.process_frame
+
+	# 3. Live sidecar verification: input refused before snapshot, accepted + digest-verified after snapshot.
+	var harness: RefCounted = Harness.new()
+	var extra: Array[String] = [
+		"--content", Harness.salt_road_pack(),
+		"--manifest", Harness.salt_road_manifest(),
+		"--start", Diorama.PLAYER_START_ZONE,
+	]
+	harness.extra_args = extra
+	if not await harness.call("start", HOST_PACK, SEED):
+		t.check(false, "live sidecar started for pre-baseline test", String(harness.get("failure")))
+		return
+
+	var lbus := EventBus.new()
+	var lclient := NetworkClient.new()
+	lclient.bus = lbus
+	tree.root.add_child(lbus)
+	tree.root.add_child(lclient)
+
+	var ld := Diorama.new()
+	tree.root.add_child(ld)
+	await tree.process_frame
+	ld.call("build")
+
+	var lsession := Session.new()
+	tree.root.add_child(lsession)
+	lsession.call("setup", ld, lclient, lbus)
+
+	var lhandshake: Dictionary = await lclient.call("attach", Harness.HOST, int(harness.get("port")), "stage/test-sync-gate", "0.1.0")
+	t.is_false(lhandshake.is_empty(), "live pre-baseline handshake succeeded")
+	t.is_false(bool(lclient.call("has_baseline")) if lclient.has_method("has_baseline") else true, "live client has no baseline immediately after attach")
+	t.is_true(lsession.has_method("is_syncing") and bool(lsession.call("is_syncing")), "live session reports syncing immediately after attach")
+
+	var refused_walk: Dictionary = await lsession.call("walk_to", "weighing-floor")
+	t.is_true(bool(refused_walk.get("__error__", false)), "live session.walk_to refused before snapshot")
+	t.contains(String(refused_walk.get("message", "")).to_lower(), "syncing", "live refusal explains syncing state")
+	t.equals(String(lsession.call("player_zone")), Diorama.PLAYER_START_ZONE, "player zone unchanged after pre-baseline refusal")
+
+	var refused_adv: Dictionary = await lsession.call("advance")
+	t.is_true(bool(refused_adv.get("__error__", false)), "live session.advance refused before snapshot")
+
+	var lsnap: Dictionary = await lclient.call("snapshot")
+	t.is_false(bool(lsnap.get("__error__", false)), "live baseline snapshot succeeded")
+	t.is_true(lclient.has_method("has_baseline") and bool(lclient.call("has_baseline")), "live client has baseline after snapshot")
+	t.is_false(bool(lsession.call("is_syncing")) if lsession.has_method("is_syncing") else true, "live session clears syncing after snapshot")
+
+	var accepted_walk: Dictionary = await lsession.call("walk_to", "weighing-floor")
+	t.is_false(bool(accepted_walk.get("__error__", false)), "live session.walk_to accepted after baseline snapshot")
+	t.equals(String(lsession.call("player_zone")), "weighing-floor", "player moved cleanly after baseline snapshot")
+	t.equals(String(lclient.call("mirror_digest")), String(lclient.call("canonical_hash_for_tick", int(lclient.call("current_tick")))),
+		"live post-baseline move verified canonical digest cleanly")
+	t.equals(int(lclient.call("total_resyncs")), 0, "live post-baseline move required 0 resyncs")
+
+	lclient.call("detach")
+	lsession.queue_free()
+	ld.queue_free()
+	lclient.queue_free()
+	lbus.queue_free()
+	harness.call("stop")
+	await tree.create_timer(0.3).timeout
