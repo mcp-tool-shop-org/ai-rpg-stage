@@ -23,6 +23,8 @@ func run_async(t: RefCounted) -> void:
 	if engine_types.is_empty():
 		return
 
+	_test_vocabulary_parser_cases(t)
+
 	t.is_true(FileAccess.file_exists(MANIFEST_PATH), "stage event manifest exists")
 	var manifest_v: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST_PATH))
 	t.check(manifest_v is Dictionary, "event manifest parses as JSON object")
@@ -55,6 +57,7 @@ func run_async(t: RefCounted) -> void:
 			todo_count += 1
 	t.equals(handled_count, Session.RENDERED.size(), "all Session.RENDERED types are marked handled")
 	t.equals(handled_count + todo_count, engine_types.size(), "every remaining engine type is seeded as todo")
+	t.equals(manifest.size(), engine_types.size(), "event_manifest.json count matches ENGINE_EVENT_TYPES count exactly")
 
 	# ── RED Controls ──────────────────────────────────────────
 
@@ -128,27 +131,187 @@ func _load_engine_event_types(t: RefCounted) -> Array[String]:
 		return []
 
 	var text := FileAccess.get_file_as_string(src_path)
-	var in_array := false
+	var parsed := parse_engine_event_types_source(text)
+	var errs: Array = parsed.get("errors", []) as Array
+	t.check(bool(parsed.get("ok", false)) and errs.is_empty(),
+		"source parser parsed ENGINE_EVENT_TYPES without errors",
+		"; ".join(PackedStringArray(errs)))
 	var out: Array[String] = []
-	var re := RegEx.new()
-	re.compile("'([^']+)'")
-	for raw: String in text.split("\n", false):
-		var stripped := raw.strip_edges()
-		if not in_array:
-			if stripped.contains("ENGINE_EVENT_TYPES") and stripped.contains("["):
-				in_array = true
-			continue
-		if stripped.begins_with("//"):
-			continue
-		if stripped.begins_with("]"):
-			break
-		var m := re.search(stripped)
-		if m != null:
-			out.append(m.get_string(1))
+	for item: Variant in (parsed.get("types", []) as Array):
+		out.append(String(item))
 
-	t.check(out.size() >= 165, "read dynamic ENGINE_EVENT_TYPES list from pinned engine checkout",
-		"got %d" % out.size())
+	var exported_types := _load_runtime_engine_event_types(t, engine_dir)
+	t.equals(out.size(), exported_types.size(),
+		"parsed ENGINE_EVENT_TYPES count equals pinned engine export (%d)" % exported_types.size())
+	t.equals(out, exported_types, "parsed ENGINE_EVENT_TYPES matches pinned engine export exactly")
 	return out
+
+
+func _test_vocabulary_parser_cases(t: RefCounted) -> void:
+	var dq_src := "export const ENGINE_EVENT_TYPES = [\n  \"alpha.one\",\n  \"beta.two\",\n] as const;\n"
+	var dq := parse_engine_event_types_source(dq_src)
+	t.is_true(bool(dq.get("ok", false)), "double-quoted ENGINE_EVENT_TYPES parses cleanly")
+	var expected_dq: Array[String] = ["alpha.one", "beta.two"]
+	t.equals(dq.get("types", []), expected_dq, "double-quoted entries preserved in exact order")
+
+	var mix_src := "export const ENGINE_EVENT_TYPES = [\n  // line comment\n  'single.one',\n  \"double.two\", /* block */\n  'single.three',\n];\n"
+	var mix := parse_engine_event_types_source(mix_src)
+	t.is_true(bool(mix.get("ok", false)), "mixed single- and double-quoted ENGINE_EVENT_TYPES parses cleanly")
+	var expected_mix: Array[String] = ["single.one", "double.two", "single.three"]
+	t.equals(mix.get("types", []), expected_mix, "mixed-quote entries preserved with comments stripped")
+
+	var ts_typed_src := "export const ENGINE_EVENT_TYPES: readonly string[] = [\n  \"alpha.one\",\n  'beta.two',\n] as const;\n"
+	var ts_typed := parse_engine_event_types_source(ts_typed_src)
+	t.is_true(bool(ts_typed.get("ok", false)), "typed TS array annotation with mixed quotes parses cleanly")
+	t.equals(ts_typed.get("types", []), expected_dq, "typed TS annotation preserves exact entries")
+
+	for bad_case: Dictionary in [
+		{"label": "unquoted identifier", "src": "export const ENGINE_EVENT_TYPES = [\n  'valid.one',\n  UNQUOTED_EVENT,\n] as const;\n"},
+		{"label": "numeric literal", "src": "export const ENGINE_EVENT_TYPES = [\n  'valid.one',\n  42,\n] as const;\n"},
+		{"label": "template literal", "src": "export const ENGINE_EVENT_TYPES = [\n  'valid.one',\n  `tmpl.event`,\n] as const;\n"},
+		{"label": "unterminated quote", "src": "export const ENGINE_EVENT_TYPES = [\n  'valid.one',\n  'broken\n] as const;\n"},
+		{"label": "missing comma", "src": "export const ENGINE_EVENT_TYPES = [\n  'valid.one'\n  'valid.two',\n] as const;\n"},
+	]:
+		var res := parse_engine_event_types_source(String(bad_case["src"]))
+		var rerrs: Array = res.get("errors", []) as Array
+		t.is_false(bool(res.get("ok", true)),
+			"RED: parser fails on unparsed %s entry instead of skipping" % String(bad_case["label"]))
+		t.is_true(rerrs.size() > 0,
+			"RED: parser reports diagnostic error for %s" % String(bad_case["label"]))
+
+
+static func parse_engine_event_types_source(text: String) -> Dictionary:
+	var out: Array[String] = []
+	var errors: Array[String] = []
+	var sym_idx := text.find("ENGINE_EVENT_TYPES")
+	if sym_idx < 0:
+		errors.append("ENGINE_EVENT_TYPES declaration not found")
+		return {"ok": false, "types": out, "errors": errors}
+	var eq_idx := text.find("=", sym_idx + "ENGINE_EVENT_TYPES".length())
+	if eq_idx < 0:
+		errors.append("ENGINE_EVENT_TYPES initializer '=' not found")
+		return {"ok": false, "types": out, "errors": errors}
+	var open_idx := text.find("[", eq_idx + 1)
+	if open_idx < 0:
+		errors.append("ENGINE_EVENT_TYPES opening '[' not found")
+		return {"ok": false, "types": out, "errors": errors}
+
+	var i := open_idx + 1
+	var n := text.length()
+	var line_no := 1 + text.substr(0, i).count("\n")
+	var expect_value := true
+	var closed := false
+
+	while i < n:
+		var ch := text[i]
+		if ch == "\n":
+			line_no += 1
+			i += 1
+			continue
+		if ch == " " or ch == "\t" or ch == "\r":
+			i += 1
+			continue
+		if ch == "/" and i + 1 < n and text[i + 1] == "/":
+			i += 2
+			while i < n and text[i] != "\n":
+				i += 1
+			continue
+		if ch == "/" and i + 1 < n and text[i + 1] == "*":
+			var close_c := text.find("*/", i + 2)
+			if close_c < 0:
+				errors.append("unterminated block comment in ENGINE_EVENT_TYPES at line %d" % line_no)
+				return {"ok": false, "types": out, "errors": errors}
+			line_no += text.substr(i, close_c + 2 - i).count("\n")
+			i = close_c + 2
+			continue
+		if ch == "]":
+			closed = true
+			break
+		if ch == ",":
+			if expect_value:
+				errors.append("unexpected ',' before entry at line %d" % line_no)
+				return {"ok": false, "types": out, "errors": errors}
+			expect_value = true
+			i += 1
+			continue
+		if ch == "'" or ch == "\"":
+			if not expect_value:
+				errors.append("missing ',' before string literal at line %d" % line_no)
+				return {"ok": false, "types": out, "errors": errors}
+			var quote := ch
+			i += 1
+			var val := ""
+			var terminated := false
+			while i < n:
+				var c := text[i]
+				if c == "\n" or c == "\r":
+					break
+				if c == "\\":
+					if i + 1 >= n:
+						break
+					var esc := text[i + 1]
+					match esc:
+						"n": val += "\n"
+						"r": val += "\r"
+						"t": val += "\t"
+						_: val += esc
+					i += 2
+					continue
+				if c == quote:
+					terminated = true
+					i += 1
+					break
+				val += c
+				i += 1
+			if not terminated:
+				errors.append("unterminated string literal starting at line %d" % line_no)
+				return {"ok": false, "types": out, "errors": errors}
+			if val.is_empty():
+				errors.append("empty event type string literal at line %d" % line_no)
+				return {"ok": false, "types": out, "errors": errors}
+			out.append(val)
+			expect_value = false
+			continue
+
+		var line_end := text.find("\n", i)
+		var snippet := (text.substr(i, line_end - i) if line_end >= 0 else text.substr(i)).strip_edges()
+		if snippet.length() > 40:
+			snippet = snippet.substr(0, 40)
+		errors.append("unparsed entry in ENGINE_EVENT_TYPES at line %d: '%s'" % [line_no, snippet])
+		return {"ok": false, "types": out, "errors": errors}
+
+	if not closed:
+		errors.append("unterminated ENGINE_EVENT_TYPES array (missing closing ']')")
+	if out.is_empty():
+		errors.append("ENGINE_EVENT_TYPES array is empty")
+	return {"ok": errors.is_empty(), "types": out, "errors": errors}
+
+
+func _load_runtime_engine_event_types(t: RefCounted, engine_dir: String) -> Array[String]:
+	var js_path := engine_dir + "/packages/core/dist/event-vocabulary.js"
+	t.is_true(FileAccess.file_exists(js_path),
+		"pinned compiled engine event vocabulary exists (%s)" % js_path)
+	if not FileAccess.file_exists(js_path):
+		return []
+	var tmp_path := ProjectSettings.globalize_path("user://engine_event_types_check.json").replace("\\", "/")
+	var js_url_arg := js_path.replace("\\", "/")
+	var node_code := "import { pathToFileURL } from 'node:url'; import fs from 'node:fs'; const m = await import(pathToFileURL(process.argv[1]).href); fs.writeFileSync(process.argv[2], JSON.stringify(m.ENGINE_EVENT_TYPES));"
+	var out_buf: Array = []
+	var exit_code := OS.execute("node", ["--input-type=module", "-e", node_code, js_url_arg, tmp_path], out_buf, true)
+	t.equals(exit_code, 0, "node exported live ENGINE_EVENT_TYPES cleanly")
+	if exit_code != 0 or not FileAccess.file_exists(tmp_path):
+		if FileAccess.file_exists(tmp_path):
+			DirAccess.remove_absolute(tmp_path)
+		return []
+	var raw_json := FileAccess.get_file_as_string(tmp_path)
+	DirAccess.remove_absolute(tmp_path)
+	var parsed_v: Variant = JSON.parse_string(raw_json)
+	t.check(parsed_v is Array, "exported ENGINE_EVENT_TYPES JSON parsed as Array")
+	var exported: Array[String] = []
+	if parsed_v is Array:
+		for item: Variant in (parsed_v as Array):
+			exported.append(String(item))
+	return exported
 
 
 func _replay_handled_events(_t: RefCounted, tree: SceneTree, events: Array) -> Dictionary:

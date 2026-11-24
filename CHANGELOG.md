@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   covering every event type in the pinned engine's exported
   `ENGINE_EVENT_TYPES` (seeding the five `Session.RENDERED` types as `handled`
   and the rest as `todo` expiring `2027-01-15`) plus
-  `fixtures/handled_events_replay.json`. `tests/test_event_manifest.gd` reads
-  `ENGINE_EVENT_TYPES` dynamically from the engine checkout, replays handled
-  fixtures against `Session` and `Diorama`, and fails on missing engine types,
-  unknown manifest entries, expired `todo`s, or silent `handled` handlers.
+  `fixtures/handled_events_replay.json`. `tests/test_event_manifest.gd` parses
+  `ENGINE_EVENT_TYPES` dynamically from the engine checkout (single- and
+  double-quoted entries, failing on unparsed rows), asserts exact count and
+  element equality against the pinned engine's compiled `ENGINE_EVENT_TYPES`
+  export, replays handled fixtures against `Session` and `Diorama`, and fails
+  on missing engine types, unknown manifest entries, expired `todo`s, or silent
+  `handled` handlers.
 
 - **Fallback rendering for unrendered simulation events:** `Session._present`
   now renders any event type outside `Session.RENDERED` as one transcript line
