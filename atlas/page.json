@@ -7,8 +7,8 @@
   ],
   "authoredWritten": [
     {
-      "byPeople": 5,
-      "commits": 5,
+      "byPeople": 7,
+      "commits": 7,
       "place": ".github/upstream-pins.env",
       "writers": [
         ".github/workflows/bump-upstream-pins.yml"
@@ -84,13 +84,13 @@
     "items": [
       {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-11-11; 1 file changed content.",
+        "sentence": "Nothing structural changed since 2026-11-24; 1 file changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "0c744e36d35ed528206f85b43205e69b75a35262",
-      "generatedAt": "2026-11-11T22:05:14.654Z"
+      "commit": "1d9ac5be49f30b9b91f32241ab8d61d7096fe927",
+      "generatedAt": "2026-11-24T15:57:46.919Z"
     },
     "unchanged": true
   },
@@ -99,9 +99,9 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "fda00110fc6ab476263d89299c384e233acf489e",
+  "commit": "35725b35de7bee282b7e5f1882ca62e236a5b352",
   "defaultBranch": "main",
-  "derived": "12 parts, mostly GDScript (36 files), Python (8), CSS (2), JavaScript (2), TypeScript (2), Astro (1) and shell (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
+  "derived": "12 parts, mostly GDScript (39 files), Python (8), JavaScript (3), CSS (2), TypeScript (2), shell (2) and Astro (1). Work enters through 4 doors; the busiest is ci, which reaches 5 parts. It deploys a site to GitHub Pages. People run the game.",
   "doors": [
     {
       "checks": [],
@@ -111,7 +111,7 @@
       "found": [
         {
           "by": "tools/headless.gd",
-          "what": "the 11 test suites under tests/"
+          "what": "the 13 test suites under tests/"
         }
       ],
       "held": [
@@ -120,6 +120,7 @@
           "checksMore": 0,
           "lead": "on a push, or a pull request from a fork",
           "runs": [
+            "tools/check_ci_log.sh",
             "tools/headless.gd"
           ],
           "runsMore": 0,
@@ -136,22 +137,22 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 11
+          "files": 13
         },
         {
           "boundary": "tools",
           "depth": 0,
-          "files": 3
+          "files": 4
         },
         {
           "boundary": "client",
           "depth": 1,
-          "files": 5
+          "files": 6
         },
         {
           "boundary": "stage",
           "depth": 1,
-          "files": 14
+          "files": 15
         },
         {
           "boundary": "fixtures",
@@ -165,8 +166,8 @@
       "sends": [],
       "stages": [],
       "triggers": [
-        "on a pull request touching 11 paths",
-        "on a push touching 11 paths",
+        "on a pull request touching 12 paths",
+        "on a push touching 12 paths",
         "or by hand"
       ]
     },
@@ -249,7 +250,7 @@
         {
           "boundary": "client",
           "depth": 2,
-          "files": 5
+          "files": 6
         },
         {
           "boundary": "fixtures",
@@ -308,11 +309,13 @@
       ]
     }
   ],
-  "generatedAt": "2026-11-12T00:23:35.868Z",
+  "generatedAt": "2026-11-24T16:03:31.699Z",
   "limits": [
-    "12 reads use paths built at run time and are not named here.",
+    "1 import could not be resolved: `tools/sidecar_spawn.mjs` imports a path built at run time.",
+    "2 writes and 12 reads use paths built at run time and are not named here.",
     "4 writes go to places this repository does not track, so they are not listed as generated.",
     "5 writes and 3 reads go to a path their caller passes, not to this repository.",
+    "2 writes go to a temporary directory, not to this repository.",
     "2 commands are built at run time and not followed.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
@@ -353,15 +356,15 @@
   ],
   "summary": null,
   "summaryFrom": null,
-  "testFiles": 22,
+  "testFiles": 26,
   "testedBy": {
     "assets": 0,
-    "client": 10,
-    "stage": 13,
-    "tools": 2
+    "client": 13,
+    "stage": 15,
+    "tools": 4
   },
   "testedCodeParts": 4,
-  "unnamedWrites": 0,
+  "unnamedWrites": 2,
   "unread": [
     {
       "place": "assets/dimetric/MANIFEST.json",

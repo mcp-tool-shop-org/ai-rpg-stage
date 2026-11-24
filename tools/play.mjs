@@ -19,12 +19,15 @@
 //   --no-shock          run with no cue at all
 //   --engine <dir>      engine checkout (default ../ai-rpg-engine)
 //   --forge <dir>       world-forge checkout (default ../world-forge)
-//   --headless          start the sim only, print the port, and wait. For attaching the
-//                       editor, or for driving it by hand.
+//   --unresolved-ai-profile <fail|warn>  policy for unresolved entity profiles (default: fail)
+//   --release                            shorthand for --unresolved-ai-profile warn
+//   --headless                           start the sim only, print the port, and wait. For attaching the
+//                                        editor, or for driving it by hand.
 
 import { spawn } from 'node:child_process';
 import * as net from 'node:net';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,8 +36,14 @@ const STAGE = path.resolve(HERE, '..');
 
 const argv = process.argv.slice(2);
 const flag = (name, fallback) => {
-  const i = argv.indexOf(`--${name}`);
-  return i >= 0 && argv[i + 1] !== undefined && !argv[i + 1].startsWith('--') ? argv[i + 1] : fallback;
+  const prefix = `--${name}=`;
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i].startsWith(prefix)) return argv[i].slice(prefix.length);
+    if (argv[i] === `--${name}` && argv[i + 1] !== undefined && !argv[i + 1].startsWith('--')) {
+      return argv[i + 1];
+    }
+  }
+  return fallback;
 };
 const has = (name) => argv.includes(`--${name}`);
 
@@ -43,6 +52,7 @@ const PORT = Number(flag('port', '47820'));
 const ENGINE = path.resolve(flag('engine', path.join(STAGE, '..', 'ai-rpg-engine')));
 const FORGE = path.resolve(flag('forge', path.join(STAGE, '..', 'world-forge')));
 const SHOCK = has('no-shock') ? null : flag('shock', 'dockward:stability:-25@2');
+const PROFILE_MODE = flag('unresolved-ai-profile', has('release') ? 'warn' : 'fail');
 const HOST_PACK = 'chapel-threshold';
 
 const BIN = path.join(ENGINE, 'packages', 'cli', 'dist', 'bin.js');
@@ -53,6 +63,13 @@ function die(message, hint) {
   console.error(`\n✗ ${message}`);
   if (hint) console.error(`  ${hint}`);
   process.exit(1);
+}
+
+if (PROFILE_MODE !== 'fail' && PROFILE_MODE !== 'warn') {
+  die(
+    `invalid --unresolved-ai-profile "${PROFILE_MODE}"`,
+    'Expected fail or warn.',
+  );
 }
 
 // --- Preconditions, each with the command that fixes it ---------------------
@@ -71,6 +88,12 @@ if (!fs.existsSync(PACK)) {
       + `--out="${path.join(STAGE, 'fixtures')}" --doctor   (or pass --forge <dir>)`,
   );
 }
+if (PROFILE_MODE !== 'fail' && PROFILE_MODE !== 'warn') {
+  die(
+    `invalid --unresolved-ai-profile "${PROFILE_MODE}"`,
+    'Expected fail or warn.',
+  );
+}
 if (!fs.existsSync(MANIFEST)) {
   die(
     `Salt Road manifest missing at ${MANIFEST}`,
@@ -86,9 +109,16 @@ const simArgs = [
   '--content', PACK,
   '--manifest', MANIFEST,
   '--start', 'counting-house',
+  '--unresolved-ai-profile', PROFILE_MODE,
   '--listen', String(PORT),
   ...(SHOCK ? ['--shock', SHOCK] : []),
 ];
+
+const STDERR_LOG = path.join(os.tmpdir(), `ai-rpg-stage-sidecar-${process.pid}.stderr.log`);
+fs.writeFileSync(STDERR_LOG, '', 'utf-8');
+const cleanupStderrLog = () => {
+  try { fs.unlinkSync(STDERR_LOG); } catch {}
+};
 
 console.log('── Salt Road: The Long Quay ──');
 console.log(`sim    node ${simArgs.slice(1).join(' ')}`);
@@ -99,9 +129,9 @@ let simLog = '';
 sim.stderr.on('data', (chunk) => {
   const text = chunk.toString('utf-8');
   simLog += text;
-  // The sim's own diagnostics, forwarded. `dropped` lines especially: what the load gate
-  // did NOT carry is exactly what a person needs to see when something is missing on
-  // screen, and hiding it to keep the launcher tidy is how that becomes a mystery.
+  fs.appendFileSync(STDERR_LOG, text, 'utf-8');
+  // The sim's own diagnostics, forwarded. `dropped` and `warning` lines especially:
+  // what the load gate did NOT carry or warned about must surface cleanly.
   for (const line of text.split('\n')) {
     if (line.trim()) console.log(`       ${line.trim()}`);
   }
@@ -109,6 +139,7 @@ sim.stderr.on('data', (chunk) => {
 
 sim.on('exit', (code) => {
   if (code !== null && code !== 0) {
+    cleanupStderrLog();
     die(`the sim exited ${code} before the stage could attach`, simLog.trim() || undefined);
   }
 });
@@ -133,6 +164,7 @@ async function waitForPort(port, timeoutMs = 30000) {
 const up = await waitForPort(PORT);
 if (!up) {
   sim.kill();
+  cleanupStderrLog();
   die(`the sim never accepted a connection on 127.0.0.1:${PORT}`, simLog.trim() || undefined);
 }
 console.log(`sim    ready on 127.0.0.1:${PORT}`);
@@ -145,6 +177,7 @@ if (has('headless')) {
   console.log('\nsim is up. Attach a client to 127.0.0.1:%d — ctrl-c to stop.', PORT);
   process.on('SIGINT', () => {
     sim.kill();
+    cleanupStderrLog();
     process.exit(0);
   });
   await new Promise(() => {});
@@ -155,13 +188,18 @@ if (has('headless')) {
 const godot = process.env.GODOT_BIN || 'godot';
 console.log(`stage  ${godot} --path . (attaching to ${PORT})`);
 
-const view = spawn(godot, ['--path', STAGE, '--', `--attach=127.0.0.1:${PORT}`], {
-  stdio: 'inherit',
-  cwd: STAGE,
-});
+const view = spawn(
+  godot,
+  ['--path', STAGE, '--', `--attach=127.0.0.1:${PORT}`, `--sidecar-stderr=${STDERR_LOG}`],
+  {
+    stdio: 'inherit',
+    cwd: STAGE,
+  },
+);
 
 view.on('error', (err) => {
   sim.kill();
+  cleanupStderrLog();
   die(
     `could not launch Godot (${err.message})`,
     'Install Godot 4.7.x on PATH, or set GODOT_BIN to its executable.',
@@ -172,11 +210,13 @@ view.on('error', (err) => {
 // sidecar holding a port is the thing that makes the next run fail confusingly.
 view.on('exit', (code) => {
   sim.kill();
+  cleanupStderrLog();
   process.exit(code ?? 0);
 });
 
 process.on('SIGINT', () => {
   view.kill();
   sim.kill();
+  cleanupStderrLog();
   process.exit(0);
 });

@@ -32,7 +32,11 @@ var _status: Label
 var _toast: RichTextLabel
 var _lines: Array[String] = []
 var _busy := false
+var _syncing := false
+var _halted := false
 var _toast_left := 0.0
+var _sidecar_stderr_path := ""
+var _sidecar_stderr_len := -1
 
 
 func _ready() -> void:
@@ -41,6 +45,7 @@ func _ready() -> void:
 	_build_ui()
 
 	var target := _attach_target()
+	_sidecar_stderr_path = _user_arg("sidecar-stderr")
 	_wire_iso()
 	if target.is_empty():
 		_status.text = "not attached — run: node tools/play.mjs"
@@ -53,9 +58,14 @@ func _ready() -> void:
 
 ## `--attach=host:port`, passed after `--` by the launcher.
 func _attach_target() -> String:
+	return _user_arg("attach")
+
+
+func _user_arg(key: String) -> String:
+	var prefix := "--%s=" % key
 	for a: String in OS.get_cmdline_user_args():
-		if a.begins_with("--attach="):
-			return a.substr(9)
+		if a.begins_with(prefix):
+			return a.substr(prefix.length())
 	return ""
 
 
@@ -79,27 +89,62 @@ func _attach(target: String) -> void:
 	add_child(session)
 	session.call("setup", diorama, client, bus)
 	session.narrated.connect(_say)
+	bus.session_halted.connect(_on_session_halted)
 
 	# The session already routes these to `diagnostics` and emits them on `narrated`, so
 	# subscribing here as well would show each one twice. The UI shows what the session
 	# narrates; the split between transcript and diagnostics lives in the session.
 
-	_status.text = "attaching to %s…" % target
+	_syncing = true
+	_status.text = "syncing — attaching to %s…" % target
 	var handshake: Dictionary = await client.call("attach", parts[0], int(parts[1]), "ai-rpg-stage")
 	if handshake.is_empty():
-		_status.text = "could not attach to %s" % target
-		_say("[color=#c66]Could not attach. Is the sim running?[/color]")
+		_syncing = false
+		var err_detail := String(client.call("last_attach_error"))
+		if err_detail.is_empty():
+			_status.text = "could not attach to %s" % target
+			_say("[color=#c66]Could not attach. Is the sim running?[/color]")
+		else:
+			_status.text = "load error — %s" % err_detail
+			_say("[color=#c66]Load error: %s[/color]" % err_detail)
 		return
 
-	_status.text = "attached — %s" % String(handshake.get("engineVersion", "?"))
+	var engine_ver := String(handshake.get("engineVersion", "?"))
+	_status.text = "syncing — %s" % engine_ver
+	if _doors:
+		_doors.text = "[i]Syncing baseline snapshot…[/i]"
 	_wire_iso()
+	_drain_sidecar_stderr()
+	session.call("ingest_pack_intake", handshake)
 	await client.call("snapshot")
+	if _halted:
+		_syncing = false
+		return
+	if not bool(client.call("has_baseline")):
+		_status.text = "syncing — waiting for baseline snapshot"
+		return
+
+	_syncing = false
+	_status.text = "attached — %s" % engine_ver
 
 	# Open on the zone the sim says the player is in, with its prose, so the first thing on
 	# screen is the writing rather than a UI.
 	var zone := String(session.call("player_zone"))
 	_say(String(diorama.call("description_of", zone)))
 	_refresh_doors()
+
+
+func is_syncing() -> bool:
+	return _syncing or (session != null and bool(session.call("is_syncing")))
+
+
+func _show_syncing_refusal() -> void:
+	if _status and not _status.text.to_lower().contains("syncing"):
+		_status.text = "syncing — waiting for baseline snapshot"
+	if _toast:
+		_toast.text = "[color=#db8]Syncing baseline snapshot — input refused until synced.[/color]"
+		_toast.visible = true
+		_toast_left = 2.0
 
 
 func _input(event: InputEvent) -> void:
@@ -111,9 +156,15 @@ func _input(event: InputEvent) -> void:
 	var key := (event as InputEventKey).keycode
 
 	# Number keys walk. `advance` waits a round — which is how a shock reaches you.
-	if session != null and key >= KEY_1 and key <= KEY_9:
+	if not _halted and session != null and key >= KEY_1 and key <= KEY_9:
+		if is_syncing():
+			_show_syncing_refusal()
+			return
 		_walk(key - KEY_1)
-	elif session != null and key == KEY_SPACE:
+	elif not _halted and session != null and key == KEY_SPACE:
+		if is_syncing():
+			_show_syncing_refusal()
+			return
 		_wait_a_round()
 	elif key == KEY_J:
 		if session != null and session.get("juice") != null:
@@ -135,6 +186,9 @@ func _input(event: InputEvent) -> void:
 
 
 func _walk(index: int) -> void:
+	if is_syncing():
+		_show_syncing_refusal()
+		return
 	var doors := _current_doors()
 	if index >= doors.size():
 		return
@@ -145,6 +199,9 @@ func _walk(index: int) -> void:
 
 
 func _wait_a_round() -> void:
+	if is_syncing():
+		_show_syncing_refusal()
+		return
 	_busy = true
 	_say("[i]You wait.[/i]")
 	await session.call("advance")
@@ -200,7 +257,20 @@ func _say(line: String) -> void:
 		_toast_left = 4.0
 
 
+func _drain_sidecar_stderr() -> void:
+	if session == null or _sidecar_stderr_path.is_empty():
+		return
+	if not FileAccess.file_exists(_sidecar_stderr_path):
+		return
+	var text := FileAccess.get_file_as_string(_sidecar_stderr_path)
+	if text.length() == _sidecar_stderr_len:
+		return
+	_sidecar_stderr_len = text.length()
+	session.call("ingest_sidecar_stderr", text)
+
+
 func _process(delta: float) -> void:
+	_drain_sidecar_stderr()
 	if _toast_left <= 0.0:
 		return
 	_toast_left -= delta
@@ -218,8 +288,17 @@ func _wire_iso() -> void:
 		iso.move_requested.connect(_on_iso_move)
 
 
+func _on_session_halted(reason: String) -> void:
+	_halted = true
+	if _status:
+		_status.text = "sync halted — %s" % reason
+
+
 func _on_iso_move(zone_id: String) -> void:
-	if _busy:
+	if _busy or _halted:
+		return
+	if is_syncing():
+		_show_syncing_refusal()
 		return
 	if session != null:
 		_busy = true

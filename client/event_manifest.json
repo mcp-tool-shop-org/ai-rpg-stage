@@ -1,0 +1,817 @@
+{
+  "action.declared": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "action.rejected": {
+    "status": "handled"
+  },
+  "action.resolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "encounter.spawned": {
+    "status": "handled"
+  },
+  "event.log.compacted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "hazard.damage.applied": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "hazard.depth.exceeded": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "module.init.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "module.round.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "module.teardown.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pending.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pending.skipped": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "resource.modify.missed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "rule.effect.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "world.entity.inspected": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "world.flag.changed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "world.zone.entered": {
+    "status": "handled"
+  },
+  "world.zone.gate.refused": {
+    "status": "handled"
+  },
+  "world.zone.gate.warned": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "world.zone.inspected": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "world.zone.state.changed": {
+    "status": "handled"
+  },
+  "boss.definition.invalid": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "boss.phase.spawn.unresolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "boss.phase.transition": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.hp-tick": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.injury": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.morale": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.recovery-complete": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.stamina-tick": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.started": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.aftermath.summary": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.ai.decision": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.ambush.triggered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.brace.stabilized": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.brace.start": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.companion.intercepted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.contact.hit": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.contact.miss": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.counter.off_balance": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.damage.applied": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.disengage.fail": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.disengage.success": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.encounter.cleared": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.entity.defeated": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.frontline.collapsed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.guard.absorbed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.guard.broken": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.guard.start": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.morale.flee": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.morale.rout": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.morale.shift": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.reposition.fail": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.reposition.guard_broken": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.reposition.outflank": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.reposition.success": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.resource.trigger.unknown": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.review.trace": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "combat.will.hold": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "resource.changed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.check.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.damage.applied": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.effect.unknown": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.heal.applied": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.rejected": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.resolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.resource.modified": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.review.trace": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.stat.modified": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.status.applied": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.status.immune": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.status.removed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.status.resisted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.status.unregistered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.status.vulnerable": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "ability.used": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.applied": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.expired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.periodic.damage": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.periodic.expired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.periodic.heal": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.removed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.stacked": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.trigger.fired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.trigger.halted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "status.trigger.heal": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "dialogue.choice.selected": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "dialogue.effect.unknown": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "dialogue.ended": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "dialogue.node.entered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "dialogue.started": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "leverage.adjusted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "leverage.resolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "progression.node.unlocked": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "progression.unlock.rejected": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "reputation.adjusted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "rumor.belief.propagated": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "rumor.seeded": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "inventory.item.received": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.acquired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.already-equipped": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.bought": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.crafted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.equipped": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.given": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.lost": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.modified": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.recognized": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.repaired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.salvaged": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.sold": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.unequipped": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "item.used": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "companion.departed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "companion.reaction": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "companion.recruited": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "faction.action.resolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "npc.action.resolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "npc.betrayal.witnessed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "quest.completed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "quest.failed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "quest.offered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "quest.stage.advanced": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.chronicle": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.companion": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.milestone": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.player-fallen": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.pressure": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.rumor": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.fallout.triggered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "defeat.region.violence-escalated": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "opportunity.abandoned": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "opportunity.accepted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "opportunity.betrayed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "opportunity.completed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "opportunity.expired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "opportunity.spawned": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pressure.escalated": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pressure.expired": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pressure.resolved": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pressure.revealed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pressure.spawned": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "audio.cue.requested": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.audit.requested": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.books.opened": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.contract.consigned": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.contract.defaulted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.contract.honoured": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.factor.encumbered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.factor.unencumbered": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.instrument.seized": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.item.appraised": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.lien.accrued": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.price.haggled": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.risk.claimed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.risk.lapsed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.risk.underwritten": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "merchant.seal.revoked": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "netrunning.ice.breached": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.bounty.posted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.goods.fenced": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.mark.collared": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.mark.convicted": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.state.changed": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.sworn.in": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  },
+  "pursuit.word.bought": {
+    "status": "todo",
+    "owner": "stage",
+    "expiry": "2027-01-15"
+  }
+}

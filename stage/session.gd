@@ -13,7 +13,8 @@
 ##
 ##   * it never decides a move is illegal — it submits and renders the answer
 ##   * it never advances a tick
-##   * it never corrects the sim; on a hash mismatch it says so and stops trusting itself
+##   * it never patches the sim; on a digest mismatch it logs the offset, resyncs its mirror
+##     from an authoritative snapshot (capped at 3 in a row), and halts play if the cap trips
 ##
 ## The `move` path is the clearest case. A gated door is right there in the scene
 ## metadata and the stage could read it and grey out the entrance. It does not. It walks
@@ -27,14 +28,14 @@ const FeltMixer := preload("res://stage/felt_mixer.gd")
 const FeltJuice := preload("res://stage/felt_juice.gd")
 const FeltVoice := preload("res://stage/felt_voice.gd")
 
-## Events this session knows how to show. Anything else is IGNORED, not an error —
-## tolerant out (RFC 9413): the sim may learn to say things this stage does not render
-## yet, and a client that failed on an unknown event type would make adding one breaking.
+## Events with bespoke scene/transcript handlers. Any event type outside `RENDERED`
+## renders one deterministic fallback transcript line in `FALLBACK_COLOR` naming
+## its `type` and sorted `payload` keys (tolerant out, RFC 9413: unknown types are
+## made visible without failing the session).
 ## ⚠ MEASURED NAMES, not guessed ones. The first draft listed `gate.refused` and read
 ## `entityIds` off the spawn payload; the engine emits `world.zone.gate.refused` and
-## `spawnedEntityIds`. Both assumptions failed silently in the useful direction — the
-## events simply were not rendered — which is why the test asserts the SENTENCE reaches
-## the transcript rather than that a handler was called.
+## `spawnedEntityIds`. Both assumptions failed quietly until asserted against the real
+## event stream — which is why tests assert that sentences reach `transcript`.
 const RENDERED := [
 	"world.zone.entered",
 	"world.zone.state.changed",
@@ -42,6 +43,10 @@ const RENDERED := [
 	"action.rejected",
 	"encounter.spawned",
 ]
+
+## Distinct presentation style shared by fallback event lines and surfaced warnings.
+const FALLBACK_COLOR := "#8a9ba8"
+const FALLBACK_TAG := "[fallback]"
 
 signal narrated(line: String)
 signal refused(reason: String)
@@ -75,6 +80,9 @@ var transcript: Array[String] = []
 var diagnostics: Array[String] = []
 
 var _player_zone := ""
+var _halted := false
+var _halt_reason := ""
+var _seen_sidecar_warnings: Dictionary = {}
 
 
 func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
@@ -97,6 +105,7 @@ func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
 
 	bus.tick_received.connect(_on_tick)
 	bus.staleness_detected.connect(_on_staleness)
+	bus.session_halted.connect(_on_session_halted)
 	bus.refused.connect(func(reason: String) -> void: _note("sim refused the connection: %s" % reason))
 	bus.transport_failed.connect(func(detail: String) -> void: _note("transport: %s" % detail))
 
@@ -107,11 +116,32 @@ func player_zone() -> String:
 	return _player_zone
 
 
+func is_halted() -> bool:
+	return _halted
+
+
+func is_syncing() -> bool:
+	return client != null and not _halted and not bool(client.call("has_baseline"))
+
+
+func is_synced() -> bool:
+	return client != null and bool(client.call("has_baseline"))
+
+
+func halt_reason() -> String:
+	return _halt_reason
+
+
 ## Walk the player toward a zone, and render whatever comes back.
 ##
 ## Deliberately does NOT check whether the move is allowed. That check exists — the gate
 ## is compiled into engine rules and its reason is authored — and it belongs to the sim.
 func walk_to(zone_id: String) -> Dictionary:
+	if _halted:
+		return {"__error__": true, "code": -32099, "message": _halt_reason}
+	if is_syncing():
+		_note("syncing: waiting for baseline snapshot before play input")
+		return {"__error__": true, "code": -32098, "message": "syncing: waiting for baseline snapshot before play input"}
 	_face_toward(zone_id)
 	var result: Dictionary = await client.call("submit_action", "move", {"targetIds": [zone_id]})
 	if result.get("__error__", false):
@@ -128,7 +158,12 @@ func walk_to(zone_id: String) -> Dictionary:
 ## Advance the world a round without acting — the path a state shock arrives on, since
 ## `runZoneStateStep` runs from the world tick rather than from a verb.
 func advance() -> Dictionary:
-	var result: Dictionary = await client.call("request", "advance", {"rounds": 1})
+	if _halted:
+		return {"__error__": true, "code": -32099, "message": _halt_reason}
+	if is_syncing():
+		_note("syncing: waiting for baseline snapshot before play input")
+		return {"__error__": true, "code": -32098, "message": "syncing: waiting for baseline snapshot before play input"}
+	var result: Dictionary = await client.call("advance", 1)
 	if result.get("__error__", false):
 		_log("wire error on advance: %s" % result.get("message", ""))
 		return result
@@ -147,10 +182,10 @@ func advance() -> Dictionary:
 ## sim should have been clearer about.
 func _present(event: Dictionary) -> Variant:
 	var type := String(event.get("type", ""))
+	var raw_payload: Variant = event.get("payload", {})
+	var payload: Dictionary = raw_payload as Dictionary if raw_payload is Dictionary else {}
 	if not RENDERED.has(type):
-		return null
-
-	var payload: Dictionary = event.get("payload", {}) as Dictionary
+		return _present_fallback(type, payload)
 
 	match type:
 		"world.zone.entered":
@@ -163,6 +198,15 @@ func _present(event: Dictionary) -> Variant:
 			return _present_rejected(payload)
 		"encounter.spawned":
 			return _present_spawned(payload)
+	return null
+
+
+func _present_fallback(type: String, payload: Dictionary) -> Variant:
+	var keys: Array[String] = []
+	for k: Variant in payload.keys():
+		keys.append(String(k))
+	keys.sort()
+	_log(format_fallback_line(type, ", ".join(keys)))
 	return null
 
 
@@ -285,10 +329,84 @@ func _on_tick(_tick: int, _hash: String, events: Array, _delta: Array) -> void:
 
 
 func _on_staleness(detail: String) -> void:
-	# Reported, never corrected (charter §3.3). A stage that "fixed" a mismatch would be
-	# inventing a world. Recorded as a DIAGNOSTIC rather than in the transcript: it is not
-	# something the player saw, and its arrival is frame-timed.
+	# Mirror or position diverged: logged with pre-image offset and resynced from the
+	# engine's authoritative snapshot rather than patching the sim. Recorded as a
+	# DIAGNOSTIC so frame timing never perturbs replay-transcript ordering.
 	_note("[stale] %s" % detail)
+
+
+func _on_session_halted(reason: String) -> void:
+	_halted = true
+	_halt_reason = reason
+	_note("[halt] %s" % reason)
+	_log("[color=#c66]Sync halted: %s[/color]" % reason)
+
+
+## Format a line in the distinct fallback transcript style.
+static func format_fallback_line(label: String, keys_or_detail: String = "") -> String:
+	if keys_or_detail.is_empty():
+		return "[color=%s]%s %s[/color]" % [FALLBACK_COLOR, FALLBACK_TAG, label]
+	return "[color=%s]%s %s (%s)[/color]" % [FALLBACK_COLOR, FALLBACK_TAG, label, keys_or_detail]
+
+
+## Surface sidecar stderr warning lines (e.g. from `--unresolved-ai-profile warn`) to both
+## the diagnostic log and on-screen transcript in the fallback style.
+func ingest_sidecar_stderr(stderr_text: String) -> int:
+	var surfaced := 0
+	for raw: String in stderr_text.split("\n", false):
+		var line := raw.strip_edges()
+		if line.is_empty():
+			continue
+		if not (line.contains("[sidecar] warning") or line.contains("UNRESOLVED_AI_PROFILE")):
+			continue
+		var key := _warning_dedup_key(line)
+		if _seen_sidecar_warnings.has(key):
+			continue
+		_seen_sidecar_warnings[key] = true
+		diagnostics.append("[warning] %s" % line)
+		_log(format_fallback_line("sidecar.warning", line))
+		surfaced += 1
+	return surfaced
+
+
+## Surface any unresolved-profile warnings delivered via `initialize.packIntake.warnings`
+## when not already ingested from stderr.
+func ingest_pack_intake(handshake: Dictionary) -> int:
+	var intake_v: Variant = handshake.get("packIntake", {})
+	if not (intake_v is Dictionary):
+		return 0
+	var warnings_v: Variant = (intake_v as Dictionary).get("warnings", [])
+	if not (warnings_v is Array):
+		return 0
+	var surfaced := 0
+	for w_v: Variant in (warnings_v as Array):
+		if not (w_v is Dictionary):
+			continue
+		var w := w_v as Dictionary
+		var line := "[sidecar] warning [%s] %s: %s" % [
+			String(w.get("code", "WARNING")),
+			String(w.get("path", "")),
+			String(w.get("message", "")),
+		]
+		var key := _warning_dedup_key(line)
+		if _seen_sidecar_warnings.has(key):
+			continue
+		_seen_sidecar_warnings[key] = true
+		diagnostics.append("[warning] %s" % line)
+		_log(format_fallback_line("sidecar.warning", line))
+		surfaced += 1
+	return surfaced
+
+
+## Surface a pack-load refusal from `--unresolved-ai-profile fail` visibly in transcript and log.
+func report_startup_refusal(detail: String) -> void:
+	diagnostics.append("[refused] %s" % detail)
+	_log("[color=#c66]Sidecar refused pack: %s[/color]" % detail)
+
+
+static func _warning_dedup_key(line: String) -> String:
+	var idx := line.find("[sidecar] warning")
+	return line.substr(idx) if idx >= 0 else line
 
 
 func _log(line: String) -> void:
