@@ -35,6 +35,8 @@ var _busy := false
 var _syncing := false
 var _halted := false
 var _toast_left := 0.0
+var _sidecar_stderr_path := ""
+var _sidecar_stderr_len := -1
 
 
 func _ready() -> void:
@@ -43,6 +45,7 @@ func _ready() -> void:
 	_build_ui()
 
 	var target := _attach_target()
+	_sidecar_stderr_path = _user_arg("sidecar-stderr")
 	_wire_iso()
 	if target.is_empty():
 		_status.text = "not attached — run: node tools/play.mjs"
@@ -55,9 +58,14 @@ func _ready() -> void:
 
 ## `--attach=host:port`, passed after `--` by the launcher.
 func _attach_target() -> String:
+	return _user_arg("attach")
+
+
+func _user_arg(key: String) -> String:
+	var prefix := "--%s=" % key
 	for a: String in OS.get_cmdline_user_args():
-		if a.begins_with("--attach="):
-			return a.substr(9)
+		if a.begins_with(prefix):
+			return a.substr(prefix.length())
 	return ""
 
 
@@ -106,6 +114,8 @@ func _attach(target: String) -> void:
 	if _doors:
 		_doors.text = "[i]Syncing baseline snapshot…[/i]"
 	_wire_iso()
+	_drain_sidecar_stderr()
+	session.call("ingest_pack_intake", handshake)
 	await client.call("snapshot")
 	if _halted:
 		_syncing = false
@@ -247,7 +257,20 @@ func _say(line: String) -> void:
 		_toast_left = 4.0
 
 
+func _drain_sidecar_stderr() -> void:
+	if session == null or _sidecar_stderr_path.is_empty():
+		return
+	if not FileAccess.file_exists(_sidecar_stderr_path):
+		return
+	var text := FileAccess.get_file_as_string(_sidecar_stderr_path)
+	if text.length() == _sidecar_stderr_len:
+		return
+	_sidecar_stderr_len = text.length()
+	session.call("ingest_sidecar_stderr", text)
+
+
 func _process(delta: float) -> void:
+	_drain_sidecar_stderr()
 	if _toast_left <= 0.0:
 		return
 	_toast_left -= delta

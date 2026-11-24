@@ -44,6 +44,10 @@ const RENDERED := [
 	"encounter.spawned",
 ]
 
+## Distinct presentation style shared by fallback event lines and surfaced warnings.
+const FALLBACK_COLOR := "#8a9ba8"
+const FALLBACK_TAG := "[fallback]"
+
 signal narrated(line: String)
 signal refused(reason: String)
 signal zone_entered(zone_id: String)
@@ -78,6 +82,7 @@ var diagnostics: Array[String] = []
 var _player_zone := ""
 var _halted := false
 var _halt_reason := ""
+var _seen_sidecar_warnings: Dictionary = {}
 
 
 func setup(diorama_node: Node2D, network_client: Node, event_bus: Node) -> void:
@@ -326,6 +331,73 @@ func _on_session_halted(reason: String) -> void:
 	_halt_reason = reason
 	_note("[halt] %s" % reason)
 	_log("[color=#c66]Sync halted: %s[/color]" % reason)
+
+
+## Format a line in the distinct fallback transcript style.
+static func format_fallback_line(label: String, keys_or_detail: String = "") -> String:
+	if keys_or_detail.is_empty():
+		return "[color=%s]%s %s[/color]" % [FALLBACK_COLOR, FALLBACK_TAG, label]
+	return "[color=%s]%s %s (%s)[/color]" % [FALLBACK_COLOR, FALLBACK_TAG, label, keys_or_detail]
+
+
+## Surface sidecar stderr warning lines (e.g. from `--unresolved-ai-profile warn`) to both
+## the diagnostic log and on-screen transcript in the fallback style.
+func ingest_sidecar_stderr(stderr_text: String) -> int:
+	var surfaced := 0
+	for raw: String in stderr_text.split("\n", false):
+		var line := raw.strip_edges()
+		if line.is_empty():
+			continue
+		if not (line.contains("[sidecar] warning") or line.contains("UNRESOLVED_AI_PROFILE")):
+			continue
+		var key := _warning_dedup_key(line)
+		if _seen_sidecar_warnings.has(key):
+			continue
+		_seen_sidecar_warnings[key] = true
+		diagnostics.append("[warning] %s" % line)
+		_log(format_fallback_line("sidecar.warning", line))
+		surfaced += 1
+	return surfaced
+
+
+## Surface any unresolved-profile warnings delivered via `initialize.packIntake.warnings`
+## when not already ingested from stderr.
+func ingest_pack_intake(handshake: Dictionary) -> int:
+	var intake_v: Variant = handshake.get("packIntake", {})
+	if not (intake_v is Dictionary):
+		return 0
+	var warnings_v: Variant = (intake_v as Dictionary).get("warnings", [])
+	if not (warnings_v is Array):
+		return 0
+	var surfaced := 0
+	for w_v: Variant in (warnings_v as Array):
+		if not (w_v is Dictionary):
+			continue
+		var w := w_v as Dictionary
+		var line := "[sidecar] warning [%s] %s: %s" % [
+			String(w.get("code", "WARNING")),
+			String(w.get("path", "")),
+			String(w.get("message", "")),
+		]
+		var key := _warning_dedup_key(line)
+		if _seen_sidecar_warnings.has(key):
+			continue
+		_seen_sidecar_warnings[key] = true
+		diagnostics.append("[warning] %s" % line)
+		_log(format_fallback_line("sidecar.warning", line))
+		surfaced += 1
+	return surfaced
+
+
+## Surface a pack-load refusal from `--unresolved-ai-profile fail` visibly in transcript and log.
+func report_startup_refusal(detail: String) -> void:
+	diagnostics.append("[refused] %s" % detail)
+	_log("[color=#c66]Sidecar refused pack: %s[/color]" % detail)
+
+
+static func _warning_dedup_key(line: String) -> String:
+	var idx := line.find("[sidecar] warning")
+	return line.substr(idx) if idx >= 0 else line
 
 
 func _log(line: String) -> void:

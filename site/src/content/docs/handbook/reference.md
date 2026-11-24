@@ -40,6 +40,7 @@ Felt files are `assets/felt/<cueId>.wav`. The mixer falls back to a sine tone wh
 | `--no-shock` | off |
 | `--engine <dir>` | `../ai-rpg-engine` |
 | `--forge <dir>` | `../world-forge` |
+| `--unresolved-ai-profile <fail\|warn>` | `fail` (`warn` when `--release`) |
 | `--headless` | off (start the sim only and print the port) |
 
 Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 when the window closes.
@@ -69,6 +70,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 | `iso_math` | 2:1 conversion is invertible and cell-stable; Cartesian east is a screen diagonal |
 | `iso_world` | the play view is an isometric `TileMapLayer`, Y-sorted, with a Foundry player on a blob and the iso camera current |
 | `live_session` | the sim drives the stage over a real sidecar with per-move canonical digest verification |
+| `profile_policy` | debug/CI pass `--unresolved-ai-profile fail`; release passes `warn` and surfaces stderr warnings to transcript and log |
 | `scene_join` | zone ids reconcile with scene nodes both ways; the doctored fixture fails both ways, naming the ids |
 | `state_digest` | cross-language canonical digest parity, handshake `digest_spec_version` gate, automatic post-submit resync, and 3-resync cap |
 | `tick_queue` | ticks apply in order; gaps are detected |

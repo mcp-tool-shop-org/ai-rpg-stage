@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Unresolved behaviour profile policy (`fail` in debug/CI, `warn` in release):**
+  `tools/play.mjs`, `tools/sidecar_harness.gd`, and `.github/workflows/ci.yml`
+  pass `--unresolved-ai-profile fail` explicitly in debug builds, CI, and
+  dev launches, and `warn` in release exports (`--release`). Under `warn`,
+  sidecar stderr warnings are captured via `tools/sidecar_spawn.mjs` / launcher
+  logs and surfaced both in `Session.diagnostics` and on screen as fallback-styled
+  transcript lines. `tools/check_ci_log.sh` fails CI on any unresolved-profile
+  warning, refusal, or `dropped ... aiProfile` line. Tests live in
+  `tests/test_profile_policy.gd`.
+
 - **Per-move canonical digest verification and bounded snapshot resync:**
   `client/state_digest.gd` implements spec-v2 canonical state hashing (`1e6`
   half-away-from-zero scaling, sorted ASCII keys, retained `null` keys) and

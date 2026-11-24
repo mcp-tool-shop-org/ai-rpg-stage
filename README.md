@@ -71,7 +71,7 @@ grid. Nothing under `assets/iso/` is loaded; that folder is dead.
 | `assets/characters/` | Vendored Foundry HD packs (townsfolk) |
 | `fixtures/` | A generated world and its wire-side truth, committed as a pair so the join between them can be checked |
 | `tools/` | The headless test runner, the screenshot tool, the play launcher, the sidecar harness |
-| `tests/` | Twelve proof suites, each with a control that makes it fail |
+| `tests/` | Thirteen proof suites, each with a control that makes it fail |
 
 ## Running it
 
@@ -87,7 +87,8 @@ node tools/play.mjs
 
 Options: `--seed <n>` (default 71), `--port <n>` (default 47820),
 `--shock <district:metric:delta@round>` or `--no-shock`, `--engine <dir>`,
-`--forge <dir>`, `--headless` (start the sim only and print the port).
+`--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (default `fail`, or
+`warn` via `--release`), `--headless` (start the sim only and print the port).
 
 | Key | Does |
 |---|---|

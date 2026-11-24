@@ -17,7 +17,7 @@
           "path": ".github/workflows/bump-upstream-pins.yml"
         },
         {
-          "hash": "abdc3de5d7548f479d2025dea85c103c9b211df31a50577c1f3b22b1bdfac507",
+          "hash": "bc08fab23dae78b2cd6a69763e1b16d45ea5379519ed3c344e93bea43d806411",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -3089,6 +3089,10 @@
           "path": "client/state_digest.gd"
         },
         {
+          "hash": "96707171afa39eda502a404df3bcdbf63f6f17578b964ff6b3e25d20d8ca7ea1",
+          "path": "client/state_digest.gd.uid"
+        },
+        {
           "exports": [
             "drain",
             "enqueue",
@@ -3112,7 +3116,7 @@
       "name": "client",
       "origin": "authored",
       "role": "code",
-      "testedBy": 11,
+      "testedBy": 13,
       "unresolvedSites": 0
     },
     {
@@ -3233,7 +3237,7 @@
       "name": "fixtures",
       "origin": "generated",
       "role": "data",
-      "testedBy": 3,
+      "testedBy": 4,
       "unresolvedSites": 0
     },
     {
@@ -3253,7 +3257,7 @@
           "path": ".gitignore"
         },
         {
-          "hash": "ba21dc08a54091b6d8896d39aad581908a96108b95373ccd0c7f4defbec933a2",
+          "hash": "76d819ded409b3b823f0037b630316f9192eaf5a43cf3a7c87d6e5fb4540b79a",
           "path": "CHANGELOG.md"
         },
         {
@@ -3281,7 +3285,7 @@
           "path": "README.ja.md"
         },
         {
-          "hash": "912f5d953ec9e6ff0c4e80b943249ea1b8d7346e48756ddde51e42024a7a9746",
+          "hash": "b2b065b2b3cae2961583dabef4e0751b91bced9c81d4e4b8e82cd3d7d40bf6a8",
           "path": "README.md"
         },
         {
@@ -3365,7 +3369,7 @@
           "path": "site/src/content.config.ts"
         },
         {
-          "hash": "49602180c07f729677190eeb70cb295c82dacc17dc0289ad731b4cebf0c57d2a",
+          "hash": "5600e8f1590e56c20db3c7b66090545deee63ad23906d1ff53b624cc169671ed",
           "path": "site/src/content/docs/handbook/attach.md"
         },
         {
@@ -3385,7 +3389,7 @@
           "path": "site/src/content/docs/handbook/levers.md"
         },
         {
-          "hash": "a30b31b636bc82fe1b0c41a9406f5bcaa7c6bdb5c7ec9e3a8ed882cc6a74859d",
+          "hash": "83d73d2dae9b78763dc54485d096921cb8e7b97531f32a0db6e76ad39e36e45c",
           "path": "site/src/content/docs/handbook/reference.md"
         },
         {
@@ -4288,7 +4292,7 @@
         {
           "entry": "_ready",
           "entryRule": 1,
-          "hash": "2f12cf8803cde9d9470d3061095efba9b20f16ddbda7b67acbe5acc9580b342c",
+          "hash": "ca8b58ff69c08f6abf6b5652359c75edace6d2085c6e4213c35c121c4c3d47d6",
           "importsFiles": [
             "client/event_bus.gd",
             "client/network_client.gd",
@@ -4299,7 +4303,7 @@
             {
               "calls": [
                 {
-                  "line": 69,
+                  "line": 77,
                   "name": "new",
                   "receiver": "EventBus",
                   "target": {
@@ -4308,7 +4312,7 @@
                   "via": "_attach"
                 },
                 {
-                  "line": 73,
+                  "line": 81,
                   "name": "new",
                   "receiver": "NetworkClient",
                   "target": {
@@ -4317,7 +4321,7 @@
                   "via": "_attach"
                 },
                 {
-                  "line": 78,
+                  "line": 86,
                   "name": "new",
                   "receiver": "Session",
                   "target": {
@@ -4334,7 +4338,7 @@
             {
               "calls": [
                 {
-                  "line": 69,
+                  "line": 77,
                   "name": "new",
                   "receiver": "EventBus",
                   "target": {
@@ -4342,7 +4346,7 @@
                   }
                 },
                 {
-                  "line": 73,
+                  "line": 81,
                   "name": "new",
                   "receiver": "NetworkClient",
                   "target": {
@@ -4350,7 +4354,7 @@
                   }
                 },
                 {
-                  "line": 78,
+                  "line": 86,
                   "name": "new",
                   "receiver": "Session",
                   "target": {
@@ -4374,13 +4378,17 @@
           "entryRule": 4,
           "exports": [
             "advance",
+            "format_fallback_line",
             "halt_reason",
+            "ingest_pack_intake",
+            "ingest_sidecar_stderr",
             "is_halted",
             "player_zone",
+            "report_startup_refusal",
             "setup",
             "walk_to"
           ],
-          "hash": "6023b43139ce8dca8fef0c8a6638b4fc2ad337d420d33ae594af926002aaf28c",
+          "hash": "5df6aba4151ed00ed47d23c509728836db4e1760b986f0fca737346a2b0b2593",
           "importsFiles": [
             "client/tick_queue.gd",
             "stage/felt_juice.gd",
@@ -4393,7 +4401,7 @@
             {
               "calls": [
                 {
-                  "line": 88,
+                  "line": 93,
                   "name": "new",
                   "receiver": "TickQueue",
                   "target": {
@@ -4401,7 +4409,7 @@
                   }
                 },
                 {
-                  "line": 91,
+                  "line": 96,
                   "name": "new",
                   "receiver": "FeltMixer",
                   "target": {
@@ -4409,7 +4417,7 @@
                   }
                 },
                 {
-                  "line": 94,
+                  "line": 99,
                   "name": "new",
                   "receiver": "FeltJuice",
                   "target": {
@@ -4417,7 +4425,7 @@
                   }
                 },
                 {
-                  "line": 97,
+                  "line": 102,
                   "name": "new",
                   "receiver": "FeltVoice",
                   "target": {
@@ -4433,7 +4441,7 @@
             {
               "calls": [
                 {
-                  "line": 343,
+                  "line": 415,
                   "name": "face",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -4450,7 +4458,7 @@
             {
               "calls": [
                 {
-                  "line": 270,
+                  "line": 275,
                   "name": "attach",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -4467,7 +4475,7 @@
             {
               "calls": [
                 {
-                  "line": 270,
+                  "line": 275,
                   "name": "attach",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -4483,7 +4491,7 @@
             {
               "calls": [
                 {
-                  "line": 343,
+                  "line": 415,
                   "name": "face",
                   "receiver": "SpriteBinder",
                   "target": {
@@ -4527,7 +4535,7 @@
       "name": "stage",
       "origin": "authored",
       "role": "code",
-      "testedBy": 14,
+      "testedBy": 15,
       "unresolvedSites": 0
     },
     {
@@ -4686,6 +4694,33 @@
         },
         {
           "exports": [
+            "run_async"
+          ],
+          "hash": "a729ec7a94d9c9271e116b7a77b8a63b624b98694dba9f3b1e802db64a11c63d",
+          "importOrder": [
+            "tools/sidecar_harness.gd",
+            "client/network_client.gd",
+            "client/event_bus.gd",
+            "stage/diorama.gd",
+            "stage/session.gd",
+            "stage/playable.gd"
+          ],
+          "importsFiles": [
+            "client/event_bus.gd",
+            "client/network_client.gd",
+            "stage/diorama.gd",
+            "stage/playable.gd",
+            "stage/session.gd",
+            "tools/sidecar_harness.gd"
+          ],
+          "path": "tests/test_profile_policy.gd"
+        },
+        {
+          "hash": "a881a5c56de61c572e8cd4844e79391dde7b811f6c50a0a1fa4d5fc6423bf221",
+          "path": "tests/test_profile_policy.gd.uid"
+        },
+        {
+          "exports": [
             "run"
           ],
           "hash": "281192c1148a72c088f6674afe2d1c6cc8e02690913d5244ed732f753d60742a",
@@ -4724,6 +4759,10 @@
             "tools/sidecar_harness.gd"
           ],
           "path": "tests/test_state_digest.gd"
+        },
+        {
+          "hash": "115f3771d13237c75199e98498d2eb05e1e22fcb8aebde5389b74d67e96bb9a7",
+          "path": "tests/test_state_digest.gd.uid"
         },
         {
           "exports": [
@@ -4773,12 +4812,16 @@
     },
     {
       "dynamicReads": 1,
-      "dynamicSpawns": 2,
+      "dynamicSpawns": 3,
       "dynamicSpawnsInTests": 0,
-      "dynamicWrites": 0,
+      "dynamicWrites": 3,
       "entryPoints": [],
       "externals": 0,
       "files": [
+        {
+          "hash": "48f2a441c44256430ea3a26778adbbf37f95690263f8f91d7fed5e8c320d177d",
+          "path": "tools/check_ci_log.sh"
+        },
         {
           "entry": "_initialize",
           "entryRule": 1,
@@ -4853,7 +4896,14 @@
           "path": "tools/iso_make_proof_kit.py"
         },
         {
-          "hash": "585eaba54059923ddd9d97ff5005278561ba5a25ccb729f72c9602cb973b0c09",
+          "failurePaths": [
+            {
+              "in": "cleanupStderrLog",
+              "kind": "catch",
+              "line": 120
+            }
+          ],
+          "hash": "e3a0b3f95471c26ac8b79e2032b7a7d98157a0dac5e47f5399fb6c11f7627e1a",
           "path": "tools/play.mjs"
         },
         {
@@ -4870,18 +4920,26 @@
         {
           "exports": [
             "bin_path",
+            "cleanup_stderr_file",
+            "effective_unresolved_profile_mode",
             "find_engine_dir",
             "salt_road_manifest",
             "salt_road_pack",
             "start",
+            "stderr_lines",
+            "stderr_text",
             "stop"
           ],
-          "hash": "915dee573d5014fcfa5f9a15fa9f2d7c4d940b7094f797753b346dd404679ff8",
+          "hash": "8993bcf823899e4c99fa93e58f16d2b47a5bf7aeee81e0be0605f6ec246391bd",
           "path": "tools/sidecar_harness.gd"
         },
         {
           "hash": "036c76c506a0373dc440f21e53d3e3951810004ad9dfcd313ef43c7fff31ca15",
           "path": "tools/sidecar_harness.gd.uid"
+        },
+        {
+          "hash": "c260c32d71693eaa651e1d5c3a44764d588a66e907e078338f3cfdf3b47f8bfa",
+          "path": "tools/sidecar_spawn.mjs"
         },
         {
           "exports": [
@@ -4915,11 +4973,19 @@
             "caller"
           ],
           "writes": 0
+        },
+        {
+          "reads": 0,
+          "where": [
+            "temp"
+          ],
+          "writes": 2
         }
       ],
       "outsideReads": 2,
+      "outsideWrites": 2,
       "role": "code",
-      "testedBy": 3,
+      "testedBy": 4,
       "unresolvedSites": 0
     }
   ],
@@ -5071,6 +5137,21 @@
         {
           "job": "headless",
           "programs": [
+            "bash",
+            "cat",
+            "echo",
+            "grep",
+            "kill",
+            "node",
+            "seq",
+            "sleep",
+            "wait"
+          ],
+          "step": "Verify Salt Road loads clean under unresolved-ai-profile fail"
+        },
+        {
+          "job": "headless",
+          "programs": [
             "chmod",
             "curl",
             "mkdir",
@@ -5115,12 +5196,12 @@
           "step": "Every expected suite actually ran"
         },
         {
+          "dir": "",
           "job": "headless",
           "programs": [
-            "echo",
-            "grep"
+            "bash"
           ],
-          "step": "Refuse resource-load noise"
+          "step": "Refuse resource-load, sync-cap, and profile-warning noise"
         }
       ],
       "elsewhere": [],
@@ -5166,6 +5247,10 @@
         },
         {
           "job": "headless",
+          "path": "fixtures/salt-road.manifest.json"
+        },
+        {
+          "job": "headless",
           "path": "fixtures/world.tscn"
         }
       ],
@@ -5178,12 +5263,12 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 12
+          "files": 13
         },
         {
           "boundary": "tools",
           "depth": 0,
-          "files": 3
+          "files": 4
         },
         {
           "boundary": "client",
@@ -5377,6 +5462,20 @@
           "foundBy": "tools/headless.gd",
           "job": "headless",
           "matched": true,
+          "path": "tests/test_profile_policy.gd",
+          "runKind": "executes",
+          "via": "tools/headless.gd",
+          "when": {
+            "also": [
+              "push"
+            ],
+            "fork": true
+          }
+        },
+        {
+          "foundBy": "tools/headless.gd",
+          "job": "headless",
+          "matched": true,
           "path": "tests/test_scene_join.gd",
           "runKind": "executes",
           "via": "tools/headless.gd",
@@ -5431,6 +5530,17 @@
         },
         {
           "job": "headless",
+          "path": "tools/check_ci_log.sh",
+          "runKind": "executes",
+          "when": {
+            "also": [
+              "push"
+            ],
+            "fork": true
+          }
+        },
+        {
+          "job": "headless",
           "path": "tools/headless.gd",
           "runKind": "executes",
           "when": {
@@ -5441,7 +5551,7 @@
           }
         }
       ],
-      "runsCount": 13,
+      "runsCount": 15,
       "secrets": [],
       "sends": {
         "deploysPages": false,
@@ -5466,6 +5576,7 @@
             "tests/test_iso_math.gd",
             "tests/test_iso_world.gd",
             "tests/test_live_session.gd",
+            "tests/test_profile_policy.gd",
             "tests/test_scene_join.gd",
             "tests/test_state_digest.gd",
             "tests/test_tick_queue.gd",
@@ -5772,8 +5883,8 @@
   ],
   "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "1e691c0799178f382d6eb322e19689fbf0f87240",
-    "tracked": 681
+    "commit": "1d9ac5be49f30b9b91f32241ab8d61d7096fe927",
+    "tracked": 687
   },
   "landings": [
     {
@@ -9130,6 +9241,17 @@
     {
       "readers": [
         {
+          "by": "stage/playable.gd",
+          "call": "file_exists",
+          "confidence": "ast"
+        }
+      ],
+      "target": "stage",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
           "by": "tools/screenshot.gd",
           "call": "literal",
           "confidence": "ast"
@@ -9152,6 +9274,17 @@
     {
       "readers": [
         {
+          "by": "tools/sidecar_harness.gd",
+          "call": "file_exists",
+          "confidence": "ast"
+        }
+      ],
+      "target": "tools",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
           "by": "site/src/site-config.ts",
           "call": "literal",
           "confidence": "ast"
@@ -9164,6 +9297,6 @@
   "overlaps": [],
   "submodules": [],
   "symlinks": [],
-  "testFiles": 23,
+  "testFiles": 26,
   "unassigned": []
 }

@@ -19,7 +19,10 @@ Godot must attach over **TCP**: upstream stdio pipes are unreliable in the engin
 sidecar is started with `--listen`.
 
 A sidecar booted with `--content` still needs `--manifest`; without it the engine refuses to load
-(`SIDECAR_MANIFEST_REQUIRED`). The launcher passes `fixtures/salt-road.manifest.json`.
+(`SIDECAR_MANIFEST_REQUIRED`). The launcher passes `fixtures/salt-road.manifest.json`. It also passes
+`--unresolved-ai-profile fail` in debug builds, `play.mjs`, and CI (so unresolved profiles abort boot), and
+`--unresolved-ai-profile warn` in release exports (surfacing every stderr warning line both in the log and on
+screen in the transcript's fallback style).
 
 ## The handshake
 
