@@ -40,6 +40,7 @@ Felt files are `assets/felt/<cueId>.wav`. The mixer falls back to a sine tone wh
 | `--no-shock` | off |
 | `--engine <dir>` | `../ai-rpg-engine` |
 | `--forge <dir>` | `../world-forge` |
+| `--unresolved-ai-profile <fail\|warn>` | `fail` (`warn` when `--release`) |
 | `--headless` | off (start the sim only and print the port) |
 
 Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 when the window closes.
@@ -62,14 +63,18 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 | Suite | Proves |
 |---|---|
 | `diorama` | the stage stands up; a re-dress swaps dressing and moves nothing; cast carries normal maps; eight facings bucket correctly; prose reaches the stage; the stage has no way to adjudicate a gate |
+| `event_manifest` | `client/event_manifest.json` covers every `ENGINE_EVENT_TYPES` entry dynamically from the pinned engine, rejects stale todos, and replays handled events against `fixtures/handled_events_replay.json` |
+| `fallback_rendering` | unrecognised event types emit one fallback transcript line with type and sorted payload keys; `RENDERED` types emit none |
 | `felt_juice` | `uiEffects` become killable camera offsets that never move a hashed node |
 | `felt_mixer` | cue ids route to buses; overlay stings do not kill the zone stem |
 | `felt_voice` | the spoken line is spoken once, dialogue only |
 | `framing` | camera framing math |
 | `iso_math` | 2:1 conversion is invertible and cell-stable; Cartesian east is a screen diagonal |
 | `iso_world` | the play view is an isometric `TileMapLayer`, Y-sorted, with a Foundry player on a blob and the iso camera current |
-| `live_session` | the sim drives the stage over a real sidecar; staleness is reported, never corrected |
+| `live_session` | the sim drives the stage over a real sidecar with per-move canonical digest verification |
+| `profile_policy` | debug/CI pass `--unresolved-ai-profile fail`; release passes `warn` and surfaces stderr warnings to transcript and log |
 | `scene_join` | zone ids reconcile with scene nodes both ways; the doctored fixture fails both ways, naming the ids |
+| `state_digest` | cross-language canonical digest parity, handshake `digest_spec_version` gate, automatic post-submit resync, and 3-resync cap |
 | `tick_queue` | ticks apply in order; gaps are detected |
 | `wire_session` | the JSON-RPC session end to end |
 
@@ -79,7 +84,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 
 | Path | Holds |
 |---|---|
-| `client/` | `network_client.gd`, `event_bus.gd`, `tick_queue.gd`, `scene_join.gd`, `framing.gd`, `foundry_pack.gd` |
+| `client/` | `network_client.gd`, `state_digest.gd`, `event_bus.gd`, `tick_queue.gd`, `scene_join.gd`, `event_manifest.json`, `framing.gd`, `foundry_pack.gd` |
 | `stage/` | `diorama.gd/.tscn`, `session.gd`, `playable.gd` (HUD + input), `light_rig.gd`, `dressing.gd`, `felt_*.gd`, `sprite_binder.gd` |
 | `stage/iso/` | `iso_math.gd`, `iso_world.gd`, `iso_structure.gd`, `iso_actor.gd`, `iso_prop.gd` |
 | `assets/dimetric/` | the town kit (see [The dimetric camera](../dimetric/)) |
