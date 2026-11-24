@@ -80,7 +80,7 @@ porta, apre la scena, chiude la simulazione quando la finestra si chiude):
 node tools/play.mjs
 ```
 
-Opzioni: `--seed <n>` (predefinito 71), `--port <n>` (predefinito 47820, o `0` per sessioni temporanee),
+Opzioni: `--seed <n>` (predefinito 71), `--port <n>` (predefinito 47820, o `0` per una porta effimera),
 `--shock <district:metric:delta@round>` o `--no-shock`, `--engine <dir>`,
 `--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (predefinito `fail`;
 `--release` seleziona `warn` e inoltra `--sidecar-stderr=<log>` a Godot),
@@ -88,7 +88,7 @@ Opzioni: `--seed <n>` (predefinito 71), `--port <n>` (predefinito 47820, o `0` p
 `--headless` (avvia solo la simulazione, stampa la porta e attende),
 `--stage-headless` (avvia Godot con `--headless` e stdin chiuso insieme
 alla simulazione) e `--quit-after-sync <path>` (passa `--quit-after-sync=<path>` a
-Godot in modo che `Playable` scriva un riepilogo di sincronizzazione JSON dopo l'attacco e lo snapshot di base, si disconnette ed esce `0`). Si noti che una scena di Godot esportata per la pubblicazione non avvia mai direttamente la simulazione (la avvia solo tramite `--attach`):
+Godot in modo che `Playable` scriva un riepilogo di sincronizzazione JSON dopo l'attacco e lo snapshot di base, si disconnette ed esce con codice `0`). Si noti che una scena di Godot esportata per la pubblicazione non avvia mai direttamente la simulazione (si collega solo tramite `--attach`):
 `fail` rispetto a `warn` deriva da `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
 (`OS.is_debug_build()`) o un `--unresolved-ai-profile fail` esplicito di CI.
 

@@ -82,7 +82,7 @@ port, ouvre la scène, arrête la simulation lorsque la fenêtre se ferme) :
 node tools/play.mjs
 ```
 
-Options : `--seed <n>` (par défaut 71), `--port <n>` (par défaut 47 820, ou `0` pour une utilisation temporaire),
+Options : `--seed <n>` (par défaut 71), `--port <n>` (par défaut 47820, ou `0` pour une utilisation temporaire),
 `--shock <district:metric:delta@round>` ou `--no-shock`, `--engine <dir>`,
 `--forge <dir>`, `--unresolved-ai-profile <fail|warn>` (par défaut `fail` ;
 `--release` sélectionne `warn` et transmet `--sidecar-stderr=<log>` à Godot),
@@ -90,7 +90,7 @@ Options : `--seed <n>` (par défaut 71), `--port <n>` (par défaut 47 820, o
 `--headless` (démarre uniquement la simulation, affiche le port et attend),
 `--stage-headless` (lance Godot avec `--headless` et stdin fermé en même temps que
 la simulation) et `--quit-after-sync <path>` (transmet `--quit-after-sync=<path>` à
-Godot afin que `Playable` écrive un résumé de synchronisation JSON après la connexion et la capture d’instantané de référence, se déconnecte et quitte `0`). Notez qu’une scène Godot exportée pour la publication ne lance jamais directement la simulation (elle se connecte uniquement via `--attach`) :
+Godot afin que `Playable` écrive un résumé de synchronisation JSON après la connexion et la capture d’instantané de référence, se déconnecte et quitte avec le code `0`). Notez qu’une scène Godot exportée pour la publication ne lance jamais directement la simulation (elle se connecte uniquement via `--attach`) :
 `fail` par rapport à `warn` provient de `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
 (`OS.is_debug_build()`) ou du `--unresolved-ai-profile fail` explicite de CI.
 
@@ -125,8 +125,8 @@ L’exécuteur affiche `PASS:` / `FAIL:` lignes et une ligne `verdict=` et quitt
 avec un code d’erreur en cas d’échec, sur un test qui n’a rien affirmé et sur un filtre `--only=`
 qui n’a rien trouvé. Un filtre est **un** nom de suite ; une liste séparée par des virgules ne correspond à rien, et une exécution vide est un échec ici, et non une réussite.
 
-**Déclencheurs CI et filtres de chemin.** GitHub Actions déclenche des exécutions sur les chemins de projet surveillés (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`, `fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`, `.github/upstream-pins.env`, `atlas/**`) et ignore `pull_request` tâches provenant des branches du même dépôt, car les tests correspondants (`push`) qui effectuent un commit sont déjà exécutés.
-Étant donné que `on.push.paths` n’examine que la plage envoyée (`before..after`), tandis que `on.pull_request.paths` examine l’ensemble des différences de la demande de fusion (`base...head`), une demande de fusion du même dépôt avec des commits surveillés antérieurs laisse son dernier SHA sans exécution `headless` après soit (1) un commit de suivi qui n’est pas surveillé (`README.md`, `CHANGELOG.md`, `site/**`, docs), soit (2) un simple commit ou un commit qui n’est pas surveillé avec une poussée forcée `--amend`. Les modifications surveillées ont déjà été exécutées lors de la poussée, elles sont exécutées à nouveau lors de la fusion vers `main` (`main^..main`), ou peuvent être exécutées via `workflow_dispatch`. Sur `main`, la concurrence des tâches maintient une tâche en cours d’exécution et au maximum une tâche en attente (`cancel-in-progress: false`), de sorte que deux fusions rapides s’exécutent toutes les deux, tandis qu’une troisième fusion avant la fin de la première remplace la deuxième tâche en attente, dont elle inclut l’arborescence.
+**Déclencheurs CI et filtres de chemin.** GitHub Actions filtre (conditionne) les exécutions selon les chemins de projet surveillés (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`, `fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`, `.github/upstream-pins.env`, `atlas/**`) et ignore `pull_request` tâches provenant des branches du même dépôt, car l’exécution `push` correspondante teste ce commit.
+Étant donné que `on.push.paths` n’examine que la plage envoyée (`before..after`), tandis que `on.pull_request.paths` examine l’ensemble des différences de la demande de fusion (`base...head`), une demande de fusion du même dépôt avec des commits surveillés antérieurs laisse son dernier SHA sans exécution `headless` après soit (1) un commit de suivi ne modifiant que des fichiers non surveillés (`README.md`, `CHANGELOG.md`, `site/**`, docs), soit (2) une poussée forcée `--amend` ne modifiant que le message de commit ou que des fichiers non surveillés. Les modifications surveillées ont déjà été exécutées lors de la poussée, elles sont exécutées à nouveau lors de la fusion vers `main` (`main^..main`), ou peuvent être exécutées via `workflow_dispatch`. Sur `main`, la concurrence des tâches maintient une tâche en cours d’exécution et au maximum une tâche en attente (`cancel-in-progress: false`), de sorte que deux fusions rapides s’exécutent toutes les deux, tandis qu’une troisième fusion avant la fin de la première remplace la deuxième tâche en attente, dont elle inclut l’arborescence.
 
 ## Connexion
 

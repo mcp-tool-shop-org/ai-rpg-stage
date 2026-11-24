@@ -83,9 +83,9 @@ Opciones: `--seed <n>` (predeterminado 71), `--port <n>` (predeterminado 47820, 
 `--release` selecciona `warn` y reenvía `--sidecar-stderr=<log>` a Godot),
 `--godot <bin>` (ruta del ejecutable de Godot, predeterminado `GODOT_BIN` o `godot`),
 `--headless` (inicia solo la simulación, imprime el puerto y espera),
-`--stage-headless` (inicia Godot con `--headless` y cierra la entrada estándar junto con
+`--stage-headless` (inicia Godot con `--headless` y la entrada estándar cerrada junto con
 la simulación) y `--quit-after-sync <path>` (pasa `--quit-after-sync=<path>` a
-Godot para que `Playable` escriba un resumen de sincronización JSON después de la conexión y la instantánea de referencia, se desconecta y sale de `0`). Tenga en cuenta que un escenario de Godot exportado para su lanzamiento nunca inicia la simulación directamente (solo se conecta a través de `--attach`):
+Godot para que `Playable` escriba un resumen de sincronización JSON después de la conexión y la instantánea de referencia, se desconecta y sale con código `0`). Tenga en cuenta que un escenario de Godot exportado para su lanzamiento nunca inicia la simulación directamente (solo se conecta a través de `--attach`):
 `fail` frente a `warn` proviene de `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
 (`OS.is_debug_build()`) o el `--unresolved-ai-profile fail` explícito de CI.
 

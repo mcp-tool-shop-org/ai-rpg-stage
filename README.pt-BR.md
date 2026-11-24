@@ -88,9 +88,9 @@ Opções: `--seed <n>` (padrão 71), `--port <n>` (padrão 47820 ou `0` para ef�
 `--headless` (inicia a simulação apenas, imprime a porta e aguarda),
 `--stage-headless` (inicia o Godot com `--headless` e stdin fechado junto com
 a simulação) e `--quit-after-sync <path>` (passa `--quit-after-sync=<path>` para
-o Godot para que `Playable` escreva um resumo de sincronização JSON após a anexação e o snapshot de linha de base, desconecte e saia `0`). Observe que um cenário exportado para lançamento nunca inicia a simulação diretamente (ele apenas se anexa por meio de `--attach`):
+o Godot para que `Playable` escreva um resumo de sincronização JSON após a anexação e o snapshot de linha de base, desconecte e saia com código `0`). Observe que um cenário do Godot exportado para lançamento nunca inicia a simulação diretamente (ele apenas se anexa por meio de `--attach`):
 `fail` vs `warn` vem de `tools/play.mjs` (`--release`), `tools/sidecar_harness.gd`
-(`OS.is_debug_build()`) ou CI's `--unresolved-ai-profile fail` explícito.
+(`OS.is_debug_build()`) ou o `--unresolved-ai-profile fail` explícito da CI.
 
 | Chave | Faz |
 |---|---|
@@ -123,8 +123,8 @@ O executor imprime `PASS:` / `FAIL:` linhas e uma linha `verdict=` e sai
 com código de erro em qualquer falha, em um teste que não afirmou nada e em um filtro `--only=`
 que não correspondeu a nada. Um filtro é **um** nome de conjunto; uma lista separada por vírgulas não corresponde a nada, e uma execução vazia é uma falha aqui, não um sucesso.
 
-**Gatilhos de CI e filtros de caminho.** GitHub As ações iniciam execuções nos caminhos de projeto monitorados (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`, `fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`, `.github/upstream-pins.env`, `atlas/**`) e ignoram `pull_request` tarefas de ramos do mesmo repositório porque os testes correspondentes `push` são executados ao fazer o commit.
-Como `on.push.paths` inspeciona apenas o intervalo enviado (`before..after`), enquanto `on.pull_request.paths` inspeciona toda a diferença do PR (`base...head`), um PR do mesmo repositório com commits monitorados anteriores deixa seu SHA no final sem uma execução `headless` após (1) um commit de acompanhamento que não foi monitorado (`README.md`, `CHANGELOG.md`, `site/**`, docs) ou (2) um envio forçado `--amend` que contém apenas a mensagem do commit ou que não foi monitorado — as edições monitoradas já foram executadas no envio, são executadas novamente na mesclagem para `main` (`main^..main`) ou podem ser executadas por meio de `workflow_dispatch`. Em `main`, a concorrência de tarefas mantém uma tarefa em execução mais, no máximo, uma tarefa pendente (`cancel-in-progress: false`), portanto, duas mesclagens rápidas são executadas simultaneamente, enquanto uma terceira mesclagem antes que a primeira termine substitui a segunda, que estava na fila e cujo árvore está incluída.
+**Gatilhos de CI e filtros de caminho.** O GitHub Actions restringe as execuções aos caminhos de projeto monitorados (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`, `fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`, `.github/upstream-pins.env`, `atlas/**`) e ignoram `pull_request` tarefas de ramos do mesmo repositório porque a execução de `push` correspondente testa esse commit.
+Como `on.push.paths` inspeciona apenas o intervalo enviado (`before..after`), enquanto `on.pull_request.paths` inspeciona toda a diferença do PR (`base...head`), um PR do mesmo repositório com commits monitorados anteriores deixa seu SHA no final sem uma execução `headless` após (1) um commit de acompanhamento contendo apenas arquivos não monitorados (`README.md`, `CHANGELOG.md`, `site/**`, docs) ou (2) um envio forçado `--amend` que contém apenas a mensagem do commit ou que não foi monitorado — as edições monitoradas já foram executadas no envio, são executadas novamente na mesclagem para `main` (`main^..main`) ou podem ser executadas por meio de `workflow_dispatch`. Em `main`, a concorrência de tarefas mantém uma tarefa em execução mais, no máximo, uma tarefa pendente (`cancel-in-progress: false`), portanto, duas mesclagens rápidas são ambas executadas, enquanto uma terceira mesclagem antes que a primeira termine substitui a segunda, que estava na fila e cujo árvore está incluída.
 
 ## Anexando
 

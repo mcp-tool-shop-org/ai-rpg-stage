@@ -55,7 +55,7 @@
 node tools/play.mjs
 ```
 
-选项：`--seed <n>`（默认 71），`--port <n>`（默认 47820，或 `0` 用于临时使用），`--shock <district:metric:delta@round>` 或 `--no-shock`，`--engine <dir>`，`--forge <dir>`，`--unresolved-ai-profile <fail|warn>`（默认 `fail`；`--release` 选择 `warn` 并将 `--sidecar-stderr=<log>` 转发到 Godot），`--godot <bin>`（Godot 可执行文件路径，默认 `GODOT_BIN` 或 `godot`），`--headless`（仅启动模拟，打印端口并等待），`--stage-headless`（使用 `--headless` 启动 Godot，并关闭 stdin，同时启动模拟），以及 `--quit-after-sync <path>`（将 `--quit-after-sync=<path>` 传递给 Godot，以便 `Playable` 在连接和基线快照后写入 JSON 同步摘要，断开连接并退出 `0`）。请注意，发布导出的 Godot 场景不会直接启动模拟（它仅通过 `--attach` 进行连接）：`fail` 与 `warn` 来自 `tools/play.mjs`（`--release`）、`tools/sidecar_harness.gd`（`OS.is_debug_build()`）或 CI 的显式 `--unresolved-ai-profile fail`。
+选项：`--seed <n>`（默认 71），`--port <n>`（默认 47820，或 `0` 用于临时使用），`--shock <district:metric:delta@round>` 或 `--no-shock`，`--engine <dir>`，`--forge <dir>`，`--unresolved-ai-profile <fail|warn>`（默认 `fail`；`--release` 选择 `warn` 并将 `--sidecar-stderr=<log>` 转发到 Godot），`--godot <bin>`（Godot 可执行文件路径，默认 `GODOT_BIN` 或 `godot`），`--headless`（仅启动模拟，打印端口并等待），`--stage-headless`（与模拟一起以 `--headless` 和关闭的 stdin 启动 Godot），以及 `--quit-after-sync <path>`（将 `--quit-after-sync=<path>` 传递给 Godot，以便 `Playable` 在连接和基线快照后写入 JSON 同步摘要，断开连接并退出 `0`）。请注意，发布导出的 Godot 场景不会直接启动模拟（它仅通过 `--attach` 进行连接）：`fail` 与 `warn` 来自 `tools/play.mjs`（`--release`）、`tools/sidecar_harness.gd`（`OS.is_debug_build()`）或 CI 的显式 `--unresolved-ai-profile fail`。
 
 | 关键 | 执行 |
 |---|---|
