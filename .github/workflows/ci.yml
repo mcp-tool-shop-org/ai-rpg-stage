@@ -15,6 +15,7 @@ on:
       - 'transitions/**'
       - 'assets/**'
       - '.github/workflows/**'
+      - '.github/upstream-pins.env'
       - 'atlas/**'
   pull_request:
     paths:
@@ -28,6 +29,7 @@ on:
       - 'transitions/**'
       - 'assets/**'
       - '.github/workflows/**'
+      - '.github/upstream-pins.env'
       - 'atlas/**'
   workflow_dispatch:
 
