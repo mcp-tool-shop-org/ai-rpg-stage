@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Upstream pins bumped; pin edits trigger CI.** `ENGINE_REF` now points to
+  `77a9a091` (canonical state digest v2, exported event vocabulary, built-in
+  `passive` profile, and CLI `--unresolved-ai-profile fail|warn`), `FORGE_REF`
+  points to `eb2514c4`, and `.github/workflows/ci.yml` includes
+  `.github/upstream-pins.env` in both `push` and `pull_request` `paths` filters
+  so pin-only updates run CI.
+
 - **Reference lists the plates and cue ids.** Floor slot names, the six
   zone anchors' meaning, character pack ids, and the grey-box felt filenames
   are on the reference page. The dimetric page points at the lever page.
