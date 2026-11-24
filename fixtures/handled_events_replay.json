@@ -1,0 +1,52 @@
+{
+  "events": [
+    {
+      "id": "fixture-entered-1",
+      "tick": 1,
+      "type": "world.zone.entered",
+      "payload": {
+        "zoneId": "long-quay"
+      }
+    },
+    {
+      "id": "fixture-state-changed-1",
+      "tick": 2,
+      "type": "world.zone.state.changed",
+      "payload": {
+        "zoneId": "long-quay",
+        "zoneName": "The Long Quay",
+        "variantTags": ["damaged"],
+        "from": "intact",
+        "to": "damaged",
+        "cause": "stability"
+      }
+    },
+    {
+      "id": "fixture-gate-refused-1",
+      "tick": 3,
+      "type": "world.zone.gate.refused",
+      "payload": {
+        "zoneId": "bonded-warehouse",
+        "reason": "Seal, or nothing."
+      }
+    },
+    {
+      "id": "fixture-action-rejected-1",
+      "tick": 4,
+      "type": "action.rejected",
+      "payload": {
+        "verb": "yodel",
+        "reason": "No such verb."
+      }
+    },
+    {
+      "id": "fixture-encounter-spawned-1",
+      "tick": 5,
+      "type": "encounter.spawned",
+      "payload": {
+        "zoneId": "crooked-stair",
+        "spawnedEntityIds": ["npc-manifest-probe"]
+      }
+    }
+  ]
+}

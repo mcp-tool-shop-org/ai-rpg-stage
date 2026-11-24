@@ -65,13 +65,13 @@ grid. Nothing under `assets/iso/` is loaded; that folder is dead.
 
 | | |
 |---|---|
-| `client/` | The parts that talk to the engine and bind its vocabulary to the scene tree: network client, event bus, tick queue, scene join, Foundry pack loader |
+| `client/` | The parts that talk to the engine and bind its vocabulary to the scene tree: network client, canonical digest verifier, event bus, tick queue, scene join, event manifest, Foundry pack loader |
 | `stage/` | The rendered world: the dimetric harbour (`stage/iso/`), the light rig, the felt mixer and voice, the plaque HUD, the session that drives them |
 | `assets/dimetric/` | The town kit: ANDON, camera script, ground tiles, structures, props, `MANIFEST.json` |
 | `assets/characters/` | Vendored Foundry HD packs (townsfolk) |
 | `fixtures/` | A generated world and its wire-side truth, committed as a pair so the join between them can be checked |
 | `tools/` | The headless test runner, the screenshot tool, the play launcher, the sidecar harness |
-| `tests/` | Fourteen proof suites, each with a control that makes it fail |
+| `tests/` | Fifteen proof suites, each with a control that makes it fail |
 
 ## Running it
 

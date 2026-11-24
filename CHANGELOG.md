@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Engine event vocabulary manifest gate:** Added `client/event_manifest.json`
+  covering every event type in the pinned engine's exported
+  `ENGINE_EVENT_TYPES` (seeding the five `Session.RENDERED` types as `handled`
+  and the rest as `todo` expiring `2027-01-15`) plus
+  `fixtures/handled_events_replay.json`. `tests/test_event_manifest.gd` reads
+  `ENGINE_EVENT_TYPES` dynamically from the engine checkout, replays handled
+  fixtures against `Session` and `Diorama`, and fails on missing engine types,
+  unknown manifest entries, expired `todo`s, or silent `handled` handlers.
+
 - **Fallback rendering for unrendered simulation events:** `Session._present`
   now renders any event type outside `Session.RENDERED` as one transcript line
   in the distinct `[fallback]` style (`stage/session.gd`) naming the event type

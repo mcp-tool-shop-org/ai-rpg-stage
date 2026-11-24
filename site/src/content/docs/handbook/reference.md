@@ -63,6 +63,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 | Suite | Proves |
 |---|---|
 | `diorama` | the stage stands up; a re-dress swaps dressing and moves nothing; cast carries normal maps; eight facings bucket correctly; prose reaches the stage; the stage has no way to adjudicate a gate |
+| `event_manifest` | `client/event_manifest.json` covers every `ENGINE_EVENT_TYPES` entry dynamically from the pinned engine, rejects stale todos, and replays handled events against `fixtures/handled_events_replay.json` |
 | `fallback_rendering` | unrecognised event types emit one fallback transcript line with type and sorted payload keys; `RENDERED` types emit none |
 | `felt_juice` | `uiEffects` become killable camera offsets that never move a hashed node |
 | `felt_mixer` | cue ids route to buses; overlay stings do not kill the zone stem |
@@ -83,7 +84,7 @@ Exit 1 on a failed precondition, with the command that fixes it printed. Exit 0 
 
 | Path | Holds |
 |---|---|
-| `client/` | `network_client.gd`, `state_digest.gd`, `event_bus.gd`, `tick_queue.gd`, `scene_join.gd`, `framing.gd`, `foundry_pack.gd` |
+| `client/` | `network_client.gd`, `state_digest.gd`, `event_bus.gd`, `tick_queue.gd`, `scene_join.gd`, `event_manifest.json`, `framing.gd`, `foundry_pack.gd` |
 | `stage/` | `diorama.gd/.tscn`, `session.gd`, `playable.gd` (HUD + input), `light_rig.gd`, `dressing.gd`, `felt_*.gd`, `sprite_binder.gd` |
 | `stage/iso/` | `iso_math.gd`, `iso_world.gd`, `iso_structure.gd`, `iso_actor.gd`, `iso_prop.gd` |
 | `assets/dimetric/` | the town kit (see [The dimetric camera](../dimetric/)) |
