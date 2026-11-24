@@ -179,11 +179,14 @@ func _movement(t: RefCounted, bag: Dictionary, d: Node2D) -> void:
 			"the player's NODE is inside the zone the sim says they are in")
 
 	# At least one move was accepted — otherwise every clause below is about nothing.
+	var player_actor_id := String(session.call("player_id"))
 	var entered := 0
 	for r: Dictionary in (bag["walk_results"] as Array):
 		for ev: Variant in (r.get("events", []) as Array):
-			if ev is Dictionary and String((ev as Dictionary).get("type", "")) == "world.zone.entered":
-				entered += 1
+			if ev is Dictionary:
+				var ev_dict := ev as Dictionary
+				if String(ev_dict.get("type", "")) == "world.zone.entered" and String(ev_dict.get("actorId", "")) == player_actor_id:
+					entered += 1
 	t.check(entered > 0, "the player really moved through the sim", "entered %d zones" % entered)
 
 	var felt_audio := 0

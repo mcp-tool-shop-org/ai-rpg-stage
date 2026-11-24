@@ -157,7 +157,10 @@ recomputes the canonical state digest over its patched mirror and compares it
 with the engine's `canonicalHash`. On a mismatch it logs the first differing
 pre-image byte offset, requests a full authoritative snapshot, replaces its mirror,
 and verifies the snapshot's digest immediately; consecutive resyncs are capped at
-3 before play stops with a visible error. It never patches the sim.
+3 before play stops with a visible error. It never patches the sim. Only
+`world.zone.entered` events carrying a top-level `actorId` matching the session's
+resolved `playerId` move the player node, update `_player_zone`, and emit room
+arrival lines.
 
 A sidecar booted with `--content` still needs `--manifest`; the launcher passes
 `fixtures/salt-road.manifest.json`.

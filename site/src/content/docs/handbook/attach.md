@@ -101,7 +101,10 @@ faces the door and stays; it never left, so there is nothing to walk back.
 ## Fallback event rendering
 
 Events in `Session.RENDERED` (`world.zone.entered`, `world.zone.state.changed`, `world.zone.gate.refused`,
-`action.rejected`, `encounter.spawned`) drive bespoke scene and prose handlers. Any other simulation event
+`action.rejected`, `encounter.spawned`) drive bespoke scene and prose handlers. On `world.zone.entered`,
+`Session` gates player movement, `_player_zone`, room prose, and `zone_entered` on top-level
+`actorId == player_id()` (learned from the authoritative snapshot mirror or `initialize` handshake) so
+companion/follower zone entries or unattributed events without `actorId` never teleport the player node. Any other simulation event
 renders one transcript line in a distinct muted `[fallback]` style naming the event `type` and its sorted
 `payload` keys (an internal research report, 2026-11-24). Every type in the engine's `ENGINE_EVENT_TYPES`
 is tracked in `client/event_manifest.json` (`handled`, `no-visible-effect`, or dated `todo`) and checked

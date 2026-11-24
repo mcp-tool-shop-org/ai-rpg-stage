@@ -232,13 +232,15 @@ func _play_salt_road(
 		var failed_call := bool(result.get("__error__", false))
 		case_t.is_false(failed_call, "%s move %d (%s): play submit completes without wire error" % [label, move_no, kind])
 
+		var player_actor_id := String(session.call("player_id"))
 		var events: Array = result.get("events", []) as Array
 		var saw_entered := false
 		var saw_refused := false
 		for ev_v: Variant in events:
 			if ev_v is Dictionary:
-				var ev_type := String((ev_v as Dictionary).get("type", ""))
-				if ev_type == "world.zone.entered":
+				var ev_dict := ev_v as Dictionary
+				var ev_type := String(ev_dict.get("type", ""))
+				if ev_type == "world.zone.entered" and String(ev_dict.get("actorId", "")) == player_actor_id:
 					saw_entered = true
 				elif ev_type == "action.rejected" or ev_type == "world.zone.gate.refused":
 					saw_refused = true

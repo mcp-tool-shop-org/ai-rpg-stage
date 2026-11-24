@@ -76,7 +76,8 @@
     "expiry": "2027-01-15"
   },
   "world.zone.entered": {
-    "status": "handled"
+    "status": "handled",
+    "note": "Emitted when any actor enters a zone; moves the player node, updates _player_zone, logs room prose, and emits zone_entered only when top-level actorId matches the session playerId (non-player and missing-actorId events are ignored)."
   },
   "world.zone.gate.refused": {
     "status": "handled"
