@@ -11,8 +11,8 @@ sidebar:
 |---|---|---|
 | Godot | **4.7.x**, on `PATH` as `godot` | The project pins `4.7` in `project.godot`; CI refuses any other minor |
 | Node | 20+ | Only for `tools/play.mjs` (a process launcher) and for building the engine |
-| AI RPG Engine | a sibling checkout at `../ai-rpg-engine`, or `AI_RPG_ENGINE_DIR` | The simulation the stage attaches to |
-| World Forge | a sibling at `../world-forge` (optional) | Only to regenerate fixtures; the committed ones already work |
+| AI RPG Engine | **4.x**, a sibling checkout at `../ai-rpg-engine`, or `AI_RPG_ENGINE_DIR` | The simulation the stage attaches to |
+| World Forge | **5.x**, a sibling at `../world-forge` (optional; needs Node 22+) | Only to regenerate fixtures; the committed ones already work |
 | Python 3 + numpy + Pillow | any recent | Only for `verify.sh`'s plate re-gate and for authoring plates |
 
 Build the engine once:

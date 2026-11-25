@@ -146,5 +146,5 @@ flame's pixel position for the client's `PointLight2D`.
 
 ## Support
 
-`0.x`, no tagged release; `main` is the supported line. Godot 4.7.x on Windows, macOS, and Linux, run from
+`1.x`, released on GitHub; `main` is the supported line. Pairs with AI RPG Engine 4.x and World Forge 5.x. Godot 4.7.x on Windows, macOS, and Linux, run from
 source. Security policy and reporting contact: `SECURITY.md`. License: MIT.

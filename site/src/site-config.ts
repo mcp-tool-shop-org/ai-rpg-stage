@@ -9,7 +9,7 @@ export const config: SiteConfig = {
   footerText: 'MIT Licensed — built by <a href="https://mcp-tool-shop.github.io/" style="color:var(--color-muted);text-decoration:underline">MCP Tool Shop</a>',
 
   hero: {
-    badge: 'Godot 4.7 · 0.2.0 · open source',
+    badge: 'Godot 4.7 · 1.0.0 · open source',
     headline: 'A client that decides nothing.',
     headlineAccent: 'The simulation is the truth.',
     description:

@@ -36,8 +36,8 @@
 ## C. Operator Docs
 
 - [x] `[all]` README is current: what it does, install, usage, supported platforms + runtime versions (2026-09-21: Godot 4.7.x, keys, `play.mjs` flags, `verify.sh`, attach contract)
-- [x] `[all]` CHANGELOG.md (Keep a Changelog format) (2026-09-21, `[0.2.0]`; tag cut at release)
-- [x] `[all]` LICENSE file present and repo states support status (2026-09-21: MIT; README status line and SECURITY.md name `main` as the supported line, `0.x`)
+- [x] `[all]` CHANGELOG.md (Keep a Changelog format) (2026-11-25, `[1.0.0]`; tag cut at release)
+- [x] `[all]` LICENSE file present and repo states support status (2026-11-25: MIT; README status line names `main` as the supported line; SECURITY.md supports 1.x)
 - [ ] `[cli]` SKIP: not a CLI; `play.mjs` documents its flags in its header and in the README
 - [x] `[cli|mcp|desktop]` Logging levels defined: silent / normal / verbose / debug — secrets redacted at all levels (2026-09-21: normal = status line + log panel; verbose = Godot `--verbose`; the stage holds no secret to redact, stated in README)
 - [ ] `[mcp]` SKIP: not an MCP server
@@ -46,7 +46,7 @@
 ## D. Shipping Hygiene
 
 - [x] `[all]` `verify` script exists (test + build + smoke in one command) (2026-09-21: `./verify.sh` = import + headless suite + ANDON re-gate of every runtime plate + site build)
-- [ ] `[all]` SKIP: no git tag exists yet (the repo is `0.x` and the first tag is held by the Director). `project.godot` carries `config/version="0.2.0"`, which is the version `v0.2.0` will be cut from; `npx @mcptoolshop/shipcheck manifest` reports "skipped: no npm/pypi manifest". Re-check on the first tag.
+- [x] `[all]` Version in manifest matches git tag (2026-11-25: `project.godot` carries `config/version="1.0.0"`, which `v1.0.0` is cut from; the previous tag `v0.2.0` matched `0.2.0`. `npx @mcptoolshop/shipcheck manifest` reports "skipped: no npm/pypi manifest", so the check is by hand.)
 - [x] `[all]` Dependency scanning runs in CI (ecosystem-appropriate) — executed by `npx @mcptoolshop/shipcheck ci` (2026-09-21: the Godot project has no dependency manifest, which the gate reports as "no dependency manifest to scan"; the only dependency tree is `site/` (Astro), audited by `npm audit --audit-level=high` in `pages.yml` before every deploy)
 - [x] `[all]` No known high/critical vulnerabilities in any dependency tree, and Dependabot alerts are enabled — executed by `npx @mcptoolshop/shipcheck deps` (2026-09-21: `site/` audit clean at high; Dependabot alerts enabled on the repo)
 - [x] `[all]` Automated dependency **update** mechanism exists (2026-09-21: `.github/workflows/bump-upstream-pins.yml` proposes weekly bumps of the engine and forge SHAs the suite runs against; the site's npm tree is small and audited on every deploy instead of bot-bumped, per the org's CI-minutes rule)
