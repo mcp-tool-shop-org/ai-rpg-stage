@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- **Upstream pins at the engine 4.0.0 and World Forge 5.0.0 releases:**
+  `.github/upstream-pins.env` now pins AI RPG Engine v4.0.0 (`4a67c519`) and
+  World Forge v5.0.0 (`38ca0772`). CI regenerates `fixtures/world.tscn` and
+  `fixtures/pack.json` from them and runs every suite against the released pair.
+- **Site dependency audit:** refreshed `site/package-lock.json` (`npm audit fix`;
+  astro 7.4.13 with its sharp, source-map-js and undici updates) so the Pages
+  workflow's `npm audit --audit-level=high` step passes again. The site deploy
+  had failed on it since 2026-11-24.
+- **README status line without a version number:** the release version lives in
+  this changelog and on the site badge, so the README no longer changes on every
+  release. All eight languages; the Hindi line now says playable as in a game.
 - **Complete launcher flag list in README:** Documented every `tools/play.mjs`
   option (adding `--godot`, `--stage-headless`, and `--quit-after-sync`) in
   `README.md`.

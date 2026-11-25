@@ -26,7 +26,7 @@ Questa limitazione è il prodotto. Una simulazione deterministica il cui client 
 a indovinare è una simulazione con due verità, e la seconda si disallinea
 silenziosamente. Tutto qui è organizzato in modo che la scena non possa diventare la seconda verità.
 
-**Stato:** `0.2.0`: il mondo simulato è giocabile. `main` è la linea supportata. Godot **4.7**.
+**Stato:** il mondo simulato è giocabile. `main` è la linea supportata. Godot **4.7**.
 
 ## Cosa visualizza
 

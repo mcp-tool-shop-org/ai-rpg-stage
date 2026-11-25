@@ -27,7 +27,7 @@ That constraint is the product. A deterministic simulation whose client is allow
 to guess is a simulation with two truths, and the second one desynchronises
 quietly. Everything here is arranged so the stage cannot become the second truth.
 
-**Status:** `0.2.0` — the felt harbour is playable. `main` is the supported line. Godot **4.7**.
+**Status:** the felt harbour is playable. `main` is the supported line. Godot **4.7**.
 
 ## What it draws
 
