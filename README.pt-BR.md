@@ -27,7 +27,7 @@ Essa restrição é o produto. Uma simulação determinística cujo cliente tem 
 para adivinhar é uma simulação com duas verdades, e a segunda se dessincroniza
 silenciosamente. Tudo aqui está organizado de forma que o cenário não possa se tornar a segunda verdade.
 
-**Status:** `0.2.0` — o cenário simulado está jogável. `main` é a linha suportada. Godot **4.7**.
+**Status:** o porto sentido está jogável. `main` é a linha suportada. Godot **4.7**.
 
 ## O que ele desenha
 

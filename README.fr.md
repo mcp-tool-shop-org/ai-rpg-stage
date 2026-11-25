@@ -27,7 +27,7 @@ Cette contrainte est le produit. Une simulation déterministe dont le client est
 à deviner est une simulation qui a deux vérités, et la seconde se désynchronise
 discrètement. Tout ici est organisé de telle sorte que la scène ne puisse pas devenir la deuxième vérité.
 
-**État :** `0.2.0` — le port ressenti est jouable. `main` est la ligne prise en charge. Godot **4.7**.
+**État :** le port ressenti est jouable. `main` est la ligne prise en charge. Godot **4.7**.
 
 ## Ce qu’il affiche
 

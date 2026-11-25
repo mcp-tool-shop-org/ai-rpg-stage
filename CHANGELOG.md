@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-25
+
+**The stage pairs with AI RPG Engine 4.x and World Forge 5.x.** It checks each
+move the sim accepts against the authoritative state, runs the engine with
+`--unresolved-ai-profile fail` in debug and CI so an unknown AI profile is
+refused, draws a zone entry only for the player, and CI
+plays a 12-move cross-repo Salt Road route against the released engine and
+exporter. It still decides nothing: the simulation owns every rule and every
+zone.
+
+- **Handshake reports the real client version:** `NetworkClient.attach()` now
+  sends `clientVersion` from `application/config/version` in `project.godot`
+  (it sent a hard-coded `0.1.0`) unless a caller passes one.
+- **Salt Road manifest range:** `fixtures/salt-road.manifest.json` declares
+  `engineVersion` `>=4.0.0 <5.0.0` (it said `>=3.8.0`), matching the range
+  World Forge 5.x exports.
+- **Upstream pins at the engine 4.0.0 and World Forge 5.0.0 releases:**
+  `.github/upstream-pins.env` now pins AI RPG Engine v4.0.0 (`4a67c519`) and
+  World Forge v5.0.0 (`38ca0772`). CI regenerates `fixtures/world.tscn` and
+  `fixtures/pack.json` from them and runs every suite against the released pair.
+- **Site dependency audit:** refreshed `site/package-lock.json` (`npm audit fix`;
+  astro 7.4.13 with its sharp, source-map-js and undici updates) so the Pages
+  workflow's `npm audit --audit-level=high` step passes again. The site deploy
+  had failed on it since 2026-11-24.
+- **README status line without a version number:** the release version lives in
+  this changelog and on the site badge, so the README no longer changes on every
+  release. All eight languages; the Hindi line now says playable as in a game.
 - **Complete launcher flag list in README:** Documented every `tools/play.mjs`
   option (adding `--godot`, `--stage-headless`, and `--quit-after-sync`) in
   `README.md`.

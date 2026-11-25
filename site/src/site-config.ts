@@ -9,7 +9,7 @@ export const config: SiteConfig = {
   footerText: 'MIT Licensed — built by <a href="https://mcp-tool-shop.github.io/" style="color:var(--color-muted);text-decoration:underline">MCP Tool Shop</a>',
 
   hero: {
-    badge: 'Godot 4.7 · 0.2.0 · open source',
+    badge: 'Godot 4.7 · 1.0.0 · open source',
     headline: 'A client that decides nothing.',
     headlineAccent: 'The simulation is the truth.',
     description:
@@ -48,7 +48,7 @@ export const config: SiteConfig = {
         },
         {
           title: 'Proofs with controls',
-          desc: 'Eleven headless suites, each with a fixture or control that makes it fail. A test that asserts nothing fails. A filter that matches nothing fails.',
+          desc: 'Seventeen headless suites, each with a fixture or control that makes it fail. A test that asserts nothing fails. A filter that matches nothing fails.',
         },
         {
           title: 'One outbound socket',
@@ -75,7 +75,7 @@ export const config: SiteConfig = {
         },
         {
           title: 'Attach by hand',
-          code: '# a sidecar you started yourself\ngodot --path . -- --attach=127.0.0.1:47820\n\n# the stage requests capabilities.hashes + capabilities.audio\n# and reports [stale] ... when the sim disagrees',
+          code: '# a sidecar you started yourself\ngodot --path . -- --attach=127.0.0.1:47820\n\n# the stage requests capabilities.hashes, canonicalHashes and audio\n# and reports [stale] ... when the sim disagrees',
         },
       ],
     },

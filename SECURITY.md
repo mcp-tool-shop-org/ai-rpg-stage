@@ -4,9 +4,10 @@
 
 | Version | Supported |
 |---------|-----------|
-| `main`  | Yes       |
+| 1.x     | Yes       |
+| < 1.0   | No        |
 
-This repository has no tagged releases yet; `main` is the supported line.
+Fixes land on `main` and ship in the next 1.x release.
 
 ## Reporting a Vulnerability
 
@@ -15,7 +16,7 @@ Email: **64996768+mcp-tool-shop@users.noreply.github.com**
 Include:
 - Description of the vulnerability
 - Steps to reproduce
-- Commit affected
+- Version or commit affected
 - Potential impact
 
 Please report privately rather than opening a public issue.

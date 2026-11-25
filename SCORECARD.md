@@ -47,3 +47,17 @@ tag row, which re-checks on the first tag.
 
 Open, and deliberately so: no structured `code` on the stage's own notices, and no export preset —
 the stage runs from source under Godot 4.7 until an export is a release decision.
+
+## Release check (1.0.0, 2026-11-25)
+
+`npx @mcptoolshop/shipcheck audit`: **21 checked, 0 unchecked, 18 SKIP, 100%** — all hard gates pass.
+The tag row is now checked: `config/version="1.0.0"` is what `v1.0.0` is cut from.
+
+| Category | Score | What changed since 0.2.0 |
+|----------|-------|--------------------------|
+| A. Security | 10/10 | SECURITY.md supports 1.x; the site's dependency audit passes again (it had failed since 2026-11-24). |
+| B. Error Handling | 8/10 | Unchanged; the stage's own notices still carry no `code` field. |
+| C. Operator Docs | 10/10 | Handbook names the pairing (engine 4.x, World Forge 5.x); the README status line no longer carries a version. |
+| D. Shipping Hygiene | 10/10 | Version matches the tag; CI runs seventeen suites, including the cross-repo Salt Road play suite, against the pinned engine v4.0.0 and World Forge v5.0.0. |
+| E. Identity | 10/10 | Unchanged. |
+| **Overall** | **48/50** | |

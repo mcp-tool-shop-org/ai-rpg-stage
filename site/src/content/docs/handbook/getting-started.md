@@ -11,8 +11,8 @@ sidebar:
 |---|---|---|
 | Godot | **4.7.x**, on `PATH` as `godot` | The project pins `4.7` in `project.godot`; CI refuses any other minor |
 | Node | 20+ | Only for `tools/play.mjs` (a process launcher) and for building the engine |
-| AI RPG Engine | a sibling checkout at `../ai-rpg-engine`, or `AI_RPG_ENGINE_DIR` | The simulation the stage attaches to |
-| World Forge | a sibling at `../world-forge` (optional) | Only to regenerate fixtures; the committed ones already work |
+| AI RPG Engine | **4.x**, a sibling checkout at `../ai-rpg-engine`, or `AI_RPG_ENGINE_DIR` | The simulation the stage attaches to |
+| World Forge | **5.x**, a sibling at `../world-forge` (needs Node 22+) | `tools/play.mjs`, `verify.sh` and the live Salt Road suites need the pack World Forge exports (`--forge <dir>` for `play.mjs`, `SALT_ROAD_PACK` for the suites); offline `--only=<suite>` runs such as `scene_join` use the committed fixtures |
 | Python 3 + numpy + Pillow | any recent | Only for `verify.sh`'s plate re-gate and for authoring plates |
 
 Build the engine once:
@@ -91,7 +91,7 @@ godot --headless --path . --script res://tools/headless.gd -- --only=iso_world
 
 Suites that need a live simulation (`live_session`, `wire_session`) resolve the engine from
 `AI_RPG_ENGINE_DIR` or the sibling checkout and skip with a named reason when neither exists. CI checks
-that all eleven suites actually ran, so a renamed test file is a red build rather than a silent shrink.
+that all seventeen suites actually ran, so a renamed test file is a red build rather than a silent shrink.
 
 ## Take a screenshot
 
