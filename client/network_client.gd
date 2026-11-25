@@ -131,7 +131,7 @@ func _process(_delta: float) -> void:
 
 ## Connect and complete the handshake. Returns the server's `initialize` result, or
 ## an empty Dictionary on failure (with the reason already on the bus).
-func attach(host: String, port: int, client_name := "ai-rpg-stage", client_version := "0.1.0") -> Dictionary:
+func attach(host: String, port: int, client_name := "ai-rpg-stage", client_version := "") -> Dictionary:
 	_last_attach_error = ""
 	_closing_reason = ""
 	_handshake = {}
@@ -177,7 +177,7 @@ func attach(host: String, port: int, client_name := "ai-rpg-stage", client_versi
 
 	var result: Dictionary = await request(METHOD_INITIALIZE, {
 		"clientName": client_name,
-		"clientVersion": client_version,
+		"clientVersion": client_version if not client_version.is_empty() else str(ProjectSettings.get_setting("application/config/version")),
 		# Request canonicalHashes (digest_spec_version == 2) so the stage can recompute
 		# and verify every tick's digest against its delta-maintained mirror.
 		"capabilities": {

@@ -27,7 +27,7 @@ Esa restricción es el producto. Una simulación determinista cuyo cliente puede
 adivinar es una simulación con dos verdades, y la segunda se desincroniza
 silenciosamente. Todo aquí está organizado de tal manera que el escenario no puede convertirse en la segunda verdad.
 
-**Estado:** el puerto simulado es jugable. `main` es la línea compatible. Godot **4.7**.
+**Estado:** el puerto sentido es jugable. `main` es la línea compatible. Godot **4.7**.
 
 ## Lo que muestra
 

@@ -10,12 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [1.0.0] - 2026-11-25
 
 **The stage pairs with AI RPG Engine 4.x and World Forge 5.x.** It checks each
-move the sim accepts against the authoritative state, refuses an AI profile it
-cannot resolve in debug and CI, draws a zone entry only for the player, and CI
+move the sim accepts against the authoritative state, runs the engine with
+`--unresolved-ai-profile fail` in debug and CI so an unknown AI profile is
+refused, draws a zone entry only for the player, and CI
 plays a 12-move cross-repo Salt Road route against the released engine and
 exporter. It still decides nothing: the simulation owns every rule and every
 zone.
 
+- **Handshake reports the real client version:** `NetworkClient.attach()` now
+  sends `clientVersion` from `application/config/version` in `project.godot`
+  (it sent a hard-coded `0.1.0`) unless a caller passes one.
+- **Salt Road manifest range:** `fixtures/salt-road.manifest.json` declares
+  `engineVersion` `>=4.0.0 <5.0.0` (it said `>=3.8.0`), matching the range
+  World Forge 5.x exports.
 - **Upstream pins at the engine 4.0.0 and World Forge 5.0.0 releases:**
   `.github/upstream-pins.env` now pins AI RPG Engine v4.0.0 (`4a67c519`) and
   World Forge v5.0.0 (`38ca0772`). CI regenerates `fixtures/world.tscn` and

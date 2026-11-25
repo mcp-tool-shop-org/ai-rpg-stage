@@ -46,8 +46,8 @@
     "81565742819d9e9a:es": {
       "lang": "es",
       "source": "**Status:** the felt harbour is playable. `main` is the supported line. Godot **4.7**.",
-      "translation": "**Estado:** el puerto simulado es jugable. `main` es la línea compatible. Godot **4.7**.",
-      "pinnedAt": "2026-11-25T17:07:09.601Z"
+      "translation": "**Estado:** el puerto sentido es jugable. `main` es la línea compatible. Godot **4.7**.",
+      "pinnedAt": "2026-11-25T17:30:29.000Z"
     },
     "81565742819d9e9a:fr": {
       "lang": "fr",
@@ -64,20 +64,14 @@
     "81565742819d9e9a:it": {
       "lang": "it",
       "source": "**Status:** the felt harbour is playable. `main` is the supported line. Godot **4.7**.",
-      "translation": "**Stato:** il mondo simulato è giocabile. `main` è la linea supportata. Godot **4.7**.",
-      "pinnedAt": "2026-11-25T17:07:09.604Z"
+      "translation": "**Stato:** il porto percepito è giocabile. `main` è la linea supportata. Godot **4.7**.",
+      "pinnedAt": "2026-11-25T17:30:29.000Z"
     },
     "81565742819d9e9a:ja": {
       "lang": "ja",
       "source": "**Status:** the felt harbour is playable. `main` is the supported line. Godot **4.7**.",
-      "translation": "**ステータス:** 体感できる港はプレイ可能である。`main`はサポートされているバージョンである。Godot **4.7**。",
-      "pinnedAt": "2026-11-25T17:07:09.604Z"
-    },
-    "81565742819d9e9a:pt-br": {
-      "lang": "pt-br",
-      "source": "**Status:** the felt harbour is playable. `main` is the supported line. Godot **4.7**.",
-      "translation": "**Status:** o cenário simulado está jogável. `main` é a linha suportada. Godot **4.7**.",
-      "pinnedAt": "2026-11-25T17:07:09.604Z"
+      "translation": "**ステータス:** 体感できる港はプレイ可能である。`main`はサポートされているラインである。Godot **4.7**。",
+      "pinnedAt": "2026-11-25T17:30:29.000Z"
     },
     "81565742819d9e9a:zh": {
       "lang": "zh",
@@ -138,6 +132,12 @@
       "source": "**CI triggers and path filters.** GitHub Actions gates runs on watched project\npaths (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`,\n`fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`,\n`.github/upstream-pins.env`, `atlas/**`) and skips `pull_request` jobs from\nsame-repository branches because the matching `push` run tests that commit.\nBecause `on.push.paths` inspects only the pushed range (`before..after`) while\n`on.pull_request.paths` inspects the whole PR diff (`base...head`), a same-repo\nPR with earlier watched commits leaves its tip SHA without a `headless` run\nafter either (1) an unwatched-only follow-up commit (`README.md`,\n`CHANGELOG.md`, `site/**`, docs) or (2) a commit-message-only or unwatched-only\n`--amend` force-push — the watched edits already ran on push, run again on\nmerge to `main` (`main^..main`), or can be run via `workflow_dispatch`. On\n`main`, job concurrency keeps one running job plus at most one pending job\n(`cancel-in-progress: false`), so two quick merges both run while a third merge\nbefore the first finishes supersedes the queued second whose tree it includes.",
       "translation": "**Gatilhos de CI e filtros de caminho.** O GitHub Actions restringe as execuções aos caminhos de projeto monitorados (`project.godot`, `client/**`, `stage/**`, `tools/**`, `tests/**`, `fixtures/**`, `entities/**`, `transitions/**`, `assets/**`, `.github/workflows/**`, `.github/upstream-pins.env`, `atlas/**`) e ignoram `pull_request` tarefas de ramos do mesmo repositório porque a execução de `push` correspondente testa esse commit.\nComo `on.push.paths` inspeciona apenas o intervalo enviado (`before..after`), enquanto `on.pull_request.paths` inspeciona toda a diferença do PR (`base...head`), um PR do mesmo repositório com commits monitorados anteriores deixa seu SHA no final sem uma execução `headless` após (1) um commit de acompanhamento contendo apenas arquivos não monitorados (`README.md`, `CHANGELOG.md`, `site/**`, docs) ou (2) um envio forçado `--amend` que contém apenas a mensagem do commit ou que não foi monitorado — as edições monitoradas já foram executadas no envio, são executadas novamente na mesclagem para `main` (`main^..main`) ou podem ser executadas por meio de `workflow_dispatch`. Em `main`, a concorrência de tarefas mantém uma tarefa em execução mais, no máximo, uma tarefa pendente (`cancel-in-progress: false`), portanto, duas mesclagens rápidas são ambas executadas, enquanto uma terceira mesclagem antes que a primeira termine substitui a segunda, que estava na fila e cujo árvore está incluída.",
       "pinnedAt": "2026-11-24T20:18:51.150Z"
+    },
+    "81565742819d9e9a:pt": {
+      "lang": "pt",
+      "source": "**Status:** the felt harbour is playable. `main` is the supported line. Godot **4.7**.",
+      "translation": "**Status:** o porto sentido está jogável. `main` é a linha suportada. Godot **4.7**.",
+      "pinnedAt": "2026-11-25T17:30:29.000Z"
     }
   }
 }

@@ -48,7 +48,7 @@ export const config: SiteConfig = {
         },
         {
           title: 'Proofs with controls',
-          desc: 'Eleven headless suites, each with a fixture or control that makes it fail. A test that asserts nothing fails. A filter that matches nothing fails.',
+          desc: 'Seventeen headless suites, each with a fixture or control that makes it fail. A test that asserts nothing fails. A filter that matches nothing fails.',
         },
         {
           title: 'One outbound socket',
@@ -75,7 +75,7 @@ export const config: SiteConfig = {
         },
         {
           title: 'Attach by hand',
-          code: '# a sidecar you started yourself\ngodot --path . -- --attach=127.0.0.1:47820\n\n# the stage requests capabilities.hashes + capabilities.audio\n# and reports [stale] ... when the sim disagrees',
+          code: '# a sidecar you started yourself\ngodot --path . -- --attach=127.0.0.1:47820\n\n# the stage requests capabilities.hashes, canonicalHashes and audio\n# and reports [stale] ... when the sim disagrees',
         },
       ],
     },
